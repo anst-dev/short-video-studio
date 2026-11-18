@@ -1,0 +1,130 @@
+[
+  {
+    "id": "c00",
+    "target_t0": 0.7,
+    "max_dur": 8.0,
+    "speed": 1.06,
+    "sub": "Chào anh Nguyễn Đăng Chung! Sinh năm 1981 và chưa từng dùng AI bao giờ lại chính là một lợi thế lớn.",
+    "say": "Chào anh Nguyễn Đăng Chung. Sinh năm một chín tám mốt và chưa từng dùng AI bao giờ thực ra lại là một lợi thế rất lớn, vì anh đã quen giao việc ngoài đời thực."
+  },
+  {
+    "id": "c01",
+    "target_t0": 9.1,
+    "max_dur": 8.2,
+    "speed": 1.06,
+    "sub": "Người mới thường lúng túng vì chỉ gõ câu ngắn như “Tạo trợ lý viết email” hay “Hãy tóm tắt báo cáo”.",
+    "say": "Người mới mở AI thường lúng túng, chỉ gõ một câu rất ngắn như tạo trợ lý viết thư điện tử, hoặc hãy tóm tắt báo cáo, khiến kết quả trả về rất chung chung."
+  },
+  {
+    "id": "c02",
+    "target_t0": 17.8,
+    "max_dur": 8.0,
+    "speed": 1.06,
+    "sub": "Với System Prompt Architect, anh chỉ cần gõ đúng 1 câu ngắn đó! Nó KHÔNG làm hộ việc lẻ, mà thiết kế cho anh cả một Trợ lý AI chuyên biệt.",
+    "say": "Với công cụ Kiến trúc sư System Prompt này, anh Chung chỉ cần gõ đúng một câu ngắn đó. Nó tuyệt đối không làm hộ việc lẻ, mà thiết kế cho anh cả một trợ lý AI chuyên biệt."
+  },
+  {
+    "id": "c03",
+    "target_t0": 26.5,
+    "max_dur": 8.0,
+    "speed": 1.06,
+    "sub": "Khi nhận câu yêu cầu thô của anh Chung, Kiến trúc sư AI âm thầm chạy quy trình 9 bước chuẩn hóa.",
+    "say": "Ngay khi nhận câu yêu cầu thô của anh Chung, Kiến trúc sư AI sẽ âm thầm kích hoạt quy trình chín bước chuẩn hóa ở hậu trường."
+  },
+  {
+    "id": "c04",
+    "target_t0": 35.1,
+    "max_dur": 8.5,
+    "speed": 1.06,
+    "sub": "Bước 1 đến Bước 4: Tự xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và tự suy luận thông tin hợp lý — không hỏi vặn lại!",
+    "say": "Từ bước một đến bước bốn, nó tự xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và tự suy luận phương án hợp lý nhất mà không hỏi vặn lại anh."
+  },
+  {
+    "id": "c05",
+    "target_t0": 44.1,
+    "max_dur": 7.8,
+    "speed": 1.06,
+    "sub": "Bước 5 & Bước 6: Phần dữ liệu anh sẽ nạp sau được đặt vào ô giữ chỗ như {{NỘI_DUNG_CẦN_XỬ_LÝ}}, {{MỤC_TIÊU}}, {{DỮ_LIỆU_ĐẦU_VÀO}}.",
+    "say": "Ở bước năm và bước sáu, những dữ liệu anh sẽ điền sau được đặt sẵn vào các biến giữ chỗ như nội dung cần xử lý, mục tiêu, hoặc dữ liệu đầu vào."
+  },
+  {
+    "id": "c06",
+    "target_t0": 52.4,
+    "max_dur": 6.0,
+    "speed": 1.06,
+    "sub": "Bước 7 đến Bước 9: Lắp ráp đủ 6 phần và tự chấm 8 câu hỏi kiểm định chất lượng trước khi xuất ra màn hình.",
+    "say": "Từ bước bảy đến bước chín, nó lắp ráp đủ sáu phần và tự kiểm định qua tám câu hỏi chất lượng trước khi xuất kết quả ra màn hình."
+  },
+  {
+    "id": "c07",
+    "target_t0": 58.8,
+    "max_dur": 7.8,
+    "speed": 1.06,
+    "sub": "Kết quả đầu tiên anh Chung nhận được là toàn bộ SYSTEM PROMPT nằm gọn trong một khung Code Block duy nhất, chia đúng 6 phần:",
+    "say": "Kết quả đầu tiên anh Chung nhận được là toàn bộ bản thiết kế trợ lý nằm gọn trong một khung mã duy nhất, chia làm sáu phần rõ rệt."
+  },
+  {
+    "id": "c08",
+    "target_t0": 67.1,
+    "max_dur": 8.0,
+    "speed": 1.06,
+    "sub": "Phần 1 (IDENTITY) & Phần 2 (AUDIENCE): Định danh trợ lý là chuyên gia bao nhiêu năm kinh nghiệm và phục vụ đúng công việc của anh.",
+    "say": "Phần một và phần hai định danh rõ trợ lý là chuyên gia có bao nhiêu năm kinh nghiệm, và phục vụ chính xác bối cảnh công việc của anh."
+  },
+  {
+    "id": "c09",
+    "target_t0": 75.6,
+    "max_dur": 7.0,
+    "speed": 1.06,
+    "sub": "Phần 3 (CAPABILITIES) & Phần 4 (WORKFLOW): Liệt kê 5–10 năng lực cụ thể và quy trình làm việc từng bước mạch lạc.",
+    "say": "Phần ba và phần bốn liệt kê từ năm đến mười năng lực cụ thể, kèm quy trình làm việc từng bước mạch lạc."
+  },
+  {
+    "id": "c10",
+    "target_t0": 83.1,
+    "max_dur": 5.5,
+    "speed": 1.06,
+    "sub": "Phần 5 (OUTPUT FORMAT) & Phần 6 (RULES): Khóa chặt định dạng kết quả đầu ra và hàng rào kỷ luật.",
+    "say": "Phần năm và phần sáu khóa chặt định dạng kết quả đầu ra cùng hàng rào kỷ luật khi làm việc."
+  },
+  {
+    "id": "c11",
+    "target_t0": 89.5,
+    "max_dur": 8.0,
+    "speed": 1.06,
+    "sub": "Ngay dưới khung Prompt là mục GIẢI THÍCH NGẮN gồm tối đa 5 ý giúp anh hiểu rõ vì sao trợ lý được thiết kế như vậy.",
+    "say": "Ngay bên dưới khung mã là mục giải thích ngắn gồm tối đa năm ý, giúp anh hiểu rõ vì sao trợ lý lại được thiết kế như vậy."
+  },
+  {
+    "id": "c12",
+    "target_t0": 98.1,
+    "max_dur": 8.5,
+    "speed": 1.06,
+    "sub": "Kèm theo mục KNOWLEDGE BASE GỢI Ý: Chỉ rõ 5 tài liệu thực tế anh nên đính kèm như quy trình nội bộ, mẫu báo cáo chuẩn hay danh mục sản phẩm.",
+    "say": "Tiếp theo là mục gợi ý kho tri thức, chỉ rõ năm loại tài liệu thực tế anh nên đính kèm như quy trình nội bộ, mẫu chuẩn hay danh mục sản phẩm."
+  },
+  {
+    "id": "c13",
+    "target_t0": 107.1,
+    "max_dur": 9.5,
+    "speed": 1.06,
+    "sub": "Đặc biệt, quy tắc chống ảo giác bắt buộc trợ lý phân biệt rõ dữ liệu có sẵn và giả định — tuân thủ Less is More, không rườm rà, đạt chuẩn OKR 9/10!",
+    "say": "Đặc biệt, quy tắc chống bịa đặt luôn bắt buộc trợ lý phân biệt rõ dữ liệu có sẵn với giả định, ngắn gọn súc tích, hướng tới điểm chất lượng chín trên mười."
+  },
+  {
+    "id": "c14",
+    "target_t0": 118.5,
+    "max_dur": 9.5,
+    "speed": 1.06,
+    "sub": "Để bắt đầu ngay hôm nay, anh Chung chỉ cần làm đúng 3 bước: Một, gõ mong muốn ngắn gọn vào dòng {{NHẬP YÊU CẦU VỀ TRỢ LÝ MUỐN TẠO TẠI ĐÂY}}.",
+    "say": "Để bắt đầu ngay hôm nay, anh Chung chỉ cần làm đúng ba bước: Bước một, gõ mong muốn ngắn gọn vào dòng nhập yêu cầu ở cuối bản mẫu."
+  },
+  {
+    "id": "c15",
+    "target_t0": 128.6,
+    "max_dur": 12.0,
+    "speed": 1.06,
+    "sub": "Hai, bấm Copy khung System Prompt 6 phần. Ba, dán vào Gemini Gem hoặc Custom GPT — anh đã có ngay trợ lý AI đắc lực của riêng mình!",
+    "say": "Bước hai, bấm sao chép khung System Prompt sáu phần vừa hiện ra. Bước ba, dán vào Gemini hoặc Chat G P T, anh đã có ngay một trợ lý AI đắc lực của riêng mình."
+  }
+]

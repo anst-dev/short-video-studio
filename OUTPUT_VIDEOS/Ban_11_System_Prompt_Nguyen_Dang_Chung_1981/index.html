@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Quy Trình System Prompt Architect — Học Viên Nguyễn Đăng Chung (1981) — Mascot Screencast</title>
+<style>
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Medium.ttf') format('truetype'); font-weight: 500; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Bold.ttf') format('truetype'); font-weight: 600 700; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-ExtraBold.ttf') format('truetype'); font-weight: 800 900; }
+@font-face { font-family: 'Inter'; src: url('./fonts/Inter-var.ttf') format('truetype'); font-weight: 100 900; }
+@font-face { font-family: 'JBMono'; src: url('./fonts/JetBrainsMono-var.ttf') format('truetype'); font-weight: 100 800; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #EAE3D5; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+const W = 1920, H = 1080;
+const cv = document.getElementById('c');
+const g = cv.getContext('2d');
+const Q = new URLSearchParams(location.search);
+const NOSUB = Q.get('nosub') === '1' || Q.has('nosubs');
+
+let VO = [];
+let DUR = 141.0;
+window.DUR = DUR;
+
+// Math & Easing helpers
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (t, t0, t1) => clamp((t - t0) / Math.max(1e-5, t1 - t0));
+const eo = x => 1 - Math.pow(1 - clamp(x), 3);
+const eio = x => { const u = clamp(x); return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; };
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+function rrect(ctx, x, y, w, h, r) {
+  const rad = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rad, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rad);
+  ctx.arcTo(x + w, y + h, x, y + h, rad);
+  ctx.arcTo(x, y + h, x, y, rad);
+  ctx.arcTo(x, y, x + w, y, rad);
+  ctx.closePath();
+}
+
+function fillRRect(ctx, x, y, w, h, r, fill, stroke = null, lw = 1) {
+  rrect(ctx, x, y, w, h, r);
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw; ctx.stroke(); }
+}
+
+function wrapWords(ctx, text, maxW) {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && cur) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = test;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// 18x10 Square-Pixel Mascot Sprite Grid (STYLE.md §1, §2, §5)
+const CLAY = '#D97757', CLAY_D = '#B85F40', EYE = '#2A2622';
+function mascotGrid({ eyes = 'n', arms = 'down', legs = 'stand' } = {}) {
+  const P = new Map(), put = (c, r, v = 1) => P.set(c + ',' + r, v);
+  for (let c = 2; c <= 15; c++) put(c, 0, 3);
+  for (let c = 4; c <= 13; c++) put(c, -1, 3);
+  for (let r = 1; r < 8; r++) for (let c = 3; c <= 14; c++) put(c, r, 1);
+  if (arms === 'up') {
+    for (const r of [0, 1, 2, 3]) { put(1, r, 1); put(2, r, 1); put(15, r, 1); put(16, r, 1); }
+  } else if (arms === 'wave') {
+    for (const r of [4, 5]) { put(1, r, 1); put(2, r, 1); }
+    for (const r of [0, 1, 2, 3]) { put(15, r, 1); put(16, r, 1); }
+  } else {
+    for (const r of [4, 5]) for (const c of [1, 2, 15, 16]) put(c, r, 1);
+  }
+  const L = {
+    stand: [[4, 2], [6, 2], [11, 2], [13, 2]],
+    walkA: [[4, 2], [6, 1], [11, 2], [13, 1]],
+    walkB: [[4, 1], [6, 2], [11, 1], [13, 2]],
+    tuck: [[4, 1], [6, 1], [11, 1], [13, 1]],
+  }[legs] || [[4, 2], [6, 2], [11, 2], [13, 2]];
+  for (const [c, h] of L) for (let r = 8; r < 8 + h; r++) put(c, r, 1);
+  const E = {
+    n: [[5, 3], [5, 4], [12, 3], [12, 4]],
+    r: [[6, 3], [6, 4], [13, 3], [13, 4]],
+    l: [[4, 3], [4, 4], [11, 3], [11, 4]],
+    u: [[5, 2], [5, 3], [12, 2], [12, 3]],
+    d: [[5, 4], [5, 5], [12, 4], [12, 5]],
+    blink: [[5, 4], [12, 4]],
+    happy: [[4, 4], [5, 3], [6, 4], [11, 4], [12, 3], [13, 4]],
+    wide: [[5, 2], [5, 3], [5, 4], [12, 2], [12, 3], [12, 4]],
+  }[eyes] || [[5, 3], [5, 4], [12, 3], [12, 4]];
+  for (const [c, r] of E) put(c, r, 2);
+  return [...P].map(([k, v]) => { const [c, r] = k.split(',').map(Number); return [c, r, v]; });
+}
+
+function drawMascot(ctx, { x, y, px = 5.4, flip = false, sq = 0, eyes = 'n', arms = 'down', legs = 'stand', pencil = false, badge = '' }) {
+  const sx = Math.round(x * 2) / 2;
+  const sy = Math.round(y * 2) / 2;
+  const scaleY = 1 - sq;
+  const scaleX = 1 + sq * 0.65;
+  const pw = px * scaleX;
+  const ph = px * scaleY;
+  const totalW = 18 * pw;
+  const totalH = 10 * ph;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(28, 24, 18, 0.22)';
+  ctx.beginPath();
+  ctx.ellipse(sx, sy - 1, 7.2 * px, 1.3 * px, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const ox = sx - totalW / 2;
+  const oy = sy - totalH;
+  const cells = mascotGrid({ eyes, arms, legs });
+  for (let [c, r, v] of cells) {
+    if (flip) c = 17 - c;
+    ctx.fillStyle = v === 2 ? EYE : (v === 3 ? '#F2B84B' : CLAY);
+    ctx.fillRect(Math.round(ox + c * pw), Math.round(oy + r * ph), Math.ceil(pw), Math.ceil(ph));
+  }
+  ctx.fillStyle = CLAY_D;
+  for (let c = 3; c <= 14; c++) {
+    const cc = flip ? 17 - c : c;
+    ctx.fillRect(Math.round(ox + cc * pw), Math.round(oy + 7 * ph), Math.ceil(pw), Math.ceil(ph));
+  }
+
+  if (pencil) {
+    const px0 = flip ? ox - 4 * px : ox + totalW + 1 * px;
+    const py0 = oy + 2 * ph;
+    const pRows = ['..kk', '.yyk', 'yyy.', 'py..'];
+    const pal = { k: '#2A2622', y: '#F2C14E', p: '#E0543A' };
+    pRows.forEach((row, r) => [...row].forEach((ch, c) => {
+      if (pal[ch]) {
+        ctx.fillStyle = pal[ch];
+        ctx.fillRect(Math.round(px0 + c * (px * 0.85)), Math.round(py0 + r * (px * 0.85)), Math.ceil(px * 0.9), Math.ceil(px * 0.9));
+      }
+    }));
+  }
+
+  if (badge) {
+    ctx.font = '700 12px "JBMono"';
+    const bw = ctx.measureText(badge).width + 18;
+    const bx = clamp(sx - bw / 2, 90, W - 90 - bw);
+    const by = oy - 28;
+    fillRRect(ctx, bx, by, bw, 22, 6, '#2A2622', '#F2B84B', 1.8);
+    ctx.fillStyle = '#FFF8F0';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badge, bx + bw / 2, by + 11);
+  }
+  ctx.restore();
+}
+
+function drawCursor(ctx, x, y, clickP = 0, label = '') {
+  ctx.save();
+  if (clickP > 0 && clickP < 1) {
+    const r = 10 + 28 * eo(clickP);
+    ctx.strokeStyle = `rgba(217, 119, 87, ${(1 - clickP) * 0.85})`;
+    ctx.lineWidth = 2.8;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.translate(x, y);
+  const sc = 1 - 0.14 * Math.sin(clamp(clickP) * Math.PI);
+  ctx.scale(sc, sc);
+  ctx.shadowColor = 'rgba(0,0,0,0.28)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(0, 26);
+  ctx.lineTo(6.5, 20);
+  ctx.lineTo(11, 29.5);
+  ctx.lineTo(15.2, 27.5);
+  ctx.lineTo(10.8, 18);
+  ctx.lineTo(19.5, 18);
+  ctx.closePath();
+  ctx.fillStyle = '#181715';
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.stroke();
+
+  if (label) {
+    ctx.shadowBlur = 0;
+    ctx.font = '600 12.5px "BeVietnamPro"';
+    const lw = ctx.measureText(label).width + 16;
+    fillRRect(ctx, 18, 20, lw, 22, 6, '#D97757');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, 26, 31);
+  }
+  ctx.restore();
+}
+
+let CH = [
+  { no: '01', nm: 'ĐỊNH VỊ VAI TRÒ KIẾN TRÚC SƯ', t0: 0.0, t1: 26.0 },
+  { no: '02', nm: 'HẬU TRƯỜNG QUY TRÌNH 9 BƯỚC', t0: 26.0, t1: 58.2 },
+  { no: '03', nm: 'KHỐI CODE BLOCK 6 PHẦN BẤT BIẾN', t0: 58.2, t1: 88.8 },
+  { no: '04', nm: 'GIẢI THÍCH, KHO TRI THỨC & LUẬT THÉP', t0: 88.8, t1: 117.8 },
+  { no: '05', nm: '3 BƯỚC THỰC HÀNH CHO ANH CHUNG', t0: 117.8, t1: 144.0 },
+];
+
+function syncChaptersWithVO(voList) {
+  if (!voList || voList.length < 16) return;
+  const cEnd = i => voList[i].t1;
+  const cStart = i => voList[i].t0;
+  const s1 = (cEnd(2) + cStart(3)) / 2;
+  const s2 = (cEnd(6) + cStart(7)) / 2;
+  const s3 = (cEnd(10) + cStart(11)) / 2;
+  const s4 = (cEnd(13) + cStart(14)) / 2;
+  DUR = 141.0;
+  window.DUR = DUR;
+  CH = [
+    { no: '01', nm: 'ĐỊNH VỊ VAI TRÒ KIẾN TRÚC SƯ', t0: 0.0, t1: s1 },
+    { no: '02', nm: 'HẬU TRƯỜNG QUY TRÌNH 9 BƯỚC', t0: s1, t1: s2 },
+    { no: '03', nm: 'KHỐI CODE BLOCK 6 PHẦN BẤT BIẾN', t0: s2, t1: s3 },
+    { no: '04', nm: 'GIẢI THÍCH, KHO TRI THỨC & LUẬT THÉP', t0: s3, t1: s4 },
+    { no: '05', nm: '3 BƯỚC THỰC HÀNH CHO ANH CHUNG', t0: s4, t1: DUR },
+  ];
+  buildEvents();
+}
+
+function buildEvents() {
+  const ev = [
+    { t: 0.35, type: 'pop' },
+    { t: 1.2, type: 'jump8' },
+    { t: 1.55, type: 'land8' },
+    { t: 4.0, type: 'key_click' },
+    { t: 4.3, type: 'key_click' },
+    { t: 4.6, type: 'enter_hit' },
+    { t: 10.2, type: 'key_click' },
+    { t: 10.6, type: 'enter_hit' },
+    { t: 18.2, type: 'jump8' },
+    { t: 18.55, type: 'okr_ding' },
+    { t: Math.max(1.0, CH[1].t0 - 0.55), dur: 0.72, type: 'silence' },
+    { t: CH[1].t0 + 0.05, type: 'whoosh' },
+    { t: CH[1].t0 + 1.5, type: 'jump8' },
+    { t: CH[1].t0 + 8.5, type: 'click' },
+    { t: CH[1].t0 + 17.5, type: 'pop' },
+    { t: CH[1].t0 + 25.0, type: 'okr_ding' },
+    { t: CH[2].t0 + 0.05, type: 'whoosh' },
+    { t: CH[2].t0 + 1.4, type: 'jump8' },
+    { t: CH[2].t0 + 8.5, type: 'jump8' },
+    { t: CH[2].t0 + 16.5, type: 'jump8' },
+    { t: CH[2].t0 + 23.5, type: 'jump8' },
+    { t: Math.max(2.0, CH[3].t0 - 0.55), dur: 0.72, type: 'silence' },
+    { t: CH[3].t0 + 0.05, type: 'whoosh' },
+    { t: CH[3].t0 + 9.2, type: 'pop' },
+    { t: CH[3].t0 + 18.5, type: 'okr_ding' },
+    { t: CH[4].t0 + 0.05, type: 'whoosh' },
+    { t: CH[4].t0 + 2.0, type: 'key_click' },
+    { t: CH[4].t0 + 2.4, type: 'enter_hit' },
+    { t: CH[4].t0 + 10.5, type: 'click' },
+    { t: CH[4].t0 + 10.8, type: 'okr_ding' },
+  ];
+  window.EV = ev.sort((a, b) => a.t - b.t);
+}
+buildEvents();
+
+// Gentle Screen-Studio camera that keeps 100% of the app window inside the frame (zero edge clipping!)
+function cameraAt(t) {
+  const s1 = CH[1].t0, s2 = CH[2].t0, s3 = CH[3].t0, s4 = CH[4].t0;
+  const driftX = Math.sin(t * 0.25) * 6;
+  const driftY = Math.cos(t * 0.22) * 4;
+  if (t < s1) {
+    const p = eio(seg(t, 0.5, 4.0));
+    return [960 + driftX, 540 + driftY, lerp(1.0, 1.015, p)];
+  }
+  if (t < s2) {
+    const p = eio(seg(t, s1, s1 + 1.0));
+    return [lerp(960, 972, p) + driftX, 540 + driftY, 1.02];
+  }
+  if (t < s3) {
+    const p = eio(seg(t, s2, s2 + 1.0));
+    return [lerp(972, 976, p) + driftX, 540 + driftY, 1.02];
+  }
+  if (t < s4) {
+    const p = eio(seg(t, s3, s3 + 1.0));
+    return [lerp(976, 968, p) + driftX, 540 + driftY, 1.018];
+  }
+  const p = eio(seg(t, s4, s4 + 1.2));
+  return [lerp(968, 960, p), 540, lerp(1.018, 1.0, p)];
+}
+
+function drawDesktop(ctx, t) {
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#EFE6D5');
+  grad.addColorStop(0.5, '#E5D8C3');
+  grad.addColorStop(1, '#DECBB2');
+  ctx.fillStyle = grad;
+  ctx.fillRect(-200, -200, W + 400, H + 400);
+
+  ctx.fillStyle = 'rgba(217, 119, 87, 0.10)';
+  ctx.beginPath(); ctx.arc(380, 260, 420, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(63, 74, 160, 0.07)';
+  ctx.beginPath(); ctx.arc(1540, 820, 460, 0, Math.PI * 2); ctx.fill();
+
+  // Top menu bar
+  ctx.fillStyle = 'rgba(250, 249, 245, 0.92)';
+  ctx.fillRect(0, 0, W, 38);
+  ctx.strokeStyle = 'rgba(31, 30, 28, 0.10)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, 38); ctx.lineTo(W, 38); ctx.stroke();
+
+  ctx.font = '800 14px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SYSTEM PROMPT ARCHITECT STUDIO', 28, 19);
+
+  ctx.font = '600 13.5px "BeVietnamPro"';
+  ctx.fillStyle = '#55524B';
+  ctx.fillText('Học viên: Anh Nguyễn Đăng Chung (Sinh năm 1981 · Lộ trình Cầm Tay Chỉ Việc Cho Người Mới)', 325, 19);
+}
+
+function drawAppWindow(ctx, t) {
+  const wx = 72, wy = 88, ww = 1776, wh = 860;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(45, 32, 18, 0.22)';
+  ctx.shadowBlur = 44;
+  ctx.shadowOffsetY = 16;
+  fillRRect(ctx, wx, wy, ww, wh, 16, '#FAF9F5', '#DCD7CA', 1.5);
+  ctx.restore();
+
+  // Window Title Bar
+  fillRRect(ctx, wx, wy, ww, 46, 16, '#F2EFE8');
+  ctx.fillStyle = '#F2EFE8';
+  ctx.fillRect(wx, wy + 30, ww, 16);
+  ctx.strokeStyle = '#E4E0D5';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(wx, wy + 46); ctx.lineTo(wx + ww, wy + 46); ctx.stroke();
+
+  const lights = ['#EC6A5E', '#F4BF4F', '#61C554'];
+  lights.forEach((col, i) => {
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(wx + 24 + i * 22, wy + 23, 6.5, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // Segmented Mode Switch in Title Bar (shifted left slightly so right window ledge is free for Mascot!)
+  const chIdx = CH.findIndex(c => t >= c.t0 && t < c.t1);
+  const activeTab = chIdx <= 0 ? 0 : (chIdx === 1 ? 1 : (chIdx <= 3 ? 2 : 3));
+  const tabs = [
+    '1. Yêu cầu thô (Anh Chung)',
+    '2. Hậu trường 9 Bước (Workflow)',
+    '3. Đầu ra 3 Tầng (Code Block 6 Phần)',
+    '4. Thực hành 3 Bước (30 Giây)'
+  ];
+  const segW = 980, segX = wx + 130, segY = wy + 7;
+  fillRRect(ctx, segX, segY, segW, 32, 9, '#E6E2D6');
+  const tw = segW / 4;
+  tabs.forEach((label, i) => {
+    const tx = segX + i * tw + 3;
+    if (i === activeTab) {
+      fillRRect(ctx, tx, segY + 3, tw - 6, 26, 7, '#FFFFFF', '#D97757', 1.2);
+      ctx.fillStyle = '#1F1E1C';
+      ctx.font = '700 12.5px "BeVietnamPro"';
+    } else {
+      ctx.fillStyle = '#7C786F';
+      ctx.font = '500 12.5px "BeVietnamPro"';
+    }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, tx + (tw - 6) / 2, segY + 16);
+  });
+
+  // Left Sidebar
+  const sbW = 460;
+  const bodyY = wy + 46, bodyH = wh - 46;
+  ctx.fillStyle = '#F5F3EC';
+  ctx.fillRect(wx + 1, bodyY, sbW, bodyH - 16);
+  ctx.strokeStyle = '#E4E0D5';
+  ctx.beginPath(); ctx.moveTo(wx + sbW, bodyY); ctx.lineTo(wx + sbW, wy + wh); ctx.stroke();
+
+  // Student Card
+  const c1X = wx + 18, c1Y = bodyY + 14, c1W = sbW - 36, c1H = 140;
+  fillRRect(ctx, c1X, c1Y, c1W, c1H, 12, '#FFFFFF', '#E2DDD0', 1.5);
+  fillRRect(ctx, c1X + 14, c1Y + 12, 168, 22, 6, '#EEF0FA', '#C9CDEA', 1);
+  ctx.font = '700 11.5px "JBMono"';
+  ctx.fillStyle = '#3F4AA0';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('2. AUDIENCE · HỌC VIÊN', c1X + 22, c1Y + 23);
+
+  ctx.font = '800 19px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.fillText('Anh Nguyễn Đăng Chung (1981)', c1X + 14, c1Y + 53);
+
+  ctx.font = '500 13.5px "BeVietnamPro"';
+  ctx.fillStyle = '#55524B';
+  ctx.fillText('• Thế hệ 1981: Giàu kinh nghiệm quản lý & giao việc', c1X + 14, c1Y + 81);
+  ctx.fillText('• Chưa từng dùng AI: Chỉ cần gõ 1 câu yêu cầu ngắn!', c1X + 14, c1Y + 103);
+  ctx.fillStyle = '#2F7D3F';
+  ctx.font = '700 13px "BeVietnamPro"';
+  ctx.fillText('[OK] Không cần học cú pháp lập trình phức tạp', c1X + 14, c1Y + 125);
+
+  // Architect Identity Card
+  const c2Y = c1Y + c1H + 12, c2H = 176;
+  fillRRect(ctx, c1X, c2Y, c1W, c2H, 12, '#FFFFFF', '#D97757', 1.8);
+  fillRRect(ctx, c1X + 14, c2Y + 12, 246, 22, 6, '#F6E3DA', '#D97757', 1);
+  ctx.font = '700 11.5px "JBMono"';
+  ctx.fillStyle = '#BD5D3A';
+  ctx.fillText('1. IDENTITY · KIẾN TRÚC SƯ 10 NĂM', c1X + 22, c2Y + 23);
+
+  ctx.font = '800 18.5px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.fillText('System Prompt Architect', c1X + 14, c2Y + 52);
+
+  ctx.font = '500 13.5px "BeVietnamPro"';
+  ctx.fillStyle = '#3D3B37';
+  ctx.fillText('Nhiệm vụ duy nhất: Chuyển câu yêu cầu ngắn của', c1X + 14, c2Y + 78);
+  ctx.fillText('anh Chung thành System Prompt 6 phần dùng ngay.', c1X + 14, c2Y + 98);
+
+  fillRRect(ctx, c1X + 12, c2Y + 114, c1W - 24, 50, 9, '#FBE9E7', '#B4432F', 1.5);
+  ctx.font = '800 13px "BeVietnamPro"';
+  ctx.fillStyle = '#B4432F';
+  ctx.fillText('[!] TUYỆT ĐỐI KHÔNG LÀM HỘ VIỆC LẺ!', c1X + 22, c2Y + 131);
+  ctx.font = '500 12.2px "BeVietnamPro"';
+  ctx.fillStyle = '#7A2E20';
+  ctx.fillText('Không viết email hộ · Không tóm tắt hộ · Chỉ đúc Trợ lý', c1X + 22, c2Y + 150);
+
+  // Raw Prompt Input Box
+  const pbY = c2Y + c2H + 12, pbH = 446;
+  fillRRect(ctx, c1X, pbY, c1W, pbH, 14, '#FFFFFF', '#C9C4B6', 1.8);
+  ctx.font = '700 12.5px "JBMono"';
+  ctx.fillStyle = '#85827A';
+  ctx.fillText('Ô NHẬP YÊU CẦU THÔ CỦA ANH ĐĂNG CHUNG:', c1X + 16, pbY + 22);
+
+  const rawSamples = [
+    { cmd: '“Tạo trợ lý viết email chăm sóc khách hàng.”', tag: '>> Hiểu là: Thiết kế Trợ lý Email' },
+    { cmd: '“Hãy tóm tắt báo cáo tuần.”', tag: '>> Hiểu là: Thiết kế Trợ lý Tóm tắt' },
+    { cmd: '“Tôi cần trợ lý phân tích dữ liệu kinh doanh.”', tag: '>> Hiểu là: Thiết kế Trợ lý Dữ liệu' },
+    { cmd: '“Tạo trợ lý viết kịch bản TikTok.”', tag: '>> Hiểu là: Thiết kế Trợ lý Kịch bản' },
+  ];
+
+  rawSamples.forEach((item, idx) => {
+    const ry = pbY + 40 + idx * 71;
+    const appear = eo(seg(t, 1.5 + idx * 2.0, 2.3 + idx * 2.0));
+    ctx.save();
+    ctx.globalAlpha = appear;
+    const isHot = idx === 1 && t >= 8.5 && t < 24.0;
+    fillRRect(ctx, c1X + 14, ry, c1W - 28, 61, 10, isHot ? '#FFF6F0' : '#F8F6F0', isHot ? '#D97757' : '#E5E1D5', isHot ? 2 : 1);
+    ctx.font = '700 14.5px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.fillText(item.cmd, c1X + 24, ry + 22);
+    ctx.font = '600 12.8px "BeVietnamPro"';
+    ctx.fillStyle = '#2F7D3F';
+    ctx.fillText(item.tag, c1X + 24, ry + 44);
+    ctx.restore();
+  });
+
+  const inpY = pbY + 334;
+  fillRRect(ctx, c1X + 14, inpY, c1W - 28, 96, 12, '#FAF8F2', '#D97757', 2);
+  ctx.font = '700 12px "JBMono"';
+  ctx.fillStyle = '#BD5D3A';
+  ctx.fillText('YÊU CẦU THÔ CỦA NGƯỜI DÙNG:', c1X + 24, inpY + 21);
+
+  const typedText = 'Tạo trợ lý tóm tắt báo cáo & kiểm tra số liệu';
+  const typeProg = t < CH[4].t0 ? clamp((t - 1.2) / 3.8) : clamp((t - CH[4].t0 - 0.8) / 3.5);
+  const shownChars = Math.floor(typedText.length * typeProg);
+  ctx.font = '700 15px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.fillText(typedText.slice(0, shownChars), c1X + 24, inpY + 50);
+
+  if (Math.floor(t * 2.5) % 2 === 0) {
+    const cw = ctx.measureText(typedText.slice(0, shownChars)).width;
+    ctx.fillStyle = '#D97757';
+    ctx.fillRect(c1X + 26 + cw, inpY + 36, 2.5, 22);
+  }
+  ctx.font = '500 11.8px "JBMono"';
+  ctx.fillStyle = '#85827A';
+  ctx.fillText('{{NHẬP YÊU CẦU VỀ TRỢ LÝ MUỐN TẠO TẠI ĐÂY}}', c1X + 24, inpY + 76);
+
+  // Right Main Stage Area
+  const mainX = wx + sbW + 22, mainY = bodyY + 14, mainW = ww - sbW - 42, mainH = bodyH - 30;
+
+  if (t < CH[1].t0) {
+    return drawStageChapter1(ctx, t, mainX, mainY, mainW, mainH, wy, c1X, inpY);
+  } else if (t < CH[2].t0) {
+    return drawStageChapter2(ctx, t, mainX, mainY, mainW, mainH, wy);
+  } else if (t < CH[3].t0) {
+    return drawStageChapter3(ctx, t, mainX, mainY, mainW, mainH, wy);
+  } else if (t < CH[4].t0) {
+    return drawStageChapter4(ctx, t, mainX, mainY, mainW, mainH, wy);
+  } else {
+    return drawStageChapter5(ctx, t, mainX, mainY, mainW, mainH, wy);
+  }
+}
+
+function drawStageChapter1(ctx, t, x, y, w, h, wy, c1X, inpY) {
+  fillRRect(ctx, x, y, w, h, 14, '#FFFFFF', '#E2DDD0', 1.5);
+
+  fillRRect(ctx, x + 20, y + 16, w - 40, 54, 10, '#F5F3EC');
+  ctx.font = '800 20px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('VÌ SAO NGƯỜI MỚI DÙNG AI HAY BỊ KẾT QUẢ CHUNG CHUNG?', x + 36, y + 43);
+
+  const colW = (w - 60) / 2;
+  const cardY = y + 86, cardH = 365;
+
+  // Card A: Old Way
+  fillRRect(ctx, x + 20, cardY, colW, cardH, 12, '#FFF9F8', '#E8B8B0', 1.5);
+  fillRRect(ctx, x + 36, cardY + 16, 310, 28, 6, '#FBE9E7');
+  ctx.font = '700 12.5px "JBMono"';
+  ctx.fillStyle = '#B4432F';
+  ctx.fillText('[X] CÁCH THÔNG THƯỜNG (LÀM VIỆC LẺ)', x + 48, cardY + 30);
+
+  const oldBullets = [
+    '1. Gõ cụt lủn: “Hãy tóm tắt báo cáo.”',
+    '2. AI hỏi ngược: “Đâu, gửi báo cáo đây tôi làm!”',
+    '3. Kết quả sáo rỗng, thiếu quy chuẩn công ty.',
+    '4. Ngày mai có báo cáo mới lại phải dặn lại từ đầu!',
+  ];
+  oldBullets.forEach((b, i) => {
+    const by = cardY + 64 + i * 70;
+    fillRRect(ctx, x + 36, by, colW - 32, 54, 8, '#FFFFFF', '#F0D5D0', 1);
+    ctx.font = '600 15px "BeVietnamPro"';
+    ctx.fillStyle = '#3D3B37';
+    ctx.fillText(b, x + 50, by + 27);
+  });
+
+  // Card B: System Prompt Architect Way
+  const rx = x + 40 + colW;
+  const pCardB = eo(seg(t, 10.5, 12.5));
+  ctx.save();
+  ctx.globalAlpha = 0.3 + 0.7 * pCardB;
+  fillRRect(ctx, rx, cardY, colW, cardH, 12, '#F6FBF7', '#58A668', 2);
+  fillRRect(ctx, rx + 16, cardY + 16, 350, 28, 6, '#E7F3E8');
+  ctx.font = '700 12.5px "JBMono"';
+  ctx.fillStyle = '#2F7D3F';
+  ctx.fillText('[OK] CÁCH CỦA SYSTEM PROMPT ARCHITECT', rx + 28, cardY + 30);
+
+  const newBullets = [
+    '1. Anh Chung vẫn chỉ gõ đúng 1 câu ngắn đó.',
+    '2. Kiến trúc sư hiểu: “Anh cần tạo 1 TRỢ LÝ AI riêng!”',
+    '3. Tự động thiết kế bộ não 6 Phần + Quy trình + Luật cấm.',
+    '4. Copy 1 lần → Dùng mãi mãi cho hàng trăm báo cáo sau!',
+  ];
+  newBullets.forEach((b, i) => {
+    const by = cardY + 64 + i * 70;
+    fillRRect(ctx, rx + 16, by, colW - 32, 54, 8, '#FFFFFF', '#BBE0C2', 1.2);
+    ctx.font = '700 15px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.fillText(b, rx + 30, by + 27);
+  });
+  ctx.restore();
+
+  // Bottom Bridge Diagram
+  const brY = cardY + cardH + 22, brH = h - (cardY - y) - cardH - 40;
+  fillRRect(ctx, x + 20, brY, w - 40, brH, 12, '#FAF8F2', '#D97757', 1.8);
+  ctx.font = '700 13.5px "JBMono"';
+  ctx.fillStyle = '#BD5D3A';
+  ctx.fillText('CƠ CHẾ CHUYỂN ĐỔI TỰ ĐỘNG CHO NGƯỜI MỚI BẮT ĐẦU:', x + 38, brY + 30);
+
+  const boxes = [
+    { t: 'Câu yêu cầu ngắn\ncủa anh Chung (7 chữ)', col: '#F0EEE6', bd: '#C9C4B6' },
+    { t: 'System Prompt Architect\n(12 Năng lực · 9 Bước SOP)', col: '#F6E3DA', bd: '#D97757' },
+    { t: 'Trợ lý AI 6 Phần Hoàn Chỉnh\n(1 Code Block · Copy dùng ngay)', col: '#E7F3E8', bd: '#2F7D3F' },
+  ];
+  const bw = 340, bh = 100, gap = 64, startX = x + 48;
+  boxes.forEach((bx, i) => {
+    const xx = startX + i * (bw + gap);
+    const yy = brY + 56;
+    fillRRect(ctx, xx, yy, bw, bh, 10, bx.col, bx.bd, 2);
+    const lines = bx.t.split('\n');
+    ctx.font = '800 15.5px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.textAlign = 'center';
+    ctx.fillText(lines[0], xx + bw / 2, yy + 36);
+    ctx.font = '600 13.5px "BeVietnamPro"';
+    ctx.fillStyle = '#55524B';
+    ctx.fillText(lines[1], xx + bw / 2, yy + 66);
+    if (i < 2) {
+      ctx.font = '900 24px "JBMono"';
+      ctx.fillStyle = '#D97757';
+      ctx.fillText('>>', xx + bw + gap / 2, yy + bh / 2);
+    }
+  });
+
+  // Mascot stands on the open window roof (`x = 1230..1260, y = wy`) where zero text or pill exists behind it!
+  let mx = 1230, my = wy, badge = 'CHÀO ANH CHUNG 1981!';
+  let eyes = 'happy', arms = 'wave';
+  if (t >= 8.5 && t < 17.2) {
+    const p = eio(seg(t, 8.5, 9.4));
+    mx = lerp(1230, 1245, p);
+    my = wy - Math.sin(p * Math.PI) * 28;
+    badge = 'CÂU NGẮN -> DỄ MƠ HỒ';
+    eyes = 'l'; arms = 'down';
+  } else if (t >= 17.2) {
+    const p = eio(seg(t, 17.2, 18.1));
+    mx = lerp(1245, 1255, p);
+    my = wy - Math.sin(p * Math.PI) * 30;
+    badge = 'KHÔNG LÀM HỘ · CHỈ ĐÚC TRỢ LÝ!';
+    eyes = 'wide'; arms = 'up';
+  }
+  const curX = lerp(c1X + 310, rx + colW - 190, eio(seg(t, 11, 18)));
+  const curY = lerp(inpY + 24, cardY + 28, eio(seg(t, 11, 18)));
+  return { x: mx, y: my, sq: 0, eyes, arms, legs: 'stand', pencil: true, badge, cursor: [curX, curY, seg(t, 18.0, 18.7), 'Anh Chung (1981)'] };
+}
+
+function drawStageChapter2(ctx, t, x, y, w, h, wy) {
+  const tLoc = t - CH[1].t0;
+  fillRRect(ctx, x, y, w, h, 14, '#FFFFFF', '#E2DDD0', 1.5);
+
+  fillRRect(ctx, x + 20, y + 16, w - 40, 52, 10, '#EEF0FA', '#C9CDEA', 1);
+  ctx.font = '800 19.5px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('4. WORKFLOW · QUY TRÌNH 9 BƯỚC XỬ LÝ YÊU CẦU THÔ Ở HẬU TRƯỜNG', x + 34, y + 42);
+
+  ctx.font = '700 12.5px "JBMono"';
+  ctx.fillStyle = '#3F4AA0';
+  ctx.textAlign = 'right';
+  ctx.fillText('12 CAPABILITIES · AUTO-INFERENCE · {{PLACEHOLDER}}', x + w - 34, y + 42);
+
+  const steps = [
+    { n: 'Bước 1', title: 'Xem toàn bộ câu anh Chung gõ là yêu cầu thiết kế Trợ lý AI', desc: 'Không bao giờ hiểu nhầm thành lệnh bắt AI làm hộ việc lẻ.', grp: 0 },
+    { n: 'Bước 2', title: 'Xác định 7 yếu tố cốt lõi của Trợ lý', desc: 'Vai trò · Lĩnh vực · Phục vụ ai · Việc chính · Đầu vào · Đầu ra · Rủi ro.', grp: 0 },
+    { n: 'Bước 3', title: 'Trích xuất thông tin đã có — Không hỏi lại', desc: 'Tôn trọng thời gian của người dùng, có gì dùng ngay nấy.', grp: 0 },
+    { n: 'Bước 4', title: 'Tự suy luận an toàn phần thông tin phụ còn thiếu', desc: 'Tự chọn phương án hợp lý nhất, không hỏi vặn, không làm prompt dài dòng.', grp: 0 },
+    { n: 'Bước 5', title: 'Tạo biến giữ chỗ {{PLACEHOLDER}} cho dữ liệu nhập sau', desc: 'Đặt sẵn ô trống {{NỘI_DUNG_CẦN_XỬ_LÝ}}, {{MỤC_TIÊU}}, {{DỮ_LIỆU_ĐẦU_VÀO}}.', grp: 1 },
+    { n: 'Bước 6', title: 'Nếu yêu cầu quá mơ hồ: Vẫn tạo bản nháp + {{CẦN_BỔ_SUNG}}', desc: 'Luôn có prompt dùng ngay, sau đó mới hỏi tối đa 3 câu ngắn gọn.', grp: 1 },
+    { n: 'Bước 7', title: 'Biên soạn System Prompt chuẩn cấu trúc 6 Phần', desc: '1. IDENTITY · 2. AUDIENCE · 3. CAPABILITIES · 4. WORKFLOW · 5. OUTPUT · 6. RULES', grp: 2 },
+    { n: 'Bước 8', title: 'Tự kiểm định chất lượng qua 8 câu hỏi QA khắt khe', desc: 'Đúng mục tiêu? Đủ 6 phần? Năng lực cụ thể? Ngăn làm sai vai trò? Copy dùng ngay?', grp: 2 },
+    { n: 'Bước 9', title: 'Xuất System Prompt hoàn chỉnh + Giải thích + Knowledge Base', desc: 'Sẵn sàng để anh Chung sao chép chỉ với 1 cú nhấp chuột.', grp: 2 },
+  ];
+
+  const activeGrp = tLoc < 15.5 ? 0 : (tLoc < 24.0 ? 1 : 2);
+  const rowH = 68, startY = y + 80, leftW = 740;
+
+  steps.forEach((st, idx) => {
+    const ry = startY + idx * (rowH + 6);
+    const isCurrentGrp = st.grp === activeGrp;
+    const isPast = st.grp < activeGrp;
+    const bg = isCurrentGrp ? '#FFF7F2' : (isPast ? '#F5FAF6' : '#FAF9F5');
+    const bd = isCurrentGrp ? '#D97757' : (isPast ? '#80C98F' : '#E5E1D5');
+    fillRRect(ctx, x + 20, ry, leftW, rowH, 10, bg, bd, isCurrentGrp ? 2 : 1.2);
+
+    fillRRect(ctx, x + 32, ry + 11, 78, 23, 6, isCurrentGrp ? '#D97757' : (isPast ? '#2F7D3F' : '#E6E2D6'));
+    ctx.font = '700 12px "JBMono"';
+    ctx.fillStyle = (isCurrentGrp || isPast) ? '#FFFFFF' : '#55524B';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(st.n, x + 71, ry + 22.5);
+
+    ctx.font = '700 15px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.textAlign = 'left';
+    ctx.fillText(st.title, x + 122, ry + 23);
+
+    ctx.font = '500 13.2px "BeVietnamPro"';
+    ctx.fillStyle = '#5E5A53';
+    ctx.fillText(st.desc, x + 122, ry + 47);
+  });
+
+  const inspX = x + leftW + 36, inspW = w - leftW - 56;
+  const b1H = 326;
+  const hiVar = activeGrp === 1;
+  fillRRect(ctx, inspX, startY, inspW, b1H, 12, hiVar ? '#FFFDF5' : '#FAF9F5', hiVar ? '#F2B84B' : '#E2DDD0', hiVar ? 2.5 : 1.5);
+  ctx.font = '800 15.5px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.textAlign = 'left';
+  ctx.fillText('[+] BIẾN GIỮ CHỖ TỰ ĐỘNG (BƯỚC 5)', inspX + 18, startY + 26);
+  ctx.font = '500 12.8px "BeVietnamPro"';
+  ctx.fillStyle = '#5E5A53';
+  ctx.fillText('Chừa sẵn ô trống để anh Chung điền dữ liệu thật sau:', inspX + 18, startY + 49);
+
+  const vars = [
+    '{{NỘI_DUNG_CẦN_XỬ_LÝ}}',
+    '{{ĐỐI_TƯỢNG_PHỤC_VỤ}}',
+    '{{MỤC_TIÊU}}',
+    '{{DỮ_LIỆU_ĐẦU_VÀO}}',
+    '{{YÊU_CẦU_BỔ_SUNG}}'
+  ];
+  vars.forEach((v, i) => {
+    const vy = startY + 70 + i * 47;
+    fillRRect(ctx, inspX + 18, vy, inspW - 36, 39, 8, '#FFF4D6', '#E6A832', 1.5);
+    ctx.font = '700 14px "JBMono"';
+    ctx.fillStyle = '#945B00';
+    ctx.fillText(v, inspX + 30, vy + 19.5);
+  });
+
+  const b2Y = startY + b1H + 14, b2H = 320;
+  const hiQA = activeGrp === 2;
+  fillRRect(ctx, inspX, b2Y, inspW, b2H, 12, hiQA ? '#F4FBF6' : '#FAF9F5', hiQA ? '#2F7D3F' : '#E2DDD0', hiQA ? 2.5 : 1.5);
+  ctx.font = '800 15.5px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.fillText('[QA] TỰ KIỂM TRA 8 TIÊU CHÍ (BƯỚC 8)', inspX + 18, b2Y + 26);
+
+  const qaItems = [
+    '[OK] Đúng mục tiêu thực sự của anh Chung?',
+    '[OK] Là System Prompt tạo Trợ lý (không làm hộ)?',
+    '[OK] Đầy đủ 100% cấu trúc 6 phần chuẩn?',
+    '[OK] 5–10 năng lực cụ thể, không trùng lặp?',
+    '[OK] Quy trình từng bước khả thi, rõ đầu ra?',
+    '[OK] Có khóa chống làm sai vai trò & ảo giác?',
+  ];
+  qaItems.forEach((q, i) => {
+    ctx.font = '600 13.2px "BeVietnamPro"';
+    ctx.fillStyle = hiQA ? '#1E5E2E' : '#55524B';
+    ctx.fillText(q, inspX + 18, b2Y + 60 + i * 35);
+  });
+
+  if (hiQA) {
+    fillRRect(ctx, inspX + 18, b2Y + 268, inspW - 36, 36, 8, '#2F7D3F');
+    ctx.font = '800 13.5px "JBMono"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.fillText('QA GATE: 8/8 PASSED · XUẤT XƯỞNG!', inspX + inspW / 2, b2Y + 286);
+  }
+
+  // Mascot stands on the clear window roof (`x = 1235..1255, y = wy`) with zero overlap!
+  const mx = activeGrp === 0 ? 1235 : (activeGrp === 1 ? 1245 : 1255);
+  const my = wy;
+  const badge = activeGrp === 0 ? 'BƯỚC 1–4: TỰ SUY LUẬN' : (activeGrp === 1 ? 'BƯỚC 5–6: ĐẶT BIẾN {{...}}' : 'BƯỚC 7–9: QA 8/8 PASS!');
+  const curY = activeGrp === 1 ? startY + 90 : (activeGrp === 2 ? b2Y + 286 : startY + 165);
+  const curX = activeGrp === 1 ? inspX + inspW - 145 : (activeGrp === 2 ? inspX + inspW - 110 : x + leftW - 150);
+  return {
+    x: mx,
+    y: my,
+    sq: 0,
+    eyes: activeGrp === 1 ? 'd' : 'happy',
+    arms: activeGrp === 2 ? 'up' : 'down',
+    legs: Math.floor(t * 8) % 2 === 0 ? 'walkA' : 'stand',
+    pencil: true,
+    badge,
+    cursor: [curX, curY, 0, 'Kiểm tra tự động']
+  };
+}
+
+function drawStageChapter3(ctx, t, x, y, w, h, wy) {
+  const tLoc = t - CH[2].t0;
+  fillRRect(ctx, x, y, w, h, 14, '#FFFFFF', '#E2DDD0', 1.5);
+
+  fillRRect(ctx, x + 20, y + 16, w - 40, 52, 10, '#1E1D1B');
+  ctx.font = '800 18.5px "JBMono"';
+  ctx.fillStyle = '#F2B84B';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('### SYSTEM PROMPT  (Đặt toàn bộ trong 1 Code Block duy nhất)', x + 34, y + 42);
+
+  fillRRect(ctx, x + w - 210, y + 24, 174, 36, 8, '#D97757');
+  ctx.font = '700 13px "BeVietnamPro"';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.fillText('[COPY] Sao chép 1-Click', x + w - 123, y + 42);
+
+  const cbX = x + 20, cbY = y + 80, cbW = w - 40, cbH = h - 96;
+  fillRRect(ctx, cbX, cbY, cbW, cbH, 12, '#1A1917', '#353330', 2);
+
+  const parts = [
+    {
+      no: '1. IDENTITY',
+      tag: 'Danh tính & Kinh nghiệm',
+      code: 'Bạn là [Chuyên gia Tóm tắt & Kiểm định Báo cáo], chuyên về [Phân tích Quản trị], có [10 năm] kinh nghiệm trong [Doanh nghiệp].',
+      col: '#E08565'
+    },
+    {
+      no: '2. AUDIENCE',
+      tag: 'Đối tượng phục vụ',
+      code: 'Bạn phục vụ [Anh Nguyễn Đăng Chung & Cấp quản lý] trong [Bối cảnh rà soát báo cáo tuần nhanh, chính xác].',
+      col: '#8EB6EE'
+    },
+    {
+      no: '3. CAPABILITIES',
+      tag: '5–10 Năng lực cụ thể (Mỗi dòng 1 ý)',
+      code: '1. Trích xuất số liệu cốt lõi.\n2. Phát hiện chênh lệch bất thường.\n3. Đối chiếu KPI mục tiêu.\n4. Cảnh báo rủi ro tiềm ẩn.\n5. Đề xuất hành động ưu tiên.',
+      col: '#9BCB8E'
+    },
+    {
+      no: '4. WORKFLOW',
+      tag: 'Quy trình thực hiện từng bước',
+      code: 'Bước 1: Đọc dữ liệu tại {{NỘI_DUNG_CẦN_XỬ_LÝ}}.\nBước 2: Phân loại chỉ số đạt & chưa đạt.\nBước 3: Kiểm tra chéo số liệu.\nBước 4: Xuất bảng tóm tắt điều hành.',
+      col: '#F2C14E'
+    },
+    {
+      no: '5. OUTPUT FORMAT',
+      tag: 'Định dạng · Độ dài · Vị trí Input',
+      code: '• Cấu trúc: Bảng 4 cột + 3 gạch đầu dòng.\n• Độ dài: Ngắn gọn dưới 300 từ, tiếng Việt chuẩn.\n• Cuối prompt đặt: {{DỮ_LIỆU_ĐẦU_VÀO}}.',
+      col: '#D39AD0'
+    },
+    {
+      no: '6. RULES',
+      tag: 'Kỷ luật TUYỆT ĐỐI KHÔNG & LUÔN LUÔN',
+      code: 'TUYỆT ĐỐI KHÔNG: Tự bịa số liệu ngoài báo cáo, viết lời dẫn rườm rà.\nLUÔN LUÔN: Phân biệt rõ dữ liệu có sẵn & giả định.',
+      col: '#EC907C'
+    }
+  ];
+
+  const hiPair = tLoc < 7.5 ? -1 : (tLoc < 15.5 ? 0 : (tLoc < 23.0 ? 1 : 2));
+  const pad = 16;
+  const cellW = (cbW - pad * 3) / 2;
+  const cellH = (cbH - pad * 4) / 3;
+
+  parts.forEach((p, idx) => {
+    const c = idx % 2, r = Math.floor(idx / 2);
+    const px = cbX + pad + c * (cellW + pad);
+    const py = cbY + pad + r * (cellH + pad);
+    const isHi = hiPair === -1 || Math.floor(idx / 2) === hiPair;
+
+    fillRRect(ctx, px, py, cellW, cellH, 10, isHi ? '#262522' : '#1F1E1C', isHi ? p.col : '#353330', isHi ? 2.2 : 1);
+
+    fillRRect(ctx, px + 14, py + 12, 178, 26, 6, 'rgba(255,255,255,0.08)');
+    ctx.font = '800 13.5px "JBMono"';
+    ctx.fillStyle = p.col;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.no, px + 24, py + 25);
+
+    ctx.font = '600 12.5px "BeVietnamPro"';
+    ctx.fillStyle = '#A8A39A';
+    ctx.textAlign = 'right';
+    ctx.fillText(p.tag, px + cellW - 14, py + 25);
+
+    ctx.font = '500 14.2px "BeVietnamPro"';
+    ctx.fillStyle = '#EEEAE2';
+    ctx.textAlign = 'left';
+    const rawLines = p.code.split('\n');
+    let curY = py + 54;
+    rawLines.forEach(rl => {
+      const wrapped = wrapWords(ctx, rl, cellW - 28);
+      wrapped.forEach(wl => {
+        if (curY < py + cellH - 12) {
+          ctx.fillText(wl, px + 14, curY);
+          curY += 22;
+        }
+      });
+    });
+  });
+
+  // Mascot stands on the clear window roof (`x = 1235..1255, y = wy`) so it never covers the `### SYSTEM PROMPT` header or the Chapter Pill!
+  const mx = hiPair <= 0 ? 1235 : (hiPair === 1 ? 1245 : 1255);
+  const badge = hiPair <= 0 ? 'PHẦN 1 & 2: VAI TRÒ & ĐỐI TƯỢNG' : (hiPair === 1 ? 'PHẦN 3 & 4: NĂNG LỰC & QUY TRÌNH' : 'PHẦN 5 & 6: ĐẦU RA & LUẬT THÉP');
+  const curRow = Math.max(0, hiPair);
+  const curY = cbY + pad + curRow * (cellH + pad) + cellH - 28;
+  const curX = cbX + pad + cellW - 180;
+  return {
+    x: mx,
+    y: wy,
+    sq: 0,
+    eyes: 'happy',
+    arms: 'up',
+    legs: 'stand',
+    pencil: false,
+    badge,
+    cursor: [curX, curY, 0, '1 Code Block Duy Nhất']
+  };
+}
+
+function drawStageChapter4(ctx, t, x, y, w, h, wy) {
+  const tLoc = t - CH[3].t0;
+  fillRRect(ctx, x, y, w, h, 14, '#FFFFFF', '#E2DDD0', 1.5);
+
+  const halfW = (w - 56) / 2;
+  const topY = y + 18, topH = 425;
+
+  const hiExp = tLoc < 9.0;
+  fillRRect(ctx, x + 20, topY, halfW, topH, 12, '#FAF9F5', hiExp ? '#D97757' : '#DCD7CA', hiExp ? 2.4 : 1.5);
+  fillRRect(ctx, x + 36, topY + 14, 260, 26, 6, '#F6E3DA');
+  ctx.font = '800 13.5px "JBMono"';
+  ctx.fillStyle = '#BD5D3A';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('### GIẢI THÍCH NGẮN (5 Ý)', x + 48, topY + 27);
+
+  const expList = [
+    '1. Vì sao chọn vai trò: Khớp 100% nghiệp vụ của anh Chung.',
+    '2. Vì sao chọn các năng lực: Tách biệt rõ 5–10 đầu việc.',
+    '3. Quy trình 4 bước: Giúp AI làm tuần tự, không nhảy cóc.',
+    '4. Chốt chống Hallucination: Khóa lỗi AI tự suy diễn số liệu.',
+    '5. Giả định an toàn đã dùng: Để anh không phải trả lời câu hỏi phụ.'
+  ];
+  expList.forEach((item, i) => {
+    const iy = topY + 56 + i * 70;
+    fillRRect(ctx, x + 36, iy, halfW - 32, 58, 8, '#FFFFFF', '#E6E2D6', 1);
+    ctx.font = '600 14.5px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    const lines = wrapWords(ctx, item, halfW - 60);
+    lines.forEach((ln, li) => ctx.fillText(ln, x + 50, iy + 21 + li * 21));
+  });
+
+  const rx = x + 36 + halfW;
+  const hiKB = tLoc >= 8.5 && tLoc < 18.0;
+  fillRRect(ctx, rx, topY, halfW, topH, 12, '#FAF9F5', hiKB ? '#3F4AA0' : '#DCD7CA', hiKB ? 2.4 : 1.5);
+  fillRRect(ctx, rx + 16, topY + 14, 310, 26, 6, '#EEF0FA');
+  ctx.font = '800 13.5px "JBMono"';
+  ctx.fillStyle = '#3F4AA0';
+  ctx.fillText('### KNOWLEDGE BASE GỢI Ý (5 FILE)', rx + 28, topY + 27);
+
+  const kbList = [
+    '[01] Quy trình nội bộ & Sổ tay nghiệp vụ phòng ban',
+    '[02] Mẫu báo cáo đầu ra chuẩn (Template của anh Chung)',
+    '[03] Danh mục sản phẩm / Dịch vụ / Bảng giá chính thức',
+    '[04] Hướng dẫn văn phong & Bộ nhận diện thương hiệu',
+    '[05] File dữ liệu mẫu & Quy định pháp lý liên quan'
+  ];
+  kbList.forEach((item, i) => {
+    const iy = topY + 56 + i * 70;
+    fillRRect(ctx, rx + 16, iy, halfW - 32, 58, 8, '#FFFFFF', '#DCE0F2', 1);
+    ctx.font = '600 14.5px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.fillText(item, rx + 30, iy + 29);
+  });
+
+  const botY = topY + topH + 18, botH = h - topH - 54;
+  const hiOKR = tLoc >= 17.5;
+  fillRRect(ctx, x + 20, botY, w - 40, botH, 14, hiOKR ? '#1A241E' : '#232220', '#2F7D3F', 2.5);
+
+  ctx.font = '800 21px "BeVietnamPro"';
+  ctx.fillStyle = '#80C98F';
+  ctx.textAlign = 'left';
+  ctx.fillText('[SHIELD] KỶ LUẬT CHỐNG ẢO GIÁC (ANTI-HALLUCINATION) & CHUẨN OKR 9/10', x + 38, botY + 40);
+
+  const rules = [
+    '• Bắt buộc phân biệt rõ 3 nhóm: [Dữ liệu có sẵn]  vs  [Giả định]  vs  [Thông tin chưa xác minh]',
+    '• Không chào hỏi mở đầu · Không viết lời dẫn dài dòng · Không Yapping · Nguyên tắc “Less is More”',
+    '• Luôn trả về đúng 1 phiên bản thực chiến dùng được ngay (tiệm cận mức Tuyệt Vời ~ 9/10 điểm)'
+  ];
+  rules.forEach((r, i) => {
+    ctx.font = '500 15.5px "BeVietnamPro"';
+    ctx.fillStyle = '#EEEAE2';
+    ctx.fillText(r, x + 38, botY + 88 + i * 40);
+  });
+
+  const okrX = x + w - 275, okrY = botY + 32, okrW = 220, okrH = 160;
+  fillRRect(ctx, okrX, okrY, okrW, okrH, 14, '#2F7D3F', '#80C98F', 2.5);
+  ctx.font = '800 13.5px "JBMono"';
+  ctx.fillStyle = '#D8F5DE';
+  ctx.textAlign = 'center';
+  ctx.fillText('CHẤT LƯỢNG OKR', okrX + okrW / 2, okrY + 30);
+  ctx.font = '900 54px "Inter"';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillText('9/10', okrX + okrW / 2, okrY + 88);
+  ctx.font = '700 13px "BeVietnamPro"';
+  ctx.fillStyle = '#D8F5DE';
+  ctx.fillText('Less is More · Dùng Ngay', okrX + okrW / 2, okrY + 136);
+
+  const mx = hiOKR ? 1255 : (hiKB ? 1245 : 1235);
+  const my = wy;
+  const badge = hiOKR ? 'OKR 9/10 · KHÔNG BỊA ĐẶT!' : (hiKB ? '5 TÀI LIỆU ĐÍNH KÈM' : '5 Ý GIẢI THÍCH DỄ HIỂU');
+  return {
+    x: mx,
+    y: my,
+    sq: 0,
+    eyes: hiOKR ? 'wide' : 'happy',
+    arms: hiOKR ? 'up' : 'down',
+    legs: 'stand',
+    pencil: false,
+    badge,
+    cursor: [okrX + okrW - 60, okrY + okrH - 18, seg(tLoc, 18.5, 19.2), 'Chuẩn 9/10']
+  };
+}
+
+function drawStageChapter5(ctx, t, x, y, w, h, wy) {
+  const tLoc = t - CH[4].t0;
+  fillRRect(ctx, x, y, w, h, 14, '#FFFFFF', '#E2DDD0', 1.5);
+
+  fillRRect(ctx, x + 20, y + 16, w - 40, 56, 10, '#F6E3DA', '#D97757', 1.5);
+  ctx.font = '800 21px "BeVietnamPro"';
+  ctx.fillStyle = '#1F1E1C';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('>> 3 BƯỚC THỰC HÀNH NGAY TRONG 30 GIÂY DÀNH CHO ANH NGUYỄN ĐĂNG CHUNG', x + 34, y + 44);
+
+  const steps3 = [
+    {
+      no: 'BƯỚC 1',
+      title: 'Gõ 1 câu yêu cầu thô ngắn gọn',
+      sub: 'Điền vào dòng cuối cùng của Siêu Prompt:',
+      box: '{{NHẬP YÊU CẦU VỀ TRỢ LÝ MUỐN TẠO TẠI ĐÂY}}\nVí dụ: “Tạo trợ lý kiểm tra hợp đồng & tóm tắt rủi ro”',
+      col: '#D97757',
+      bg: '#FFF8F4'
+    },
+    {
+      no: 'BƯỚC 2',
+      title: 'Bấm Copy khung Code Block 6 Phần',
+      sub: 'Kiến trúc sư AI trả về System Prompt chuẩn 9/10:',
+      box: '[OK] Đủ 6 Phần: IDENTITY -> AUDIENCE -> CAPABILITIES\n   -> WORKFLOW -> OUTPUT FORMAT -> RULES\n[OK] Có sẵn ô trống {{...}} chờ anh dán tài liệu thật',
+      col: '#2F7D3F',
+      bg: '#F4FBF6'
+    },
+    {
+      no: 'BƯỚC 3',
+      title: 'Dán vào Gemini Gem / Custom GPT',
+      sub: 'Khởi tạo Trợ lý AI chuyên biệt dùng lâu dài:',
+      box: '• Đính kèm 5 tài liệu theo mục KNOWLEDGE BASE GỢI Ý\n• Từ nay mỗi ngày anh Chung chỉ cần thả file vào là xong!',
+      col: '#3F4AA0',
+      bg: '#F5F6FC'
+    }
+  ];
+
+  const cardW = (w - 80) / 3;
+  const cardY = y + 92, cardH = 430;
+  const activeStep = tLoc < 8.5 ? 0 : (tLoc < 15.5 ? 1 : 2);
+
+  steps3.forEach((st, i) => {
+    const cx = x + 20 + i * (cardW + 20);
+    const isAct = i === activeStep;
+    fillRRect(ctx, cx, cardY, cardW, cardH, 14, st.bg, isAct ? st.col : '#DCD7CA', isAct ? 3 : 1.5);
+
+    fillRRect(ctx, cx + 20, cardY + 18, 120, 30, 8, st.col);
+    ctx.font = '800 14.5px "JBMono"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(st.no, cx + 80, cardY + 33);
+
+    ctx.font = '800 19.5px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    ctx.textAlign = 'left';
+    ctx.fillText(st.title, cx + 20, cardY + 76);
+
+    ctx.font = '500 14px "BeVietnamPro"';
+    ctx.fillStyle = '#5E5A53';
+    ctx.fillText(st.sub, cx + 20, cardY + 108);
+
+    fillRRect(ctx, cx + 18, cardY + 132, cardW - 36, 196, 10, '#FFFFFF', st.col, 1.4);
+    ctx.font = '600 14.2px "BeVietnamPro"';
+    ctx.fillStyle = '#1F1E1C';
+    let ly = cardY + 164;
+    st.box.split('\n').forEach(line => {
+      const wrapped = wrapWords(ctx, line, cardW - 64);
+      wrapped.forEach(wl => {
+        ctx.fillText(wl, cx + 30, ly);
+        ly += 25;
+      });
+      ly += 5;
+    });
+
+    fillRRect(ctx, cx + 18, cardY + 350, cardW - 36, 50, 10, isAct ? st.col : '#E6E2D6');
+    ctx.font = '700 14.5px "BeVietnamPro"';
+    ctx.fillStyle = isAct ? '#FFFFFF' : '#55524B';
+    ctx.textAlign = 'center';
+    const btnTxt = i === 0 ? '[1] Gõ 1 câu yêu cầu thô' : (i === 1 ? '[2] Copy System Prompt 6 Phần' : '[3] Sở hữu Trợ lý AI riêng!');
+    ctx.fillText(btnTxt, cx + cardW / 2, cardY + 375);
+  });
+
+  const finY = cardY + cardH + 20, finH = h - cardH - 130;
+  fillRRect(ctx, x + 20, finY, w - 40, finH, 14, '#1F1E1C', '#D97757', 2);
+  ctx.font = '800 23px "BeVietnamPro"';
+  ctx.fillStyle = '#F2B84B';
+  ctx.textAlign = 'center';
+  ctx.fillText('“Anh Chung chỉ cần nói MONG MUỐN — Kiến trúc sư AI sẽ xây trọn BỘ NÃO 6 PHẦN!”', x + w / 2, finY + 48);
+  ctx.font = '600 15.5px "JBMono"';
+  ctx.fillStyle = '#EEEAE2';
+  ctx.fillText('1. IDENTITY  ·  2. AUDIENCE  ·  3. CAPABILITIES  ·  4. WORKFLOW  ·  5. OUTPUT FORMAT  ·  6. RULES', x + w / 2, finY + 92);
+
+  // Mascot stands on the clear window roof (`x = 1245, y = wy`) so the 3-step banner & Chapter Pill are 100% unobstructed!
+  const targetCardX = x + 20 + activeStep * (cardW + 20) + cardW / 2;
+  return {
+    x: 1245,
+    y: wy,
+    sq: 0,
+    eyes: 'happy',
+    arms: 'wave',
+    legs: 'stand',
+    pencil: false,
+    badge: 'CHÚC ANH CHUNG THÀNH CÔNG!',
+    cursor: [targetCardX + 70, cardY + 382, seg(tLoc, 10.2, 11.0), 'Click Copy & Dùng Ngay!']
+  };
+}
+
+// Draw Chapter Pill & Keystroke HUD in dedicated top bar (`y = 4..34`) where zero window content lives!
+function drawHUD(ctx, t) {
+  const chIdx = Math.max(0, CH.findIndex(c => t >= c.t0 && t < c.t1));
+  const curCh = CH[chIdx] || CH[CH.length - 1];
+
+  ctx.save();
+  // Chapter Pill placed in the top-right area of the desktop header (`y = 4..34`)
+  const cpW = 395, cpX = W - cpW - 22, cpY = 4;
+  fillRRect(ctx, cpX, cpY, cpW, 30, 15, '#1F1E1C', '#D97757', 1.4);
+  fillRRect(ctx, cpX + 4, cpY + 4, 62, 22, 11, '#D97757');
+  ctx.font = '800 12px "JBMono"';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`CH ${curCh.no}`, cpX + 35, cpY + 15);
+
+  ctx.font = '700 12.2px "BeVietnamPro"';
+  ctx.fillStyle = '#FAF9F5';
+  ctx.textAlign = 'left';
+  ctx.fillText(curCh.nm, cpX + 76, cpY + 15);
+
+  // KeyCastr-style Keystroke HUD placed at bottom-left desktop margin (`y = 956`), outside the window!
+  let keyHud = null;
+  if (t >= 3.5 && t < 13.0) keyHud = { k: ['Enter'], lbl: 'Nhập yêu cầu thô ngắn gọn' };
+  else if (t >= CH[1].t0 + 1.0 && t < CH[1].t0 + 12.0) keyHud = { k: ['Auto', '9 Bước'], lbl: 'Suy luận & Chèn biến {{...}}' };
+  else if (t >= CH[2].t0 + 1.0 && t < CH[2].t0 + 15.0) keyHud = { k: ['```', '6 Phần'], lbl: 'Đóng gói 1 Code Block duy nhất' };
+  else if (t >= CH[4].t0 + 9.0 && t < CH[4].t0 + 20.0) keyHud = { k: ['Ctrl', 'C'], lbl: 'Sao chép System Prompt 9/10' };
+
+  if (keyHud && NOSUB) {
+    const kw = 340, kx = 72, ky = 962;
+    fillRRect(ctx, kx, ky, kw, 36, 10, 'rgba(31, 30, 28, 0.88)', 'rgba(255,255,255,0.18)', 1.2);
+    let ox = kx + 10;
+    keyHud.k.forEach(kStr => {
+      ctx.font = '700 12px "JBMono"';
+      const bw = ctx.measureText(kStr).width + 16;
+      fillRRect(ctx, ox, ky + 6, bw, 24, 5, '#353330', '#85827A', 1);
+      ctx.fillStyle = '#F2B84B';
+      ctx.textAlign = 'center';
+      ctx.fillText(kStr, ox + bw / 2, ky + 18);
+      ox += bw + 6;
+    });
+    ctx.font = '600 12.5px "BeVietnamPro"';
+    ctx.fillStyle = '#EEEAE2';
+    ctx.textAlign = 'left';
+    ctx.fillText(keyHud.lbl, ox + 4, ky + 18);
+  }
+
+  // Frosted-glass bottom subtitle pill in the reserved bottom lane (`y = 958..1062`, below the window bottom `wy+wh = 948`)!
+  if (!NOSUB && VO.length > 0) {
+    const cue = VO.find(c => t >= c.t0 - 0.08 && t <= c.t1 + 0.35);
+    if (cue && cue.sub) {
+      ctx.font = '600 21px "BeVietnamPro"';
+      const lines = wrapWords(ctx, cue.sub, 1520);
+      const pillH = lines.length * 30 + 22;
+      const pillW = Math.min(1680, Math.max(...lines.map(l => ctx.measureText(l).width)) + 68);
+      const px = (W - pillW) / 2;
+      const py = H - pillH - 16;
+
+      fillRRect(ctx, px, py, pillW, pillH, 14, 'rgba(24, 23, 21, 0.92)', 'rgba(217, 119, 87, 0.65)', 1.6);
+      ctx.fillStyle = '#FAF9F5';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      lines.forEach((ln, idx) => {
+        ctx.fillText(ln, W / 2, py + 24 + idx * 30);
+      });
+    }
+  }
+
+  // Pixel-block Chapter Wipe at chapter seams
+  for (let i = 1; i < CH.length; i++) {
+    const seam = CH[i].t0;
+    if (Math.abs(t - seam) < 0.45) {
+      const p = (t - (seam - 0.45)) / 0.90;
+      const S = 80, cols = 24, rows = 14;
+      const pal = ['#D97757', '#B85F40', '#F2B84B'];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const d = (c / cols) * 0.5 + ((rows - r) / rows) * 0.25 + hash(c * 13.1 + r * 7.7) * 0.12;
+          const a = clamp((p / 0.45 - d) / 0.2), b = clamp(((p - 0.52) / 0.45 - d) / 0.2);
+          const k = a * (1 - b);
+          if (k <= 0.01) continue;
+          const sz = S * k;
+          ctx.fillStyle = pal[(c + r) % 3];
+          ctx.fillRect(c * S + (S - sz) / 2, r * S + (S - sz) / 2, sz + 1, sz + 1);
+        }
+      }
+    }
+  }
+  ctx.restore();
+}
+
+window.render = function(t) {
+  g.save();
+  g.clearRect(0, 0, W, H);
+
+  const [cx, cy, z] = cameraAt(t);
+  g.save();
+  g.translate(W / 2, H / 2);
+  g.scale(z, z);
+  g.translate(-cx, -cy);
+
+  drawDesktop(g, t);
+  const actorState = drawAppWindow(g, t);
+  drawMascot(g, actorState);
+  if (actorState.cursor) {
+    const [curX, curY, clickP, curLbl] = actorState.cursor;
+    drawCursor(g, curX, curY, clickP, curLbl);
+  }
+  g.restore();
+
+  drawHUD(g, t);
+  g.restore();
+};
+window.seek = window.render;
+
+const SAMPLE_VI = 'Chào anh Nguyễn Đăng Chung 1981 System Prompt Architect IDENTITY AUDIENCE CAPABILITIES WORKFLOW OUTPUT FORMAT RULES {{NỘI_DUNG_CẦN_XỬ_LÝ}} OKR 9/10';
+Promise.all([
+  document.fonts.load('400 20px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('500 20px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('700 24px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('800 32px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('700 20px "JBMono"', SAMPLE_VI),
+  document.fonts.load('800 48px "Inter"', SAMPLE_VI),
+  fetch('./vo/vo_timeline.json').then(r => r.ok ? r.json() : []).catch(() => []),
+]).then(async ([,,,,,, vo]) => {
+  await document.fonts.ready;
+  VO = vo || [];
+  syncChaptersWithVO(VO);
+  const tInit = +(Q.get('t') || 0);
+  window.render(tInit);
+  window.READY = true;
+  window.ready = true;
+});
+</script>
+</body>
+</html>

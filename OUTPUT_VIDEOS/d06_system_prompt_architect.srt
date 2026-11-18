@@ -1,0 +1,67 @@
+1
+00:00:00,740 --> 00:00:02,590
+Bạn chỉ cần gõ một câu.
+
+2
+00:00:02,940 --> 00:00:05,101
+Ví dụ: tạo trợ lý viết email.
+
+3
+00:00:05,561 --> 00:00:07,411
+Trợ lý không viết email hộ bạn.
+
+4
+00:00:07,869 --> 00:00:10,384
+Nó thiết kế System Prompt để dùng ngay.
+
+5
+00:00:11,644 --> 00:00:15,287
+System Prompt Architect chỉ thiết kế trợ lý.
+
+6
+00:00:15,747 --> 00:00:18,439
+Luôn đủ sáu phần, không làm hộ việc.
+
+7
+00:00:18,899 --> 00:00:22,704
+Chín bước. Bước một: hiểu là yêu cầu thiết kế.
+
+8
+00:00:23,164 --> 00:00:26,416
+Bước hai: vai trò, ai dùng, đầu vào, đầu ra.
+
+9
+00:00:26,876 --> 00:00:29,661
+Bước ba: lấy đúng ý đã có, không hỏi lại.
+
+10
+00:00:30,121 --> 00:00:32,936
+Bước bốn: đoán an toàn thì tự chọn.
+
+11
+00:00:33,396 --> 00:00:36,051
+Bước năm: thiếu dữ liệu thì để {{biến}}.
+
+12
+00:00:37,311 --> 00:00:40,380
+Bước sáu: không rõ vai thì vẫn viết nháp.
+
+13
+00:00:40,840 --> 00:00:44,011
+Rồi hỏi tối đa ba câu, không hỏi suông.
+
+14
+00:00:44,471 --> 00:00:47,724
+Bước bảy: sáu phần, trong một khối mã.
+
+15
+00:00:48,184 --> 00:00:51,490
+Bước tám: tự kiểm tra trước khi trả.
+
+16
+00:00:51,950 --> 00:00:55,799
+Bước chín: khối mã, giải thích, tài liệu.
+
+17
+00:00:56,259 --> 00:00:58,660
+Ít mà đúng. Sao chép là dùng được.

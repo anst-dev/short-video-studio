@@ -1,0 +1,172 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.8,
+    "t1": 1.98,
+    "dur": 1.18,
+    "sub": "Bạn chỉ cần gõ một câu.",
+    "say": "Bạn chỉ cần gõ một câu.",
+    "asr": "bạn chỉ cần có một câu",
+    "wav": "vo/c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 3.0,
+    "t1": 4.601,
+    "dur": 1.601,
+    "sub": "Ví dụ: tạo trợ lý viết email.",
+    "say": "Ví dụ: tạo trợ lý viết email.",
+    "asr": "Ví dụ tạo trợ lý vịt e-mail.",
+    "wav": "vo/c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 5.621,
+    "t1": 6.909,
+    "dur": 1.288,
+    "sub": "Trợ lý không viết email hộ bạn.",
+    "say": "Trợ lý không viết email hộ bạn.",
+    "asr": "Chợ lý không viết e-mail hộ bản.",
+    "wav": "vo/c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 7.929,
+    "t1": 9.884,
+    "dur": 1.955,
+    "sub": "Nó thiết kế System Prompt để dùng ngay.",
+    "say": "Nó thiết kế system prompt để bạn dùng ngay.",
+    "asr": "nó thiết kế system prompt để bạn dùng ngay.",
+    "wav": "vo/c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 11.704,
+    "t1": 14.787,
+    "dur": 3.083,
+    "sub": "System Prompt Architect chỉ thiết kế trợ lý.",
+    "say": "Đây là kiến trúc sư system prompt. Chỉ làm một việc: thiết kế trợ lý.",
+    "asr": "Đây là kiến trúc sư System Prom chỉ làm một việc thiết kế trợ lý.",
+    "wav": "vo/c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 15.807,
+    "t1": 17.939,
+    "dur": 2.132,
+    "sub": "Luôn đủ sáu phần, không làm hộ việc.",
+    "say": "Luôn đủ sáu phần. Và tuyệt đối không làm hộ việc.",
+    "asr": "luôn đủ 6 phần, và tuyệt đối không làm hộ việc.",
+    "wav": "vo/c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 18.959,
+    "t1": 22.204,
+    "dur": 3.245,
+    "sub": "Chín bước. Bước một: hiểu là yêu cầu thiết kế.",
+    "say": "Quy trình chạy chín bước. Bước một: mọi câu đều là yêu cầu thiết kế.",
+    "asr": "Quy trình chạy 9 bước, bước 1 mọi câu đều là yêu cầu thiết kế.",
+    "wav": "vo/c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 23.224,
+    "t1": 25.916,
+    "dur": 2.692,
+    "sub": "Bước hai: vai trò, ai dùng, đầu vào, đầu ra.",
+    "say": "Bước hai: tự chốt vai trò, phục vụ ai, đầu vào và đầu ra.",
+    "asr": "Bước 2 tự chốt vai trò phục vụ ai đầu vào và đầu ra.",
+    "wav": "vo/c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 26.936,
+    "t1": 29.161,
+    "dur": 2.225,
+    "sub": "Bước ba: lấy đúng ý đã có, không hỏi lại.",
+    "say": "Bước ba: lấy đúng ý bạn đã viết, không hỏi lại.",
+    "asr": "Bước 3 lấy đúng ý bạn đã viết không hỏi lại.",
+    "wav": "vo/c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 30.181,
+    "t1": 32.436,
+    "dur": 2.255,
+    "sub": "Bước bốn: đoán an toàn thì tự chọn.",
+    "say": "Bước bốn: chỗ thiếu mà đoán an toàn thì tự chọn.",
+    "asr": "Bước 4, chỗ thiếu mà đoán an toàn thì tự chọn.",
+    "wav": "vo/c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 33.456,
+    "t1": 35.551,
+    "dur": 2.095,
+    "sub": "Bước năm: thiếu dữ liệu thì để {{biến}}.",
+    "say": "Bước năm: chưa có dữ liệu thì để biến giữ chỗ.",
+    "asr": "Bước năm chưa có dữ liệu thì để biên giữ chỗ.",
+    "wav": "vo/c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 37.371,
+    "t1": 39.88,
+    "dur": 2.509,
+    "sub": "Bước sáu: không rõ vai thì vẫn viết nháp.",
+    "say": "Bước sáu: không rõ vai trò thì vẫn viết bản nháp trước.",
+    "asr": "Bước 6, không rõ vai trò thì vẫn viết bản nháp chưa?",
+    "wav": "vo/c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 40.9,
+    "t1": 43.511,
+    "dur": 2.611,
+    "sub": "Rồi hỏi tối đa ba câu, không hỏi suông.",
+    "say": "Sau đó hỏi tối đa ba câu. Không bao giờ chỉ hỏi suông.",
+    "asr": "Sau đó hỏi tối đa 3 câu, không bao giờ chỉ hỏi xuông.",
+    "wav": "vo/c12.wav"
+  },
+  {
+    "id": "c13",
+    "t0": 44.531,
+    "t1": 47.224,
+    "dur": 2.693,
+    "sub": "Bước bảy: sáu phần, trong một khối mã.",
+    "say": "Bước bảy: biên soạn đủ sáu phần, đặt trong một khối mã.",
+    "asr": "Bước 7, biên soạn đủ 6 phần đặt trong 1 khối mã.",
+    "wav": "vo/c13.wav"
+  },
+  {
+    "id": "c14",
+    "t0": 48.244,
+    "t1": 50.99,
+    "dur": 2.746,
+    "sub": "Bước tám: tự kiểm tra trước khi trả.",
+    "say": "Bước tám: tự kiểm tra. Đủ phần chưa, dùng ngay được chưa.",
+    "asr": "Bước 8 tự kiểm tra. Đủ phần chưa dùng ngay được chưa?",
+    "wav": "vo/c14.wav"
+  },
+  {
+    "id": "c15",
+    "t0": 52.01,
+    "t1": 55.299,
+    "dur": 3.289,
+    "sub": "Bước chín: khối mã, giải thích, tài liệu.",
+    "say": "Bước chín: trả ba lớp. Khối mã, giải thích ngắn, và gợi ý tài liệu.",
+    "asr": "Bước 9 trả 3 lớp, khối mã giải thích ngắn và gợi ý tài liệu.",
+    "wav": "vo/c15.wav"
+  },
+  {
+    "id": "c16",
+    "t0": 56.319,
+    "t1": 58.16,
+    "dur": 1.841,
+    "sub": "Ít mà đúng. Sao chép là dùng được.",
+    "say": "Ít mà đúng. Sao chép là dùng được ngay.",
+    "asr": "ít mà đúng sau chép là dùng được ngay.",
+    "wav": "vo/c16.wav"
+  }
+]

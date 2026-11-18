@@ -1,0 +1,162 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.7,
+    "t1": 8.858,
+    "dur": 8.158,
+    "sub": "Chào anh Nguyễn Đăng Chung! Sinh năm 1981 và chưa từng dùng AI bao giờ lại chính là một lợi thế lớn.",
+    "say": "Chào anh Nguyễn Đăng Chung. Sinh năm một chín tám mốt và chưa từng dùng AI bao giờ thực ra lại là một lợi thế rất lớn, vì anh đã quen giao việc ngoài đời thực.",
+    "asr": "Chào anh Nguyễn Đăng Trung. Xin năm 1981 và chưa từng dùng AI bao giờ thực trả lại là một lời thế rất lớn vì anh đã quen giao việc ngoài đời thực.",
+    "wav": "vo/c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 9.408,
+    "t1": 17.585,
+    "dur": 8.177,
+    "sub": "Người mới thường lúng túng vì chỉ gõ câu ngắn như “Tạo trợ lý viết email” hay “Hãy tóm tắt báo cáo”.",
+    "say": "Người mới mở AI thường lúng túng, chỉ gõ một câu rất ngắn như tạo trợ lý viết thư điện tử, hoặc hãy tóm tắt báo cáo, khiến kết quả trả về rất chung chung.",
+    "asr": "Người mới mở AI thường lũng túng chỉ có một câu rất ngắn như tạo trở lý vị thư điện tử, hoặc hệ tóm tắc báo cáo, khiến kết quả trả về rất chung chung.",
+    "wav": "vo/c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 18.135,
+    "t1": 27.811,
+    "dur": 9.676,
+    "sub": "Với System Prompt Architect, anh chỉ cần gõ đúng 1 câu ngắn đó! Nó KHÔNG làm hộ việc lẻ, mà thiết kế cho anh cả một Trợ lý AI chuyên biệt.",
+    "say": "Với công cụ Kiến trúc sư System Prompt này, anh Chung chỉ cần gõ đúng một câu ngắn đó. Nó tuyệt đối không làm hộ việc lẻ, mà thiết kế cho anh cả một trợ lý AI chuyên biệt.",
+    "asr": "với công cụ kiến trúc sư system prôm này, anh chung chỉ cần gõ đúng một câu ngắn đó. Nó tuyệt đối không làm hồ việc lẽ, mà thích kế cho anh cả một trở lý AI chuyên bị.",
+    "wav": "vo/c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 28.361,
+    "t1": 34.367,
+    "dur": 6.006,
+    "sub": "Khi nhận câu yêu cầu thô của anh Chung, Kiến trúc sư AI âm thầm chạy quy trình 9 bước chuẩn hóa.",
+    "say": "Ngay khi nhận câu yêu cầu thô của anh Chung, Kiến trúc sư AI sẽ âm thầm kích hoạt quy trình chín bước chuẩn hóa ở hậu trường.",
+    "asr": "Ngay khi nhận cầu yêu cầu thô của Anh Trung, kiến trúc sư AI sẽ âm thầm kích hoạt quy trình chính bước trưởng hóa ở hầu trường.",
+    "wav": "vo/c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 35.1,
+    "t1": 43.117,
+    "dur": 8.017,
+    "sub": "Bước 1 đến Bước 4: Tự xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và tự suy luận thông tin hợp lý — không hỏi vặn lại!",
+    "say": "Từ bước một đến bước bốn, nó tự xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và tự suy luận phương án hợp lý nhất mà không hỏi vặn lại anh.",
+    "asr": "từ bước 1 đến bước 4, nó từ xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và từ suy lượng phương án hợp lý nhất mà không hỏi vàng lại ăn.",
+    "wav": "vo/c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 44.1,
+    "t1": 51.58,
+    "dur": 7.48,
+    "sub": "Bước 5 & Bước 6: Phần dữ liệu anh sẽ nạp sau được đặt vào ô giữ chỗ như {{NỘI_DUNG_CẦN_XỬ_LÝ}}, {{MỤC_TIÊU}}, {{DỮ_LIỆU_ĐẦU_VÀO}}.",
+    "say": "Ở bước năm và bước sáu, những dữ liệu anh sẽ điền sau được đặt sẵn vào các biến giữ chỗ như nội dung cần xử lý, mục tiêu, hoặc dữ liệu đầu vào.",
+    "asr": "Ở bước năm và bước xấu, những dữ liệu anh sẽ điện sau được đặt sản vào các biến dữ chỗ như nổi dung cần sử lý, mục tiêu, hoặc dữ liệu đầu vào.",
+    "wav": "vo/c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 52.4,
+    "t1": 58.445,
+    "dur": 6.045,
+    "sub": "Bước 7 đến Bước 9: Lắp ráp đủ 6 phần và tự chấm 8 câu hỏi kiểm định chất lượng trước khi xuất ra màn hình.",
+    "say": "Từ bước bảy đến bước chín, nó lắp ráp đủ sáu phần và tự kiểm định qua tám câu hỏi chất lượng trước khi xuất kết quả ra màn hình.",
+    "asr": "từ bước 7 đến bước 9, nó lắp tráp đủ 6 phần và từ kiểm định qua 8 câu hỏi chất lượng trước khi xuất kết quả ra mang hình.",
+    "wav": "vo/c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 58.995,
+    "t1": 65.012,
+    "dur": 6.017,
+    "sub": "Kết quả đầu tiên anh Chung nhận được là toàn bộ SYSTEM PROMPT nằm gọn trong một khung Code Block duy nhất, chia đúng 6 phần:",
+    "say": "Kết quả đầu tiên anh Chung nhận được là toàn bộ bản thiết kế trợ lý nằm gọn trong một khung mã duy nhất, chia làm sáu phần rõ rệt.",
+    "asr": "Cái quả đầu tiên ăn chung nhận được là toàn bộ bản thích kế trở lý 5 gồn trong một khun mại duy nhất, chia làm sáu phần đó trật.",
+    "wav": "vo/c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 67.1,
+    "t1": 73.008,
+    "dur": 5.908,
+    "sub": "Phần 1 (IDENTITY) & Phần 2 (AUDIENCE): Định danh trợ lý là chuyên gia bao nhiêu năm kinh nghiệm và phục vụ đúng công việc của anh.",
+    "say": "Phần một và phần hai định danh rõ trợ lý là chuyên gia có bao nhiêu năm kinh nghiệm, và phục vụ chính xác bối cảnh công việc của anh.",
+    "asr": "Phần 1 và phần 2 định dân đỏ trở lý là chuyên gia có bao nhiêu năm kinh nghiệm và phục vụ chính xác bối cảnh công việc của anh.",
+    "wav": "vo/c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 75.6,
+    "t1": 80.575,
+    "dur": 4.975,
+    "sub": "Phần 3 (CAPABILITIES) & Phần 4 (WORKFLOW): Liệt kê 5–10 năng lực cụ thể và quy trình làm việc từng bước mạch lạc.",
+    "say": "Phần ba và phần bốn liệt kê từ năm đến mười năng lực cụ thể, kèm quy trình làm việc từng bước mạch lạc.",
+    "asr": "Phần 3 và phần 4 liệt kê từ 5 đến 10 năng lực cụ thể, kèm quy trình làm việc từng bước mặt lạc.",
+    "wav": "vo/c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 83.1,
+    "t1": 87.12,
+    "dur": 4.02,
+    "sub": "Phần 5 (OUTPUT FORMAT) & Phần 6 (RULES): Khóa chặt định dạng kết quả đầu ra và hàng rào kỷ luật.",
+    "say": "Phần năm và phần sáu khóa chặt định dạng kết quả đầu ra cùng hàng rào kỷ luật khi làm việc.",
+    "asr": "phân năm và phân sấu khóa chặt định dạng kết quả đầu ra cùng hàng đầu ký lục khi làm việc.",
+    "wav": "vo/c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 89.5,
+    "t1": 95.393,
+    "dur": 5.893,
+    "sub": "Ngay dưới khung Prompt là mục GIẢI THÍCH NGẮN gồm tối đa 5 ý giúp anh hiểu rõ vì sao trợ lý được thiết kế như vậy.",
+    "say": "Ngay bên dưới khung mã là mục giải thích ngắn gồm tối đa năm ý, giúp anh hiểu rõ vì sao trợ lý lại được thiết kế như vậy.",
+    "asr": "Ngày bên dưới khung mả là một giải thích ngắn gồm tối da năm ý, giúp anh hiểu đỏ vì sau trở lý lại được thiết kế như vậy.",
+    "wav": "vo/c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 98.1,
+    "t1": 104.977,
+    "dur": 6.877,
+    "sub": "Kèm theo mục KNOWLEDGE BASE GỢI Ý: Chỉ rõ 5 tài liệu thực tế anh nên đính kèm như quy trình nội bộ, mẫu báo cáo chuẩn hay danh mục sản phẩm.",
+    "say": "Tiếp theo là mục gợi ý kho tri thức, chỉ rõ năm loại tài liệu thực tế anh nên đính kèm như quy trình nội bộ, mẫu chuẩn hay danh mục sản phẩm.",
+    "asr": "Tiếp theo là một gợi ý khói trị thức, chỉ trỏ 5 loại tài liệu thực tế ăn nên đến kèm như quy trình nổi bộ, mẫu chuẩn hay dân một sáng phẩm.",
+    "wav": "vo/c12.wav"
+  },
+  {
+    "id": "c13",
+    "t0": 107.1,
+    "t1": 114.479,
+    "dur": 7.379,
+    "sub": "Đặc biệt, quy tắc chống ảo giác bắt buộc trợ lý phân biệt rõ dữ liệu có sẵn và giả định — tuân thủ Less is More, không rườm rà, đạt chuẩn OKR 9/10!",
+    "say": "Đặc biệt, quy tắc chống bịa đặt luôn bắt buộc trợ lý phân biệt rõ dữ liệu có sẵn với giả định, ngắn gọn súc tích, hướng tới điểm chất lượng chín trên mười.",
+    "asr": "Đặc bi, quý tác chống bị đặc luôn bắt bục trở lý phân biệt đỏ giữ liệu có sẵn với giả định, ngãng gòn xuất tích, hướng tới điện chất lượng 90-10.",
+    "wav": "vo/c13.wav"
+  },
+  {
+    "id": "c14",
+    "t0": 118.5,
+    "t1": 125.073,
+    "dur": 6.573,
+    "sub": "Để bắt đầu ngay hôm nay, anh Chung chỉ cần làm đúng 3 bước: Một, gõ mong muốn ngắn gọn vào dòng {{NHẬP YÊU CẦU VỀ TRỢ LÝ MUỐN TẠO TẠI ĐÂY}}.",
+    "say": "Để bắt đầu ngay hôm nay, anh Chung chỉ cần làm đúng ba bước: Bước một, gõ mong muốn ngắn gọn vào dòng nhập yêu cầu ở cuối bản mẫu.",
+    "asr": "Để bắt đầu ngay hôm nay, anh chung chỉ cần làm đúng ba bước. Bước 1, gọi mong muốn ngãng gọn vào dòng nhạc yêu cầu ở cuối bản mổ.",
+    "wav": "vo/c14.wav"
+  },
+  {
+    "id": "c15",
+    "t0": 128.6,
+    "t1": 138.441,
+    "dur": 9.841,
+    "sub": "Hai, bấm Copy khung System Prompt 6 phần. Ba, dán vào Gemini Gem hoặc Custom GPT — anh đã có ngay trợ lý AI đắc lực của riêng mình!",
+    "say": "Bước hai, bấm sao chép khung System Prompt sáu phần vừa hiện ra. Bước ba, dán vào Gemini hoặc Chat G P T, anh đã có ngay một trợ lý AI đắc lực của riêng mình.",
+    "asr": "Bước 2, bấm sau chếp khùng System Prom 6 phần vừa hiện ra. Bước 3, giảng vào Gemini, hoặc chắc GPD, anh đã có ngay một trở lý AI đắc lực của đing mình.",
+    "wav": "vo/c15.wav"
+  }
+]

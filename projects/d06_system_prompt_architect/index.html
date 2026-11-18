@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>System Prompt Architect — dashi-flat-flowchart</title>
+<style>
+@font-face { font-family: "BeVietnamPro"; src: url("./fonts/BeVietnamPro-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "BeVietnamPro"; src: url("./fonts/BeVietnamPro-Medium.ttf") format("truetype"); font-weight: 500 600; font-style: normal; }
+@font-face { font-family: "BeVietnamPro"; src: url("./fonts/BeVietnamPro-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "BeVietnamPro"; src: url("./fonts/BeVietnamPro-ExtraBold.ttf") format("truetype"); font-weight: 800 900; font-style: normal; }
+html, body { margin: 0; padding: 0; background: #fcf9ec; overflow: hidden; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+#stage canvas { position: absolute; left: 0; top: 0; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<script src="./fx_dashi.js"></script>
+<script>
+"use strict";
+const FX_DEFAULT = true;
+const W = 1920, H = 1080, TAU = Math.PI * 2;
+const STEP_X = 1700;
+const font = (w, s) => `${w} ${s}px "BeVietnamPro"`;
+const NOSUB = /[?&]nosub=1/.test(location.search);
+const C = {
+  bg: "#fcf9ec", paper: "#fffdf6", amber: "#fbbf2f", amber2: "#f7a30e", amberD: "#e08a06", amberL: "#fde7a0",
+  ring: "#efe8d6", shadow: "#efe3c2", ink: "#1a1410", ink2: "#2b241b", mute: "#7d7363", faint: "#b9b09c", text2: "#5f574a",
+  red: "#d41928", blue: "#2373ce", orange: "#ee8013", green: "#4f9d34", gold: "#d98e04", pill: "#f5eedb",
+};
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const P = (t, a, d) => clamp((t - a) / Math.max(0.001, d));
+const outC = (p) => 1 - Math.pow(1 - clamp(p), 3);
+const inOutC = (p) => { p = clamp(p); return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; };
+const outBack = (p) => { const c1 = 1.70158, c3 = c1 + 1; p = clamp(p); return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+const sine = (p) => 0.5 - 0.5 * Math.cos(Math.PI * clamp(p));
+const qb = (a, c, b, u) => (1 - u) * (1 - u) * a + 2 * (1 - u) * u * c + u * u * b;
+function hex(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function mix(a, b, p) { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * p)).join(",")})`; }
+function rgba(h, a) { const [r, gg, b] = hex(h); return `rgba(${r},${gg},${b},${a})`; }
+const cv = document.getElementById("c");
+const g = cv.getContext("2d");
+const wCache = new Map();
+function tw(s, f) { const k = f + "|" + s; let v = wCache.get(k); if (v === undefined) { g.save(); g.font = f; v = g.measureText(s).width; g.restore(); wCache.set(k, v); } return v; }
+function rrect(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
+function text(s, x, y, f, col, align = "center", base = "middle") { g.font = f; g.fillStyle = col; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
+function popS(t, t0, d = 0.38) { return outBack(P(t, t0, d)); }
+function popA(t, t0, d = 0.38) { return P(t, t0, d * 0.45); }
+function wrapWords(str, f, maxW) {
+  const words = String(str).split(" ");
+  const lines = [];
+  let cur = "";
+  for (const w of words) {
+    const trial = cur ? cur + " " + w : w;
+    if (cur && tw(trial, f) > maxW) { lines.push(cur); cur = w; }
+    else cur = trial;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+let TL = null;
+let ST = [];
+let FX_CUTS = [];
+let FX_KEYS = [0, 1];
+let SUB_HL = [];
+let paintA = 1;
+function useA(a) { g.globalAlpha = clamp(paintA * a); }
+
+function badge(x, y, n, s = 1, a = 1) {
+  if (a <= 0) return;
+  g.save(); useA(a); g.translate(x, y); g.scale(s, s);
+  g.fillStyle = C.amber;
+  g.beginPath(); g.moveTo(20, -15); g.lineTo(42, 0); g.lineTo(20, 15); g.closePath(); g.fill();
+  g.beginPath(); g.arc(0, 0, 28, 0, TAU); g.fill();
+  text(String(n), 0, 2, font(900, 32), "#ffffff");
+  g.restore();
+}
+function arrow(x0, y0, cx, cy, x1, y1, p, w = 16) {
+  if (p <= 0) return;
+  const N = 64, pts = [];
+  for (let i = 0; i <= N * p; i++) { const u = i / N; pts.push([qb(x0, cx, x1, u), qb(y0, cy, y1, u)]); }
+  const u = p, ex = qb(x0, cx, x1, u), ey = qb(y0, cy, y1, u);
+  const dx = 2 * (1 - u) * (cx - x0) + 2 * u * (x1 - cx), dy = 2 * (1 - u) * (cy - y0) + 2 * u * (y1 - cy);
+  const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+  const gr = g.createLinearGradient(x0, y0, ex, ey);
+  gr.addColorStop(0, "rgba(252,236,190,0)"); gr.addColorStop(0.35, "#fbe3a0"); gr.addColorStop(1, C.amber2);
+  const hl = w * 2.1;
+  g.strokeStyle = gr; g.lineWidth = w; g.lineCap = "butt"; g.lineJoin = "round";
+  g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+  g.lineTo(ex - ux * hl * 0.6, ey - uy * hl * 0.6); g.stroke();
+  g.fillStyle = C.amber2; g.beginPath();
+  g.moveTo(ex + ux * hl * 0.55, ey + uy * hl * 0.55);
+  g.lineTo(ex - ux * hl * 0.7 - uy * hl * 0.85, ey - uy * hl * 0.7 + ux * hl * 0.85);
+  g.lineTo(ex - ux * hl * 0.7 + uy * hl * 0.85, ey - uy * hl * 0.7 - ux * hl * 0.85);
+  g.closePath(); g.fill();
+}
+function arrowFlow(x0, y0, cx, cy, x1, y1, t, t0, a = 1) {
+  if (!FX_DEFAULT || t < t0 || a <= 0) return;
+  const u = ((t - t0) / 1.6) % 1, k = 0.12 + 0.78 * u;
+  g.save(); useA(Math.sin(Math.PI * u) * a); g.fillStyle = "#fffaf0";
+  g.beginPath(); g.arc(qb(x0, cx, x1, k), qb(y0, cy, y1, k), 7, 0, TAU); g.fill(); g.restore();
+}
+function paper(x, y, w, h, a = 1, r = 22) {
+  if (a <= 0) return;
+  g.save(); useA(a);
+  g.fillStyle = C.shadow; rrect(x + 8, y + 10, w, h, r); g.fill();
+  g.fillStyle = C.paper; rrect(x, y, w, h, r); g.fill();
+  g.restore();
+}
+function amberHead(x, y, w, h, r, label) {
+  g.save(); rrect(x, y, w, h, r); g.clip();
+  g.fillStyle = C.amber; g.fillRect(x, y, w, 58);
+  g.restore();
+  text(label, x + 28, y + 30, font(900, 32), C.ink, "left");
+  for (let k = 0; k < 3; k++) {
+    g.fillStyle = "rgba(26,20,16,0.35)";
+    g.beginPath(); g.arc(x + w - 36 - k * 20, y + 29, 6, 0, TAU); g.fill();
+  }
+}
+function chipBox(x, y, w, h, label, col, t, t0, ink) {
+  const a = popA(t, t0), s = popS(t, t0);
+  if (a <= 0) return;
+  const light = col === C.amber || col === C.gold || col === C.amberL || col === C.pill || col === C.paper;
+  const fillInk = ink || (light ? C.ink : "#ffffff");
+  let size = 44;
+  while (size > 32 && tw(label, font(900, size)) > w - 36) size -= 2;
+  g.save(); useA(a); g.translate(x + w / 2, y + h / 2); g.scale(0.72 + 0.28 * s, 0.72 + 0.28 * s);
+  g.fillStyle = mix(col, "#000000", 0.18); rrect(-w / 2, -h / 2 + 7, w, h, 18); g.fill();
+  g.fillStyle = col; rrect(-w / 2, -h / 2, w, h, 18); g.fill();
+  text(label, 0, 2, font(900, size), fillInk);
+  g.restore();
+}
+function stationTitle(cx, title, t, t0) {
+  const a = popA(t, t0), s = 0.82 + 0.18 * popS(t, t0);
+  if (a <= 0) return;
+  g.save(); useA(a); g.translate(cx, 228); g.scale(s, s);
+  text(title, 0, 0, font(900, 48), C.ink, "center");
+  g.restore();
+}
+function linesBlock(lines, x, y, f, col, lh, align = "left") {
+  lines.forEach((ln, i) => text(ln, x, y + i * lh, f, col, align));
+}
+
+function drawRings(cam, centers, t) {
+  centers.forEach(([sx, sy], i) => {
+    const x = (sx - cam.x) * 0.5 + 960, y = (sy - cam.y) * 0.5 + 515;
+    if (x < -500 || x > W + 500) return;
+    g.strokeStyle = C.ring; g.lineWidth = 4; g.lineCap = "round";
+    g.beginPath(); g.arc(x, y, 400, 0, TAU); g.stroke();
+    g.lineWidth = 12;
+    const rot = t * 0.12 + i * 0.4;
+    for (let k = 0; k < 12; k++) {
+      const a = k * TAU / 12 - Math.PI / 2 + rot, r0 = 330, r1 = k % 3 === 0 ? 374 : 362;
+      g.beginPath(); g.moveTo(x + Math.cos(a) * r0, y + Math.sin(a) * r0); g.lineTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1); g.stroke();
+    }
+    const hs = t * 0.9 + i * 1.7, hm = t * 0.15 + i * 2.3;
+    g.strokeStyle = C.shadow; g.lineWidth = 10;
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(hm) * 190, y + Math.sin(hm) * 190); g.stroke();
+    g.lineWidth = 6;
+    g.beginPath(); g.moveTo(x - Math.cos(hs) * 40, y - Math.sin(hs) * 40); g.lineTo(x + Math.cos(hs) * 290, y + Math.sin(hs) * 290); g.stroke();
+    g.fillStyle = C.shadow; g.beginPath(); g.arc(x, y, 16, 0, TAU); g.fill();
+  });
+}
+const BG_COLS = ["#f8e2a6", "#f6d9bd", "#dcead0", "#efe3c2", "#fbe9b8"];
+const SHAPES = Array.from({ length: 30 }, (_, i) => {
+  const h = (k) => 动效.hash(i * 9.13 + k * 3.71);
+  return { x: h(1) * 2300, y: 160 + h(2) * 680, r: 10 + h(3) * 22, kind: Math.floor(h(4) * 5), col: BG_COLS[Math.floor(h(5) * BG_COLS.length)], ph: h(6) * TAU, spin: (h(7) - 0.5) * 1.2, v: 8 + h(8) * 14 };
+});
+function drawShapes(t, cam) {
+  const mod = (v, m) => ((v % m) + m) % m;
+  for (const s of SHAPES) {
+    const x = mod(s.x - cam.x * 0.3 - s.v * t, 2300) - 190;
+    const y = s.y - ((cam.y || 515) - 515) * 0.3 + 9 * Math.sin(0.9 * t + s.ph);
+    if (y > 860 || y < 140) continue;
+    g.save(); g.translate(x, y); g.rotate(s.ph + s.spin * t); g.fillStyle = s.col; g.strokeStyle = s.col;
+    const r = s.r;
+    if (s.kind === 0) { g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fill(); }
+    else if (s.kind === 1) { g.lineWidth = 7; g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke(); }
+    else if (s.kind === 2) { rrect(-r, -r, 2 * r, 2 * r, r * 0.35); g.fill(); }
+    else if (s.kind === 3) { const a = r * 0.34; g.fillRect(-r, -a, 2 * r, 2 * a); g.fillRect(-a, -r, 2 * a, 2 * r); }
+    else { g.beginPath(); g.moveTo(0, -r); g.lineTo(r * 0.9, r * 0.6); g.lineTo(-r * 0.9, r * 0.6); g.closePath(); g.fill(); }
+    g.restore();
+  }
+}
+
+const FX_KINDS = ["横移", "色块横扫", "圆形遮罩"];
+const fxKind = (k) => FX_KINDS[k % FX_KINDS.length];
+function fxCamP(t, k) {
+  const c = FX_CUTS[k];
+  if (FX_DEFAULT && fxKind(k) !== "横移") return t >= c ? 1 : 0;
+  return inOutC(P(t, c - 0.15, 0.62));
+}
+const FX_PUSH = 0.08, FX_DRIFT = 46;
+function fxView(t) {
+  let j = 0;
+  while (j + 2 < FX_KEYS.length && t >= FX_KEYS[j + 1]) j++;
+  const span = Math.max(0.001, FX_KEYS[j + 1] - FX_KEYS[j]);
+  const p = sine(P(t, FX_KEYS[j], span));
+  const key = (k) => (k % 2 ? { z: 1 + FX_PUSH, dx: FX_DRIFT } : { z: 1, dx: -FX_DRIFT });
+  const A = key(j), B = key(j + 1);
+  return { z: lerp(A.z, B.z, p), dx: lerp(A.dx, B.dx, p) };
+}
+const FX_Y0 = 112, FX_Y1 = 908;
+function fxRing(cx, cy, R) {
+  g.lineWidth = 16; g.strokeStyle = C.shadow; g.beginPath(); g.arc(cx + 6, cy + 9, R + 8, 0, TAU); g.stroke();
+  g.strokeStyle = C.amber2; g.beginPath(); g.arc(cx, cy, R + 8, 0, TAU); g.stroke();
+}
+function fxIris(R) {
+  g.fillStyle = C.amber; g.beginPath(); g.rect(0, 0, W, H);
+  if (R > 0) g.arc(960, 515, R, 0, TAU, true);
+  g.fill("evenodd");
+  if (R > 0) fxRing(960, 515, R);
+}
+function fxSweep(t, c) {
+  const lead = lerp(-260, W + 260, inOutC(P(t, c - 0.32, 0.32)));
+  const tail = lerp(-260, W + 260, inOutC(P(t, c + 0.04, 0.34)));
+  const sl = 150;
+  const band = (x0, x1, col) => { if (x1 <= x0) return; g.fillStyle = col; g.beginPath(); g.moveTo(x0 + sl, FX_Y0); g.lineTo(x1 + sl, FX_Y0); g.lineTo(x1 - sl, FX_Y1); g.lineTo(x0 - sl, FX_Y1); g.closePath(); g.fill(); };
+  band(tail - 60, lead + 60, C.shadow); band(tail, lead, C.amber); band(lead - 46, lead, C.amber2); band(tail, tail + 36, C.amberL);
+}
+function fxDefaultAfter(t) {
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1;
+  g.beginPath(); g.rect(0, FX_Y0, W, FX_Y1 - FX_Y0); g.clip();
+  if (t < 0.62) fxIris(1080 * outC(P(t, 0, 0.62)));
+  FX_CUTS.forEach((c, k) => {
+    if (t < c - 0.35 || t > c + 0.45) return;
+    const kind = fxKind(k);
+    if (kind === "色块横扫") fxSweep(t, c);
+    else if (kind === "圆形遮罩") fxIris(t < c ? 1100 * (1 - Math.pow(P(t, c - 0.3, 0.3), 3)) : 1100 * outC(P(t, c, 0.42)));
+  });
+  g.restore();
+}
+function drawHeader() {
+  g.save(); g.globalAlpha = 1;
+  g.fillStyle = C.amber; g.fillRect(0, 0, W, 112);
+  g.fillStyle = "rgba(160,100,0,0.12)"; g.fillRect(0, 112, W, 5);
+  const title = TL.title;
+  let size = 54;
+  while (size > 36 && tw(title, font(900, size)) > 1680) size -= 2;
+  text(title, 84, 58, font(900, size), C.ink, "left");
+  g.restore();
+}
+function subIn(c, t) {
+  const k = TL.cues.indexOf(c), prev = k > 0 ? TL.cues[k - 1] : null;
+  return prev && prev.hide >= c.show - 1e-3 ? 1 : P(t, c.show, 0.08);
+}
+function drawSubtitle(t) {
+  if (NOSUB) return;
+  const c = TL.cueAt(t); if (!c) return;
+  const str = c.text;
+  let size = 56;
+  while (size > 34 && tw(str, font(800, size)) > 1760) size -= 2;
+  const a = subIn(c, t), f = font(800, size), y = 993;
+  const x0 = W / 2 - tw(str, f) / 2;
+  const segs = []; let j = 0, plain = "";
+  while (j < str.length) {
+    const m = SUB_HL.find(([w]) => str.startsWith(w, j));
+    if (m) { if (plain) { segs.push([plain]); plain = ""; } segs.push(m); j += m[0].length; }
+    else { plain += str[j]; j++; }
+  }
+  if (plain) segs.push([plain]);
+  g.save(); g.globalAlpha = a;
+  let xx = x0;
+  for (const [s, col] of segs) {
+    const ww = tw(s, f);
+    if (SUB_HL.some(([w, c0]) => w === s && !c0)) {
+      g.fillStyle = "rgba(251,191,47,0.85)"; rrect(xx - 6, y + 4, ww + 12, 26, 8); g.fill();
+    }
+    xx += ww;
+  }
+  xx = x0; g.font = f; g.textBaseline = "middle"; g.textAlign = "left";
+  for (const [s, col] of segs) { g.fillStyle = col || C.ink; g.fillText(s, xx, y); xx += tw(s, f); }
+  g.restore();
+}
+
+function camAt(t) {
+  let x = ST[0].cx;
+  for (let i = 1; i < ST.length; i++) x = lerp(x, ST[i].cx, fxCamP(t, i - 1));
+  return { x, y: 515, z: 1 };
+}
+function visOf(cx, camx) {
+  const d = Math.abs(cx - camx);
+  if (d < 780) return 1;
+  if (d > 1280) return 0;
+  return 1 - (d - 780) / 500;
+}
+function cueT(id) { return TL.byId[id].t0; }
+function cueSpan(id) { const c = TL.byId[id]; return Math.max(0.8, c.t1 - c.t0); }
+
+function drawS0(cx, t) {
+  stationTitle(cx, "MỘT CÂU THÔ", t, 0.15);
+  const winX = cx - 560, winY = 280, winW = 620, winH = 360;
+  const a0 = popA(t, 0.2);
+  paper(winX, winY, winW, winH, a0, 26);
+  if (a0 > 0) {
+    g.save(); useA(a0);
+    amberHead(winX, winY, winW, winH, 26, "Ô nhập");
+    const phrase = "Tạo trợ lý viết email.";
+    const typed = phrase.slice(0, Math.floor(P(t, cueT("c01"), cueSpan("c01") * 0.75) * phrase.length));
+    const bodyF = font(800, 42);
+    const lines = wrapWords(typed || " ", bodyF, winW - 72);
+    linesBlock(typed ? lines : [""], winX + 36, winY + 150, bodyF, C.ink, 54, "left");
+    if (t >= cueT("c01") && t < cueT("c02")) {
+      const caretX = winX + 36 + tw(lines[lines.length - 1] || "", bodyF);
+      const blink = 动效.blink(t, { period: 0.7, duty: 0.55 });
+      g.fillStyle = C.amberD; g.globalAlpha = paintA * a0 * blink;
+      g.fillRect(caretX + 4, winY + 128, 4, 42);
+    }
+    g.restore();
+  }
+  const ghosts = ["Phân tích dữ liệu", "Học Kotlin", "Kịch bản ngắn"];
+  ghosts.forEach((lb, i) => {
+    chipBox(cx + 100, 280 + i * 118, 450, 96, lb, i === 0 ? C.orange : i === 1 ? C.green : C.gold, t, cueT("c01") + 0.12 * i);
+  });
+  chipBox(cx - 560, 680, 500, 100, "Không viết hộ", C.ink, t, cueT("c02"), "#ffffff");
+  chipBox(cx + 40, 680, 520, 100, "System Prompt", C.red, t, cueT("c03"), "#ffffff");
+}
+function drawS1(cx, t) {
+  stationTitle(cx, "KIẾN TRÚC SƯ", t, cueT("c04"));
+  const labels = ["Vai trò", "Người dùng", "Năng lực", "Quy trình", "Đầu ra", "Luật"];
+  const cols = [C.blue, C.blue, C.orange, C.green, C.gold, C.blue];
+  labels.forEach((lb, i) => {
+    const col = i % 3, row = Math.floor(i / 3);
+    const x = cx - 510 + col * 340, y = 300 + row * 150;
+    chipBox(x, y, 320, 120, lb, cols[i], t, cueT("c05") + i * 0.1, "#ffffff");
+  });
+  const a = popA(t, cueT("c05") + 0.45);
+  if (a > 0) {
+    paper(cx - 420, 680, 840, 100, a, 18);
+    g.save(); useA(a);
+    text("sáu phần", cx - 250, 730, font(900, 42), C.blue);
+    text("Không làm hộ việc", cx + 80, 730, font(800, 42), C.ink);
+    g.restore();
+  }
+}
+function drawS2(cx, t) {
+  stationTitle(cx, "ĐỌC YÊU CẦU", t, cueT("c06"));
+  const a1 = popA(t, cueT("c06"));
+  paper(cx - 560, 290, 520, 460, a1, 24);
+  if (a1 > 0) {
+    g.save(); useA(a1);
+    badge(cx - 470, 360, "1", popS(t, cueT("c06")));
+    text("Mọi câu", cx - 300, 430, font(900, 48), C.ink);
+    text("là yêu cầu", cx - 300, 510, font(700, 40), C.text2);
+    text("thiết kế trợ lý", cx - 300, 562, font(700, 40), C.text2);
+    g.restore();
+  }
+  const a2 = popA(t, cueT("c07"));
+  paper(cx + 20, 290, 540, 460, a2, 24);
+  if (a2 > 0) {
+    g.save(); useA(a2);
+    badge(cx + 80, 360, "2", popS(t, cueT("c07")));
+    text("Tự chốt", cx + 290, 360, font(900, 44), C.ink);
+    g.restore();
+  }
+  ["Vai trò", "Ai dùng", "Đầu vào", "Đầu ra"].forEach((lb, i) => {
+    const col = i % 2, row = Math.floor(i / 2);
+    chipBox(cx + 50 + col * 250, 420 + row * 140, 230, 110, lb, C.amber, t, cueT("c07") + 0.16 + i * 0.12, C.ink);
+  });
+}
+function drawS3(cx, t) {
+  stationTitle(cx, "ĐIỀN CHỖ TRỐNG", t, cueT("c08"));
+  const cols = [
+    { n: "3", t0: cueT("c08"), title: "Giữ ý đã có", lines: ["Không hỏi lại"], col: C.green },
+    { n: "4", t0: cueT("c09"), title: "Tự suy luận", lines: ["Chọn phương án", "an toàn"], col: C.orange },
+    { n: "5", t0: cueT("c10"), title: "Thiếu dữ liệu", lines: ["{{biến}}", "để điền sau"], col: C.gold },
+  ];
+  cols.forEach((col, i) => {
+    const x = cx - 540 + i * 360;
+    const a = popA(t, col.t0);
+    paper(x, 300, 340, 460, a, 24);
+    if (a <= 0) return;
+    g.save(); useA(a);
+    badge(x + 170, 360, col.n, popS(t, col.t0));
+    text(col.title, x + 170, 450, font(900, 40), C.ink);
+    col.lines.forEach((ln, li) => text(ln, x + 170, 530 + li * 48, font(700, 36), C.text2));
+    g.restore();
+  });
+}
+function drawS4(cx, t) {
+  stationTitle(cx, "KHI KHÔNG RÕ VAI", t, cueT("c11"));
+  const a = popA(t, cueT("c11"));
+  paper(cx - 560, 300, 500, 420, a, 24);
+  if (a > 0) {
+    g.save(); useA(a);
+    badge(cx - 490, 370, "6", popS(t, cueT("c11")));
+    text("Vẫn viết nháp", cx - 310, 430, font(900, 42), C.ink);
+    text("Rồi mới hỏi", cx - 310, 500, font(700, 36), C.text2);
+    g.restore();
+  }
+  ["Câu 1", "Câu 2", "Câu 3"].forEach((lb, i) => {
+    chipBox(cx + 20, 300 + i * 130, 280, 108, lb, C.amber, t, cueT("c12") + i * 0.18, C.ink);
+  });
+  chipBox(cx + 320, 430, 250, 108, "Tối đa 3", C.blue, t, cueT("c12") + 0.2);
+  const ax = popA(t, cueT("c12") + 0.45);
+  if (ax > 0) {
+    g.save(); useA(ax);
+    text("Không hỏi suông", cx + 180, 740, font(900, 40), C.red);
+    g.restore();
+  }
+}
+function drawS5(cx, t) {
+  stationTitle(cx, "SOẠN VÀ TỰ KIỂM", t, cueT("c13"));
+  const a = popA(t, cueT("c13"));
+  paper(cx - 560, 290, 560, 500, a, 24);
+  if (a > 0) {
+    g.save(); useA(a);
+    amberHead(cx - 560, 290, 560, 500, 24, "Một khối mã");
+    g.restore();
+  }
+  ["Vai trò", "Người dùng", "Năng lực", "Quy trình", "Đầu ra", "Luật"].forEach((lb, i) => {
+    const tt = cueT("c13") + 0.2 + i * 0.22;
+    const aa = popA(t, tt);
+    if (aa <= 0) return;
+    g.save(); useA(aa);
+    text(String(i + 1), cx - 500, 390 + i * 58, font(900, 36), C.amberD, "left");
+    text(lb, cx - 450, 390 + i * 58, font(800, 36), C.ink, "left");
+    g.restore();
+  });
+  const checks = ["Đủ sáu phần", "Năng lực cụ thể", "Làm được ngay", "Không lệch vai"];
+  checks.forEach((lb, i) => {
+    const tt = cueT("c14") + i * 0.22;
+    const aa = popA(t, tt);
+    if (aa <= 0) return;
+    const y = 300 + i * 110;
+    paper(cx + 40, y, 500, 96, aa, 16);
+    g.save(); useA(aa);
+    g.fillStyle = C.ink; rrect(cx + 62, y + 26, 44, 44, 10); g.fill();
+    text("✓", cx + 84, y + 50, font(900, 28), "#ffffff");
+    text(lb, cx + 130, y + 48, font(800, 36), C.ink, "left");
+    g.restore();
+  });
+}
+function drawS6(cx, t) {
+  stationTitle(cx, "BA LỚP ĐẦU RA", t, cueT("c15"));
+  const rows = [
+    { k: "1", title: "System Prompt", sub: "Một khối mã, đủ sáu phần", t0: cueT("c15"), bar: C.red },
+    { k: "2", title: "Giải thích ngắn", sub: "Tối đa năm ý", t0: cueT("c15") + 0.35, bar: C.amber2 },
+    { k: "3", title: "Knowledge Base", sub: "Tối đa năm loại tài liệu", t0: cueT("c15") + 0.7, bar: C.blue },
+  ];
+  rows.forEach((row) => {
+    const i = Number(row.k) - 1;
+    const y = 290 + i * 130;
+    const a = popA(t, row.t0), s = popS(t, row.t0);
+    if (a <= 0) return;
+    g.save(); useA(a); g.translate(cx, y + 52); g.scale(0.86 + 0.14 * s, 0.86 + 0.14 * s); g.translate(-cx, -(y + 52));
+    g.fillStyle = C.shadow; rrect(cx - 520 + 8, y + 8, 1040, 112, 18); g.fill();
+    g.fillStyle = C.paper; rrect(cx - 520, y, 1040, 112, 18); g.fill();
+    g.fillStyle = row.bar; rrect(cx - 520, y, 14, 112, 6); g.fill();
+    text(row.k, cx - 470, y + 56, font(900, 40), row.bar);
+    text(row.title, cx - 410, y + 40, font(900, 42), row.k === "1" ? C.red : C.ink, "left");
+    text(row.sub, cx - 410, y + 84, font(700, 32), C.text2, "left");
+    g.restore();
+  });
+  const docs = ["Nội bộ", "Mẫu ra", "Văn phong", "Số liệu", "Luật"];
+  docs.forEach((lb, i) => {
+    chipBox(cx - 520 + i * 210, 700, 196, 84, lb, C.pill, t, cueT("c16") + i * 0.08, C.ink);
+  });
+  const st = TL.stampT;
+  const a = popA(t, st, 0.28), s = popS(t, st, 0.32);
+  if (a > 0) {
+    g.save(); useA(a); g.translate(cx + 300, 346); g.rotate(-0.08); g.scale(s, s);
+    g.fillStyle = C.ink; rrect(-138, -40, 276, 80, 14); g.fill();
+    text("DÙNG NGAY", 0, 2, font(900, 36), "#ffffff");
+    g.restore();
+  }
+}
+
+const DRAW = [drawS0, drawS1, drawS2, drawS3, drawS4, drawS5, drawS6];
+function drawArrows(t) {
+  for (let i = 1; i < ST.length; i++) {
+    const a = ST[i - 1], b = ST[i];
+    const ar = [a.cx + 620, 760, (a.cx + b.cx) / 2, 860, b.cx - 620, 760];
+    const p = outC(P(t, b.start - 0.25, 0.5));
+    g.save(); useA(1);
+    arrow(...ar, p);
+    arrowFlow(...ar, t, b.start + 0.35, p);
+    g.restore();
+  }
+}
+function render(t) {
+  动效.resetCtx(g);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.globalAlpha = 1;
+  g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+  const cam = camAt(t), fv = fxView(t), z = fv.z, cy = 515;
+  drawRings(cam, ST.map((st) => [st.cx + 280, 540]), t);
+  drawShapes(t, cam);
+  g.setTransform(z, 0, 0, z, 960 - cam.x * z + fv.dx, 515 - cy * z);
+  const sh = 动效.shake(t, TL.stampT, { d: 0.18, amp: 8 });
+  g.translate(sh.dx, sh.dy);
+  drawArrows(t);
+  for (let i = 0; i < ST.length; i++) {
+    const vis = visOf(ST[i].cx, cam.x);
+    if (vis <= 0.02) continue;
+    paintA = vis;
+    DRAW[i](ST[i].cx, t);
+  }
+  paintA = 1;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  fxDefaultAfter(t);
+  drawHeader();
+  drawSubtitle(t);
+}
+
+function lockDur(t1) { return Math.ceil((t1 + 1.85) * 2 - 1e-9) / 2; }
+function buildTL(vo) {
+  const byId = {};
+  vo.forEach((c) => { byId[c.id] = c; });
+  const cues = vo.map((c) => ({ id: c.id, text: c.sub, show: c.t0, hide: c.t1, t0: c.t0, t1: c.t1 }));
+  const shotDef = [
+    { title: "Một câu thô", ids: ["c00"] },
+    { title: "Kiến trúc sư", ids: ["c04"] },
+    { title: "Đọc yêu cầu", ids: ["c06"] },
+    { title: "Điền chỗ trống", ids: ["c08"] },
+    { title: "Hỏi khi bí", ids: ["c11"] },
+    { title: "Soạn và kiểm", ids: ["c13"] },
+    { title: "Ba lớp", ids: ["c15"] },
+  ];
+  const shots = shotDef.map((s, i) => ({
+    title: s.title,
+    start: i === 0 ? 0 : Math.max(0.2, byId[s.ids[0]].t0 - 0.42),
+    cues: s.ids,
+  }));
+  const duration = lockDur(vo[vo.length - 1].t1);
+  const tl = {
+    title: "MỘT CÂU THÀNH SYSTEM PROMPT",
+    duration,
+    cues,
+    shots,
+    byId,
+    stampT: byId.c16.t0 + 0.2,
+    highlights: [{ text: "System Prompt", role: "A" }, { text: "sáu phần", role: "B" }],
+    emphasis: ["không làm hộ", "dùng ngay", "{{biến}}"],
+    cueAt(t) {
+      for (let i = this.cues.length - 1; i >= 0; i--) {
+        const c = this.cues[i];
+        if (t >= c.show - 0.02 && t <= c.hide + 0.02) return c;
+      }
+      return null;
+    },
+  };
+  return tl;
+}
+function buildEV() {
+  const ev = [];
+  const by = TL.byId;
+  TL.shots.forEach((s, i) => {
+    ev.push({ t: +s.start.toFixed(3), type: "pop" });
+    if (i > 0) ev.push({ t: +Math.max(0, s.start - 0.2).toFixed(3), type: "whoosh" });
+  });
+  ["c01", "c05", "c08", "c10", "c13", "c14"].forEach((id) => ev.push({ t: +by[id].t0.toFixed(3), type: "click" }));
+  ev.push({ t: +TL.stampT.toFixed(3), type: "ding" });
+  [[by.c03.t1, by.c04.t0], [by.c10.t1, by.c11.t0]].forEach(([a, b]) => {
+    const gap = b - a;
+    if (gap >= 0.5) ev.push({ t: +(a + 0.04).toFixed(3), dur: +Math.min(0.8, gap - 0.08).toFixed(3), type: "silence" });
+  });
+  return ev;
+}
+function setupScene() {
+  ST = TL.shots.map((s, i) => ({ ...s, i, cx: 960 + i * STEP_X }));
+  FX_CUTS = TL.shots.slice(1).map((s) => s.start);
+  const ks = [0];
+  for (const c of TL.cues) if (c.show - ks[ks.length - 1] >= 1.2 && TL.duration - c.show >= 1.2) ks.push(c.show);
+  ks.push(Math.max(TL.duration, ks[ks.length - 1] + 1));
+  FX_KEYS = ks;
+  const ROLE = { A: C.red, B: C.blue };
+  SUB_HL = [...TL.emphasis.map((w) => [w]), ...TL.highlights.map((h) => [h.text, ROLE[h.role] || C.red])]
+    .filter(([w]) => w).sort((a, b) => b[0].length - a[0].length);
+}
+
+const SAMPLE = "Tiếng Việt chuẩn sắc nét System Prompt sáu phần 50–60%";
+Promise.all([
+  document.fonts.load('400 48px "BeVietnamPro"', SAMPLE),
+  document.fonts.load('600 48px "BeVietnamPro"', SAMPLE),
+  document.fonts.load('700 48px "BeVietnamPro"', SAMPLE),
+  document.fonts.load('800 64px "BeVietnamPro"', SAMPLE),
+  document.fonts.load('900 62px "BeVietnamPro"', SAMPLE),
+  fetch("./vo/vo_timeline.json").then((r) => { if (!r.ok) throw new Error("missing vo_timeline"); return r.json(); }),
+]).then(async (parts) => {
+  await document.fonts.ready;
+  const vo = parts[5];
+  if (!vo || !vo.length) throw new Error("empty vo timeline");
+  TL = buildTL(vo);
+  setupScene();
+  window.TL = TL;
+  window.DUR = TL.duration;
+  window.DURATION = TL.duration;
+  window.EV = buildEV();
+  window.render = render;
+  window.seek = render;
+  render(0);
+  window.READY = true;
+  window.ready = true;
+}).catch((err) => {
+  console.error(err && err.message ? err.message : err);
+});
+</script>
+</body>
+</html>

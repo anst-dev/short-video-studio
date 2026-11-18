@@ -156,7 +156,14 @@ def main():
     # Local fallback if Colab not connected or any cues remain
     if missing:
         import torch
-        torch.set_num_threads(min(8, os.cpu_count() or 4))
+        logical = os.cpu_count() or 4
+        # 16+ logical CPUs on this studio box are hyperthreads. One worker per physical core.
+        workers = logical // 2 if logical >= 16 else logical
+        torch.set_num_threads(max(1, workers))
+        try:
+            torch.set_num_interop_threads(1)
+        except RuntimeError:
+            pass
         dev = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"[OmniVoice Local ({dev})] Synthesizing {len(missing)}/{len(cues)} cues...", flush=True)
         from omnivoice import OmniVoice

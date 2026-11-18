@@ -418,10 +418,15 @@ def cmd_init_film(args):
 def resolve_film_dir(film_arg):
     if os.path.isabs(film_arg) and os.path.isdir(film_arg):
         return film_arg
-    for cand in [os.path.join(LIB, "films", film_arg), os.path.join(LIB, film_arg), os.path.join(WORKSPACE, film_arg)]:
+    for cand in [
+        os.path.join(WORKSPACE, "projects", film_arg),
+        os.path.join(LIB, "films", film_arg),
+        os.path.join(LIB, film_arg),
+        os.path.join(WORKSPACE, film_arg),
+    ]:
         if os.path.isdir(cand):
             return os.path.abspath(cand)
-    return os.path.abspath(os.path.join(LIB, "films", film_arg))
+    return os.path.abspath(os.path.join(WORKSPACE, "projects", film_arg))
 
 
 def cmd_tts(args):

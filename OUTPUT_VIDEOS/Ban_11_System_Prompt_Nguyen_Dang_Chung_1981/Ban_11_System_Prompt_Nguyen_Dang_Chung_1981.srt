@@ -1,0 +1,63 @@
+1
+00:00:00,640 --> 00:00:09,308
+Chào anh Nguyễn Đăng Chung! Sinh năm 1981 và chưa từng dùng AI bao giờ lại chính là một lợi thế lớn.
+
+2
+00:00:09,348 --> 00:00:18,035
+Người mới thường lúng túng vì chỉ gõ câu ngắn như “Tạo trợ lý viết email” hay “Hãy tóm tắt báo cáo”.
+
+3
+00:00:18,075 --> 00:00:28,261
+Với System Prompt Architect, anh chỉ cần gõ đúng 1 câu ngắn đó! Nó KHÔNG làm hộ việc lẻ, mà thiết kế cho anh cả một Trợ lý AI chuyên biệt.
+
+4
+00:00:28,301 --> 00:00:34,867
+Khi nhận câu yêu cầu thô của anh Chung, Kiến trúc sư AI âm thầm chạy quy trình 9 bước chuẩn hóa.
+
+5
+00:00:35,040 --> 00:00:43,617
+Bước 1 đến Bước 4: Tự xác định vai trò, đối tượng phục vụ, đầu vào, đầu ra và tự suy luận thông tin hợp lý — không hỏi vặn lại!
+
+6
+00:00:44,040 --> 00:00:52,080
+Bước 5 & Bước 6: Phần dữ liệu anh sẽ nạp sau được đặt vào ô giữ chỗ như {{NỘI_DUNG_CẦN_XỬ_LÝ}}, {{MỤC_TIÊU}}, {{DỮ_LIỆU_ĐẦU_VÀO}}.
+
+7
+00:00:52,340 --> 00:00:58,895
+Bước 7 đến Bước 9: Lắp ráp đủ 6 phần và tự chấm 8 câu hỏi kiểm định chất lượng trước khi xuất ra màn hình.
+
+8
+00:00:58,935 --> 00:01:05,512
+Kết quả đầu tiên anh Chung nhận được là toàn bộ SYSTEM PROMPT nằm gọn trong một khung Code Block duy nhất, chia đúng 6 phần:
+
+9
+00:01:07,040 --> 00:01:13,508
+Phần 1 (IDENTITY) & Phần 2 (AUDIENCE): Định danh trợ lý là chuyên gia bao nhiêu năm kinh nghiệm và phục vụ đúng công việc của anh.
+
+10
+00:01:15,540 --> 00:01:21,075
+Phần 3 (CAPABILITIES) & Phần 4 (WORKFLOW): Liệt kê 5–10 năng lực cụ thể và quy trình làm việc từng bước mạch lạc.
+
+11
+00:01:23,040 --> 00:01:27,620
+Phần 5 (OUTPUT FORMAT) & Phần 6 (RULES): Khóa chặt định dạng kết quả đầu ra và hàng rào kỷ luật.
+
+12
+00:01:29,440 --> 00:01:35,893
+Ngay dưới khung Prompt là mục GIẢI THÍCH NGẮN gồm tối đa 5 ý giúp anh hiểu rõ vì sao trợ lý được thiết kế như vậy.
+
+13
+00:01:38,040 --> 00:01:45,477
+Kèm theo mục KNOWLEDGE BASE GỢI Ý: Chỉ rõ 5 tài liệu thực tế anh nên đính kèm như quy trình nội bộ, mẫu báo cáo chuẩn hay danh mục sản phẩm.
+
+14
+00:01:47,040 --> 00:01:54,979
+Đặc biệt, quy tắc chống ảo giác bắt buộc trợ lý phân biệt rõ dữ liệu có sẵn và giả định — tuân thủ Less is More, không rườm rà, đạt chuẩn OKR 9/10!
+
+15
+00:01:58,440 --> 00:02:05,573
+Để bắt đầu ngay hôm nay, anh Chung chỉ cần làm đúng 3 bước: Một, gõ mong muốn ngắn gọn vào dòng {{NHẬP YÊU CẦU VỀ TRỢ LÝ MUỐN TẠO TẠI ĐÂY}}.
+
+16
+00:02:08,540 --> 00:02:18,941
+Hai, bấm Copy khung System Prompt 6 phần. Ba, dán vào Gemini Gem hoặc Custom GPT — anh đã có ngay trợ lý AI đắc lực của riêng mình!

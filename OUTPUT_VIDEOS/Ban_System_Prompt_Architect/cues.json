@@ -1,0 +1,172 @@
+[
+  {
+    "id": "c00",
+    "target_t0": 0.8,
+    "max_dur": 8.0,
+    "min_gap": 0.42,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bạn chỉ cần gõ một câu.",
+    "say": "Bạn chỉ cần gõ một câu."
+  },
+  {
+    "id": "c01",
+    "target_t0": 3.0,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Ví dụ: tạo trợ lý viết email.",
+    "say": "Ví dụ: tạo trợ lý viết email."
+  },
+  {
+    "id": "c02",
+    "target_t0": 5.621,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Trợ lý không viết email hộ bạn.",
+    "say": "Trợ lý không viết email hộ bạn."
+  },
+  {
+    "id": "c03",
+    "target_t0": 7.929,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Nó thiết kế System Prompt để dùng ngay.",
+    "say": "Nó thiết kế system prompt để bạn dùng ngay."
+  },
+  {
+    "id": "c04",
+    "target_t0": 11.704,
+    "max_dur": 8.0,
+    "min_gap": 1.82,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "System Prompt Architect chỉ thiết kế trợ lý.",
+    "say": "Đây là kiến trúc sư system prompt. Chỉ làm một việc: thiết kế trợ lý."
+  },
+  {
+    "id": "c05",
+    "target_t0": 15.807,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Luôn đủ sáu phần, không làm hộ việc.",
+    "say": "Luôn đủ sáu phần. Và tuyệt đối không làm hộ việc."
+  },
+  {
+    "id": "c06",
+    "target_t0": 18.959,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Chín bước. Bước một: hiểu là yêu cầu thiết kế.",
+    "say": "Quy trình chạy chín bước. Bước một: mọi câu đều là yêu cầu thiết kế."
+  },
+  {
+    "id": "c07",
+    "target_t0": 23.224,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước hai: vai trò, ai dùng, đầu vào, đầu ra.",
+    "say": "Bước hai: tự chốt vai trò, phục vụ ai, đầu vào và đầu ra."
+  },
+  {
+    "id": "c08",
+    "target_t0": 26.936,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước ba: lấy đúng ý đã có, không hỏi lại.",
+    "say": "Bước ba: lấy đúng ý bạn đã viết, không hỏi lại."
+  },
+  {
+    "id": "c09",
+    "target_t0": 30.181,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước bốn: đoán an toàn thì tự chọn.",
+    "say": "Bước bốn: chỗ thiếu mà đoán an toàn thì tự chọn."
+  },
+  {
+    "id": "c10",
+    "target_t0": 33.456,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước năm: thiếu dữ liệu thì để {{biến}}.",
+    "say": "Bước năm: chưa có dữ liệu thì để biến giữ chỗ."
+  },
+  {
+    "id": "c11",
+    "target_t0": 37.371,
+    "max_dur": 8.0,
+    "min_gap": 1.82,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước sáu: không rõ vai thì vẫn viết nháp.",
+    "say": "Bước sáu: không rõ vai trò thì vẫn viết bản nháp trước."
+  },
+  {
+    "id": "c12",
+    "target_t0": 40.9,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Rồi hỏi tối đa ba câu, không hỏi suông.",
+    "say": "Sau đó hỏi tối đa ba câu. Không bao giờ chỉ hỏi suông."
+  },
+  {
+    "id": "c13",
+    "target_t0": 44.531,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước bảy: sáu phần, trong một khối mã.",
+    "say": "Bước bảy: biên soạn đủ sáu phần, đặt trong một khối mã."
+  },
+  {
+    "id": "c14",
+    "target_t0": 48.244,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước tám: tự kiểm tra trước khi trả.",
+    "say": "Bước tám: tự kiểm tra. Đủ phần chưa, dùng ngay được chưa."
+  },
+  {
+    "id": "c15",
+    "target_t0": 52.01,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Bước chín: khối mã, giải thích, tài liệu.",
+    "say": "Bước chín: trả ba lớp. Khối mã, giải thích ngắn, và gợi ý tài liệu."
+  },
+  {
+    "id": "c16",
+    "target_t0": 56.319,
+    "max_dur": 8.0,
+    "min_gap": 1.02,
+    "speed": 1.1,
+    "instruct": "male, moderate pitch",
+    "sub": "Ít mà đúng. Sao chép là dùng được.",
+    "say": "Ít mà đúng. Sao chép là dùng được ngay."
+  }
+]

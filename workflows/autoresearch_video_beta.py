@@ -28,10 +28,15 @@ def resolve_film(p):
         return ""
     if os.path.isabs(p) and os.path.isdir(p):
         return p
-    for cand in [os.path.join(LIB, "films", p), os.path.join(LIB, p), os.path.join(WORKSPACE, p)]:
+    for cand in [
+        os.path.join(WORKSPACE, "projects", p),
+        os.path.join(LIB, "films", p),
+        os.path.join(LIB, p),
+        os.path.join(WORKSPACE, p),
+    ]:
         if os.path.isdir(cand):
             return os.path.abspath(cand)
-    return os.path.abspath(os.path.join(LIB, "films", p))
+    return os.path.abspath(os.path.join(WORKSPACE, "projects", p))
 
 
 def infer_scenes(film_dir, dur, scene_len):
