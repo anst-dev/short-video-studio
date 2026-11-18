@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Cẩm Nang Toàn Diện: Khái Niệm - Tư Duy - PCTPR - Con Người — Swiss Motion</title>
+<style>
+@font-face {
+  font-family: 'Archivo';
+  src: url('./fonts/Archivo-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Bold.ttf') format('truetype');
+  font-weight: 700 900;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #EAE9E5; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { initSwissFilm } from './film.js';
+
+const SAMPLE_VI = 'Cẩm nang toàn diện: 4 trụ cột áp dụng AI bài bản trong công việc. Khái niệm cốt lõi LLM Token Cửa sổ ngữ cảnh Ảo giác. Tư duy điều phối thực tập sinh siêu tốc thu hẹp xác suất. Khung PCTPR Persona Context Task Pattern Rules 80% 100% 50-60%. Yếu tố con người AI không có tư cách pháp nhân không ngồi tù thay bạn. Chữ ký trách nhiệm pháp lý kiểm chứng 4 bước.';
+
+async function boot() {
+  await Promise.all([
+    document.fonts.load('400 24px Archivo', SAMPLE_VI),
+    document.fonts.load('600 28px Archivo', SAMPLE_VI),
+    document.fonts.load('700 48px Archivo', SAMPLE_VI),
+    document.fonts.load('800 64px Archivo', SAMPLE_VI),
+    document.fonts.load('900 96px Archivo', SAMPLE_VI),
+    document.fonts.load('700 20px JBMono', SAMPLE_VI),
+    document.fonts.load('400 24px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('700 32px BeVietnamPro', SAMPLE_VI),
+  ]);
+  await document.fonts.ready;
+
+  let vo = [];
+  try {
+    const res = await fetch('./vo/vo_timeline.json');
+    if (res.ok) vo = await res.json();
+  } catch (_) {}
+
+  initSwissFilm(document.getElementById('c'), vo);
+  window.render(0);
+  window.READY = true;
+  window.ready = true;
+}
+boot();
+</script>
+</body>
+</html>

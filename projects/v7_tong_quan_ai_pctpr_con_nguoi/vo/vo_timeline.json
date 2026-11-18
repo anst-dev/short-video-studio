@@ -1,0 +1,152 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.7,
+    "t1": 8.336,
+    "dur": 7.636,
+    "sub": "CẨM NANG TOÀN DIỆN: Muốn áp dụng AI thành công, ta cần nắm trọn 4 trụ cột từ bản chất kỹ thuật đến trách nhiệm con người.",
+    "say": "Muốn áp dụng trí tuệ nhân tạo thành công trong công việc, ta cần nắm trọn bốn trụ cột: từ bản chất kỹ thuật, tư duy điều phối, đến trách nhiệm con người.",
+    "asr": "Mốn áp dụng chí tuệ nhân tạo thành công trong công việc, ta cần nắm chọn 4 chủ cột, từ bản chất ký thuật, từ duy điều phối, đến trách nhiệm con người.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 10.2,
+    "t1": 16.777,
+    "dur": 6.577,
+    "sub": "Trụ cột 1 — Bản chất cốt lõi: AI không suy nghĩ như con người, mà là cỗ máy dự đoán từ tiếp theo dựa trên xác suất thống kê.",
+    "say": "Trụ cột thứ nhất là bản chất cốt lõi: AI không có ý thức như người, mà là cỗ máy dự đoán từ ngữ tiếp theo dựa trên xác suất thống kê.",
+    "asr": "Chủ cầu thứ nhất là bản chất cốt lỗi. AI không có ý thức như người, mà là có máy dự đoán từ ngữ tiếp theo dựa trên sắc xuất thống kê.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 20.0,
+    "t1": 25.587,
+    "dur": 5.587,
+    "sub": "Nó xử lý văn bản theo từng mảnh nhỏ gọi là Token, và làm việc trong chiếc bàn ngắn hạn hữu hạn là Cửa sổ ngữ cảnh.",
+    "say": "Nó đọc văn bản theo từng mảnh nhỏ gọi là Token, và làm việc trên chiếc bàn ngắn hạn hữu hạn gọi là Cửa sổ ngữ cảnh.",
+    "asr": "Nó đọc văn bản theo từng mạnh nhỏ gọi là to kênh và làm việc trên chức bản gắn hạn hiếu hạn gọi là cửa sổ mứ cảnh.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 29.8,
+    "t1": 35.67,
+    "dur": 5.87,
+    "sub": "Căn bệnh nguy hiểm nhất là “Ảo giác AI” (Hallucination): Khi thiếu dữ liệu, AI tự tin bịa điều khoản và con số giả mạo.",
+    "say": "Căn bệnh nguy hiểm nhất là Ảo giác AI: Khi thiếu dữ liệu, nó rất tự tin bịa ra số hiệu thông tư và con số không có thật.",
+    "asr": "Cân bệnh nguy hiểm nhất là ảo dạ AI, khi thiếu dữ liệu, nó rất tự tin biện ra số hiệu thông tư và con số không có thật.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 39.8,
+    "t1": 46.666,
+    "dur": 6.866,
+    "sub": "Trụ cột 2 — Tư duy điều phối: Đừng coi AI là đũa thần hay người làm thay, mà hãy xem nó là Thực tập sinh thiên tài tốc độ cao.",
+    "say": "Trụ cột thứ hai là tư duy điều phối: Đừng coi AI là cây đũa thần, mà hãy xem nó là một thực tập sinh thiên tài làm việc với tốc độ ánh sáng.",
+    "asr": "Chủ cầu thứ hai là tư duy điều phối, đừng có AI là cây đúa thần, mà hãy xem nó là một thực tập sinh thiên tài làm việc với tốc độ ánh sáng.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 49.6,
+    "t1": 55.966,
+    "dur": 6.366,
+    "sub": "Ra lệnh càng cụt lủn, AI càng trả về văn mẫu sáo rỗng. Bản chất của việc nhắc lệnh là thu hẹp đại dương xác suất về đúng mục tiêu.",
+    "say": "Ra lệnh càng cụt lủn, kết quả càng sáo rỗng. Bản chất của việc viết câu lệnh là thu hẹp đại dương xác suất của AI về đúng trọng tâm.",
+    "asr": "Giá lệnh can cút lùn, kết quả can sáo giống, bản chất của việc viết câu lệnh là thu hẹp đại dương sát xuất của AI về đúng trọng tâm.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 59.4,
+    "t1": 65.552,
+    "dur": 6.152,
+    "sub": "Thay vì làm thợ gõ tay sửa từng dòng chữ, bạn phải nâng cấp bản thân thành Tổng công trình sư thiết kế đề bài và nghiệm thu.",
+    "say": "Thay vì làm người thợ cặm cụi sửa từng dòng, bạn phải nâng tầm thành Tổng công trình sư thiết kế đề bài và nghiệm thu chất lượng.",
+    "asr": "Thay vì làm người thợ cậm cuối sửa tương rồng, bạn phải nướng tầm thành tổng công trình sư thiết ghế đề bài và nghiệm thu chất lượng.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 69.2,
+    "t1": 75.872,
+    "dur": 6.672,
+    "sub": "Trụ cột 3 — Khung Prompt chuẩn PCTPR: Khóa chặt 5 chiều kích giúp AI tạo ra sản phẩm hoàn chỉnh ngay từ lần đầu tiên.",
+    "say": "Trụ cột thứ ba là khung giao việc chuẩn Pê, Xê, Tê, Pê, Rờ: Khóa chặt năm chiều kích giúp AI tạo ra kết quả chuẩn xác ngay lần đầu.",
+    "asr": "Chụp cô thứ 3 là khung dào việc chuẩn PCTP giờ. Hóa chặt 5 chiều kích dúc AI tạo ra kết quả chuẩn sát ngày lần đầu.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 79.0,
+    "t1": 85.612,
+    "dur": 6.612,
+    "sub": "[P] khóa vai trò lăng kính chuyên gia, [C] neo biên giới thực tế doanh nghiệp, [T] dùng động từ hành động biến đổi dứt khoát.",
+    "say": "Chữ Pê khóa vai trò lăng kính chuyên gia, chữ Xê neo biên giới thực tế doanh nghiệp, chữ Tê dùng động từ hành động biến đổi dứt khoát.",
+    "asr": "Chứ về hóa vài trò lăng kính chuyên gia, chứ xe nèo biên giới thực tế doanh nghiệp. Chứ tế dùng động từ hành động biến đổi rất khóa.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 88.8,
+    "t1": 95.637,
+    "dur": 6.837,
+    "sub": "[Pattern] thiết kế cấu trúc giảm tải não cho người đọc, [Rules] điêu khắc vùng cấm giúp triệt tiêu 80% lỗi suy diễn lan man.",
+    "say": "Khuôn mẫu thiết kế cấu trúc giảm tải cho người đọc, còn Quy tắc điêu khắc vùng cấm giúp triệt tiêu tám mươi phần trăm lỗi suy diễn lan man.",
+    "asr": "khuôn mẫu thiết kế cấu chúc giảm tải cho người đọc. Còn quý tắc điều khắc vùng cấm giúp triệt tiêu 80% lỗi suy diễn Lan Màn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 98.6,
+    "t1": 105.137,
+    "dur": 6.537,
+    "sub": "Bí quyết vận hành: Giữ cố định 5 khối tư duy PCTPR làm khuôn, chỉ thay đổi biến {{INPUT}} dữ liệu thô để dùng chung cho cả phòng ban.",
+    "say": "Bí quyết vận hành là giữ cố định năm khối tư duy làm khuôn mẫu, chỉ thay đổi phần dữ liệu đầu vào để dùng chung cho cả phòng ban.",
+    "asr": "Bí quyết vận hành là giữ có định năm khối tư duy làm khuôn mẫu, chỉ thay đổi phần giữ liệu đầu vào để dùng chung cho cả phòng ban.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 109.4,
+    "t1": 115.929,
+    "dur": 6.529,
+    "sub": "Trụ cột 4 — YẾU TỐ CON NGƯỜI: Hãy luôn nhớ rằng AI không có tư cách pháp nhân và AI không thể ngồi tù thay bạn!",
+    "say": "Trụ cột thứ tư và quan trọng nhất là yếu tố con người: Hãy luôn nhớ rằng AI không có tư cách pháp nhân và không thể ngồi tù thay bạn.",
+    "asr": "Chủ cột thứ tư và quan trọng nhất là yêu tố con người. Hãy luôn nhớ rằng AI không có từ cách pháp nhân và không thể ngồi tủ thay bạn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 119.2,
+    "t1": 125.779,
+    "dur": 6.579,
+    "sub": "Khi thanh tra kiểm toán hay xảy ra tranh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn chịu trách nhiệm trước pháp luật.",
+    "say": "Khi thanh tra kiểm toán hay xảy ra tranh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn là người chịu trách nhiệm trước pháp luật.",
+    "asr": "Khi thanh trà kiểm toán hay xảy ra tránh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn là người chịu trách nhiệm trước pháp luật.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c12.wav"
+  },
+  {
+    "id": "c13",
+    "t0": 129.0,
+    "t1": 135.776,
+    "dur": 6.776,
+    "sub": "Quy tắc kiểm chứng 4 bước: Neo tài liệu chuẩn, mở lối thoát Chưa đủ căn cứ trong Rules, bắt trích dẫn trang và tính lại số trên Excel.",
+    "say": "Áp dụng bốn bước kiểm chứng: Neo tài liệu chuẩn, dặn báo chưa đủ căn cứ nếu thiếu tin, bắt trích dẫn trang và tính lại số trên bảng tính.",
+    "asr": "áp dụng bốn bước kiểm chứng, nêu tài liệu chuẩn, giận báo chưa đủ cân cứ nếu thiếu tin, bắt trích dẫn trang và tính lại số trên bảng tính.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c13.wav"
+  },
+  {
+    "id": "c14",
+    "t0": 139.6,
+    "t1": 146.144,
+    "dur": 6.544,
+    "sub": "KẾT LUẬN: AI nhân bản tốc độ cấp số nhân — Nhưng sự kiểm chứng, bản lĩnh và trách nhiệm con người mới tạo ra giá trị bền vững!",
+    "say": "Kết luận lại: AI nhân bản tốc độ làm việc, nhưng sự kiểm chứng, bản lĩnh và trách nhiệm của con người mới tạo ra giá trị bền vững.",
+    "asr": "Kết luận lại, AI nhân bản tốc độ làm việc, nhưng sự kiểm chứng, bản lĩnh và trách nhiệm của con người mới tạo ra giá trị bên vững.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v7_tong_quan_ai_pctpr_con_nguoi\\vo\\c14.wav"
+  }
+]

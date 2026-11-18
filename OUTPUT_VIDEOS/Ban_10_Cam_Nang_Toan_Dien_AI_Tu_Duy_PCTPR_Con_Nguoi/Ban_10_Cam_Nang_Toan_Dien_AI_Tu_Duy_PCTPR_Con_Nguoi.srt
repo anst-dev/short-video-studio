@@ -1,0 +1,59 @@
+1
+00:00:00,640 --> 00:00:08,836
+CẨM NANG TOÀN DIỆN: Muốn áp dụng AI thành công, ta cần nắm trọn 4 trụ cột từ bản chất kỹ thuật đến trách nhiệm con người.
+
+2
+00:00:10,140 --> 00:00:17,277
+Trụ cột 1 — Bản chất cốt lõi: AI không suy nghĩ như con người, mà là cỗ máy dự đoán từ tiếp theo dựa trên xác suất thống kê.
+
+3
+00:00:19,940 --> 00:00:26,087
+Nó xử lý văn bản theo từng mảnh nhỏ gọi là Token, và làm việc trong chiếc bàn ngắn hạn hữu hạn là Cửa sổ ngữ cảnh.
+
+4
+00:00:29,740 --> 00:00:36,170
+Căn bệnh nguy hiểm nhất là “Ảo giác AI” (Hallucination): Khi thiếu dữ liệu, AI tự tin bịa điều khoản và con số giả mạo.
+
+5
+00:00:39,740 --> 00:00:47,166
+Trụ cột 2 — Tư duy điều phối: Đừng coi AI là đũa thần hay người làm thay, mà hãy xem nó là Thực tập sinh thiên tài tốc độ cao.
+
+6
+00:00:49,540 --> 00:00:56,466
+Ra lệnh càng cụt lủn, AI càng trả về văn mẫu sáo rỗng. Bản chất của việc nhắc lệnh là thu hẹp đại dương xác suất về đúng mục tiêu.
+
+7
+00:00:59,340 --> 00:01:06,052
+Thay vì làm thợ gõ tay sửa từng dòng chữ, bạn phải nâng cấp bản thân thành Tổng công trình sư thiết kế đề bài và nghiệm thu.
+
+8
+00:01:09,140 --> 00:01:16,372
+Trụ cột 3 — Khung Prompt chuẩn PCTPR: Khóa chặt 5 chiều kích giúp AI tạo ra sản phẩm hoàn chỉnh ngay từ lần đầu tiên.
+
+9
+00:01:18,940 --> 00:01:26,112
+[P] khóa vai trò lăng kính chuyên gia, [C] neo biên giới thực tế doanh nghiệp, [T] dùng động từ hành động biến đổi dứt khoát.
+
+10
+00:01:28,740 --> 00:01:36,137
+[Pattern] thiết kế cấu trúc giảm tải não cho người đọc, [Rules] điêu khắc vùng cấm giúp triệt tiêu 80% lỗi suy diễn lan man.
+
+11
+00:01:38,540 --> 00:01:45,637
+Bí quyết vận hành: Giữ cố định 5 khối tư duy PCTPR làm khuôn, chỉ thay đổi biến {{INPUT}} dữ liệu thô để dùng chung cho cả phòng ban.
+
+12
+00:01:49,340 --> 00:01:56,429
+Trụ cột 4 — YẾU TỐ CON NGƯỜI: Hãy luôn nhớ rằng AI không có tư cách pháp nhân và AI không thể ngồi tù thay bạn!
+
+13
+00:01:59,140 --> 00:02:06,279
+Khi thanh tra kiểm toán hay xảy ra tranh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn chịu trách nhiệm trước pháp luật.
+
+14
+00:02:08,940 --> 00:02:16,276
+Quy tắc kiểm chứng 4 bước: Neo tài liệu chuẩn, mở lối thoát Chưa đủ căn cứ trong Rules, bắt trích dẫn trang và tính lại số trên Excel.
+
+15
+00:02:19,540 --> 00:02:26,644
+KẾT LUẬN: AI nhân bản tốc độ cấp số nhân — Nhưng sự kiểm chứng, bản lĩnh và trách nhiệm con người mới tạo ra giá trị bền vững!

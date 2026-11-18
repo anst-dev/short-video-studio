@@ -1,0 +1,122 @@
+[
+  {
+    "id": "c00",
+    "target_t0": 0.7,
+    "max_dur": 8.4,
+    "speed": 1.07,
+    "sub": "CẨM NANG TOÀN DIỆN: Muốn áp dụng AI thành công, ta cần nắm trọn 4 trụ cột từ bản chất kỹ thuật đến trách nhiệm con người.",
+    "say": "Muốn áp dụng trí tuệ nhân tạo thành công trong công việc, ta cần nắm trọn bốn trụ cột: từ bản chất kỹ thuật, tư duy điều phối, đến trách nhiệm con người."
+  },
+  {
+    "id": "c01",
+    "target_t0": 10.2,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Trụ cột 1 — Bản chất cốt lõi: AI không suy nghĩ như con người, mà là cỗ máy dự đoán từ tiếp theo dựa trên xác suất thống kê.",
+    "say": "Trụ cột thứ nhất là bản chất cốt lõi: AI không có ý thức như người, mà là cỗ máy dự đoán từ ngữ tiếp theo dựa trên xác suất thống kê."
+  },
+  {
+    "id": "c02",
+    "target_t0": 20.0,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Nó xử lý văn bản theo từng mảnh nhỏ gọi là Token, và làm việc trong chiếc bàn ngắn hạn hữu hạn là Cửa sổ ngữ cảnh.",
+    "say": "Nó đọc văn bản theo từng mảnh nhỏ gọi là Token, và làm việc trên chiếc bàn ngắn hạn hữu hạn gọi là Cửa sổ ngữ cảnh."
+  },
+  {
+    "id": "c03",
+    "target_t0": 29.8,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Căn bệnh nguy hiểm nhất là “Ảo giác AI” (Hallucination): Khi thiếu dữ liệu, AI tự tin bịa điều khoản và con số giả mạo.",
+    "say": "Căn bệnh nguy hiểm nhất là Ảo giác AI: Khi thiếu dữ liệu, nó rất tự tin bịa ra số hiệu thông tư và con số không có thật."
+  },
+  {
+    "id": "c04",
+    "target_t0": 39.8,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Trụ cột 2 — Tư duy điều phối: Đừng coi AI là đũa thần hay người làm thay, mà hãy xem nó là Thực tập sinh thiên tài tốc độ cao.",
+    "say": "Trụ cột thứ hai là tư duy điều phối: Đừng coi AI là cây đũa thần, mà hãy xem nó là một thực tập sinh thiên tài làm việc với tốc độ ánh sáng."
+  },
+  {
+    "id": "c05",
+    "target_t0": 49.6,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Ra lệnh càng cụt lủn, AI càng trả về văn mẫu sáo rỗng. Bản chất của việc nhắc lệnh là thu hẹp đại dương xác suất về đúng mục tiêu.",
+    "say": "Ra lệnh càng cụt lủn, kết quả càng sáo rỗng. Bản chất của việc viết câu lệnh là thu hẹp đại dương xác suất của AI về đúng trọng tâm."
+  },
+  {
+    "id": "c06",
+    "target_t0": 59.4,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Thay vì làm thợ gõ tay sửa từng dòng chữ, bạn phải nâng cấp bản thân thành Tổng công trình sư thiết kế đề bài và nghiệm thu.",
+    "say": "Thay vì làm người thợ cặm cụi sửa từng dòng, bạn phải nâng tầm thành Tổng công trình sư thiết kế đề bài và nghiệm thu chất lượng."
+  },
+  {
+    "id": "c07",
+    "target_t0": 69.2,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Trụ cột 3 — Khung Prompt chuẩn PCTPR: Khóa chặt 5 chiều kích giúp AI tạo ra sản phẩm hoàn chỉnh ngay từ lần đầu tiên.",
+    "say": "Trụ cột thứ ba là khung giao việc chuẩn Pê, Xê, Tê, Pê, Rờ: Khóa chặt năm chiều kích giúp AI tạo ra kết quả chuẩn xác ngay lần đầu."
+  },
+  {
+    "id": "c08",
+    "target_t0": 79.0,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "[P] khóa vai trò lăng kính chuyên gia, [C] neo biên giới thực tế doanh nghiệp, [T] dùng động từ hành động biến đổi dứt khoát.",
+    "say": "Chữ Pê khóa vai trò lăng kính chuyên gia, chữ Xê neo biên giới thực tế doanh nghiệp, chữ Tê dùng động từ hành động biến đổi dứt khoát."
+  },
+  {
+    "id": "c09",
+    "target_t0": 88.8,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "[Pattern] thiết kế cấu trúc giảm tải não cho người đọc, [Rules] điêu khắc vùng cấm giúp triệt tiêu 80% lỗi suy diễn lan man.",
+    "say": "Khuôn mẫu thiết kế cấu trúc giảm tải cho người đọc, còn Quy tắc điêu khắc vùng cấm giúp triệt tiêu tám mươi phần trăm lỗi suy diễn lan man."
+  },
+  {
+    "id": "c10",
+    "target_t0": 98.6,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Bí quyết vận hành: Giữ cố định 5 khối tư duy PCTPR làm khuôn, chỉ thay đổi biến {{INPUT}} dữ liệu thô để dùng chung cho cả phòng ban.",
+    "say": "Bí quyết vận hành là giữ cố định năm khối tư duy làm khuôn mẫu, chỉ thay đổi phần dữ liệu đầu vào để dùng chung cho cả phòng ban."
+  },
+  {
+    "id": "c11",
+    "target_t0": 109.4,
+    "max_dur": 8.6,
+    "speed": 1.06,
+    "sub": "Trụ cột 4 — YẾU TỐ CON NGƯỜI: Hãy luôn nhớ rằng AI không có tư cách pháp nhân và AI không thể ngồi tù thay bạn!",
+    "say": "Trụ cột thứ tư và quan trọng nhất là yếu tố con người: Hãy luôn nhớ rằng AI không có tư cách pháp nhân và không thể ngồi tù thay bạn."
+  },
+  {
+    "id": "c12",
+    "target_t0": 119.2,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Khi thanh tra kiểm toán hay xảy ra tranh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn chịu trách nhiệm trước pháp luật.",
+    "say": "Khi thanh tra kiểm toán hay xảy ra tranh chấp pháp lý, chữ ký dưới văn bản là của bạn và bạn là người chịu trách nhiệm trước pháp luật."
+  },
+  {
+    "id": "c13",
+    "target_t0": 129.0,
+    "max_dur": 8.6,
+    "speed": 1.07,
+    "sub": "Quy tắc kiểm chứng 4 bước: Neo tài liệu chuẩn, mở lối thoát Chưa đủ căn cứ trong Rules, bắt trích dẫn trang và tính lại số trên Excel.",
+    "say": "Áp dụng bốn bước kiểm chứng: Neo tài liệu chuẩn, dặn báo chưa đủ căn cứ nếu thiếu tin, bắt trích dẫn trang và tính lại số trên bảng tính."
+  },
+  {
+    "id": "c14",
+    "target_t0": 139.6,
+    "max_dur": 8.6,
+    "speed": 1.06,
+    "sub": "KẾT LUẬN: AI nhân bản tốc độ cấp số nhân — Nhưng sự kiểm chứng, bản lĩnh và trách nhiệm con người mới tạo ra giá trị bền vững!",
+    "say": "Kết luận lại: AI nhân bản tốc độ làm việc, nhưng sự kiểm chứng, bản lĩnh và trách nhiệm của con người mới tạo ra giá trị bền vững."
+  }
+]
