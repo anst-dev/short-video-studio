@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "lemo-dashi-video-studio": {
+      "command": "python",
+      "args": [
+        "-X",
+        "utf8",
+        "c:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\mcp_server\\video_studio_mcp.py"
+      ]
+    }
+  }
+}

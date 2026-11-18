@@ -1,0 +1,34 @@
+{
+  "name": "lemo-multi-style-video",
+  "description": "Orchestrate multi-style broadcast-grade code-driven videos from lemo-opuscar with shared voiceover and strict QA gate verification.",
+  "entry": "produce_multi_style.py",
+  "args": {
+    "type": "object",
+    "properties": {
+      "topic": {
+        "type": "string",
+        "description": "Full video script or story brief."
+      },
+      "styles": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of lemo-opuscar style slugs (e.g. ['dark-keynote', 'spreadsheet', 'swiss-motion'])."
+      },
+      "duration": {
+        "type": "number",
+        "default": 60,
+        "description": "Target duration in seconds."
+      },
+      "aspect": {
+        "type": "string",
+        "enum": ["16:9", "9:16"],
+        "default": "16:9"
+      },
+      "voice": {
+        "type": "string",
+        "default": "omnivoice"
+      }
+    },
+    "required": ["topic", "styles"]
+  }
+}

@@ -1,0 +1,31 @@
+# Caches, virtualenvs & temporary artifacts
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.DS_Store
+Thumbs.db
+*.tmp
+*.part
+input_test.txt
+
+# Local font & streaming caches (auto-populated by fetch_vn_fonts.py / Studio UI)
+.agents/cache/
+
+# Rendered MP4 masters & archives (kept on disk in OUTPUT_VIDEOS/, excluded from git history to stay lightweight)
+OUTPUT_VIDEOS/**/*.mp4
+OUTPUT_VIDEOS/**/*.zip
+# Embedded per-video project sources: heavy regenerable assets stay on disk only
+# (fonts auto-fetched by fetch_vn_fonts.py; VO wavs re-synthesizable from cues.json; stills/out regenerable)
+OUTPUT_VIDEOS/**/fonts/
+OUTPUT_VIDEOS/**/stills/
+OUTPUT_VIDEOS/**/stills_qa/
+OUTPUT_VIDEOS/**/out/
+OUTPUT_VIDEOS/**/*.wav
+OUTPUT_VIDEOS/**/autoresearch_qa/
+projects/*/out/
+projects/*/fonts/
+projects/*/stills/
+projects/*/stills_qa/
+
+logs/

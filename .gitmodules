@@ -1,0 +1,8 @@
+[submodule "lemo-opuscar"]
+	path = lemo-opuscar
+	url = https://github.com/lemomo-ai/lemo-opuscar.git
+	ignore = untracked
+[submodule "dashi-animationstyle"]
+	path = dashi-animationstyle
+	url = https://github.com/chuspeeism/dashi-animationstyle.git
+	ignore = untracked
