@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Sổ Tay Tư Duy AI Cho Kế Toán Trưởng 1981 — Khung PCTPR & Bộ Tối Ưu Prompt</title>
+<style>
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #17120A; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { clamp, lerp, seg, eo, eio, mulberry, hash } from '/core/lib.js';
+
+const W = 1920, H = 1080, DUR = 224.0;
+const cv = document.getElementById('c');
+const g = cv.getContext('2d');
+const UI = 'Inter', MONO = 'JBMono';
+
+// Authentic Spreadsheet Film palette (styles/spreadsheet/STYLE.md: flat fills, zero gradients, zero drop shadows)
+const INK = '#17120A';
+const OK = '#B8F25A', OK_INK = '#203B00';
+const NO = '#E8382D', NO_INK = '#FFFFFF';
+const INDIGO = '#2A2F6C', INDIGO_INK = '#FFFFFF';
+const AMBER = '#FFB21F', AMBER_INK = '#17120A';
+const SKY = '#DDF0FF', SKY_INK = '#123B66';
+const SOFT_RED = '#FFE4E1';
+const SOFT_OK = '#ECFCCB';
+const NOTE = '#FFF6C8';
+const REF_COLS = ['#2563EB', '#D97706', '#0D9488', '#7C3AED', '#DC2626'];
+const PASTEL = ['#D4F57A', '#FFF09A', '#FFC99E', '#FFB3C9', '#B9DCFF', '#A8EFD5'];
+
+// Shell layout constants (never zooms)
+const TITLE_H = 34, TOOL_H = 40, FBAR_H = 50, ROWH_W = 56, TABS_H = 32, STAT_H = 28;
+const SHEET_B = H - TABS_H - STAT_H;
+const CWID = 92, RH = 28, NC = 36;
+
+function rect(x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
+function line(x0, y0, x1, y1, c, lw = 1) { g.strokeStyle = c; g.lineWidth = lw; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
+function text(s, x, y, f, c = INK, align = 'left', base = 'middle') { g.font = f; g.fillStyle = c; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
+function tw(s, f) { g.font = f; return g.measureText(s).width; }
+function colName(i) { let s = '', n = i + 1; while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; }
+function popK(t, t0, dur = 0.25, amp = 0.22) { const dt = t - t0; if (dt < 0 || dt > dur) return 1; return 1 + amp * Math.sin(Math.PI * dt / dur); }
+function hexMix(a, b, u) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ch = s => Math.round(lerp((pa >> s) & 255, (pb >> s) & 255, clamp(u, 0, 1)));
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+function wrapLines(str, fontStr, maxW) {
+  g.font = fontStr;
+  const words = str.split(' ');
+  const out = [];
+  let cur = '';
+  for (const w of words) {
+    const cand = cur ? cur + ' ' + w : w;
+    if (g.measureText(cand).width > maxW && cur) {
+      out.push(cur);
+      cur = w;
+    } else {
+      cur = cand;
+    }
+  }
+  if (cur) out.push(cur);
+  return out;
+}
+
+// ───────────────────────── Variable Column Widths (Hidden Columns R..AA = indices 17..26 Unhide at 154.9s!) ─────────────────────────
+const colWidths = new Float64Array(NC + 1);
+const colPrefix = new Float64Array(NC + 2);
+function isHiddenCol(i) { return i >= 17 && i <= 27; }
+function updateLayout(t) {
+  for (let i = 0; i <= NC; i++) {
+    if (isHiddenCol(i)) {
+      const idx = i - 17;
+      const openP = eio(seg(t, 154.90 + idx * 0.065, 155.55 + idx * 0.065));
+      colWidths[i] = CWID * 1.15 * openP;
+    } else {
+      colWidths[i] = CWID;
+    }
+  }
+  colPrefix[0] = 0;
+  for (let i = 0; i <= NC; i++) colPrefix[i + 1] = colPrefix[i] + colWidths[i];
+}
+const colW = i => colWidths[clamp(i, 0, NC)];
+const colX = i => colPrefix[clamp(i, 0, NC + 1)];
+function colXf(c) { const i = Math.max(0, Math.floor(c)), f = c - i; return colX(i) + colW(i) * f; }
+
+// ───────────────────────── Merged Ranges Dictionary (`[c0, c1_excl, r0, r1_excl]`) ─────────────────────────
+const M = {
+  // CHƯƠNG 1 (rows 1..19): Welcome 1981 + Raw Command Failure + 5 PCTPR Pillars
+  C1_HERO:  [1, 16, 1, 6],
+  C1_LEFT:  [1, 8,  7, 13],
+  C1_RIGHT: [9, 16, 7, 13],
+  C1_P0:    [1, 4,  14, 18],
+  C1_P1:    [4, 7,  14, 18],
+  C1_P2:    [7, 10, 14, 18],
+  C1_P3:    [10, 13, 14, 18],
+  C1_P4:    [13, 16, 14, 18],
+
+  // CHƯƠNG 2 (rows 21..40): [P — PERSONA] Running Nutrition vs Coach + Tax vs CFO
+  P_HDR:    [1, 16, 21, 24],
+  P_LIFE_L: [1, 8,  25, 32],
+  P_LIFE_R: [9, 16, 25, 32],
+  P_ACC_L:  [1, 8,  33, 39],
+  P_ACC_R:  [9, 16, 33, 39],
+
+  // CHƯƠNG 3 (rows 42..58): [C — CONTEXT] Tailor vs Accounting + {{PLACEHOLDERS}}
+  C_HDR:    [1, 16, 42, 45],
+  C_LIFE:   [1, 8,  46, 51],
+  C_ACC:    [9, 16, 46, 51],
+  C_VAR_HD: [1, 16, 52, 54],
+  C_V0:     [1, 4,  54, 58],
+  C_V1:     [4, 7,  54, 58],
+  C_V2:     [7, 10, 54, 58],
+  C_V3:     [10, 13, 54, 58],
+  C_V4:     [13, 16, 54, 58],
+
+  // CHƯƠNG 4 (rows 61..76): [T — TASK] Action Verbs & Kitchen Prep vs AR Aging
+  T_HDR:    [1, 16, 61, 64],
+  T_RULE:   [1, 16, 65, 68],
+  T_LIFE:   [1, 8,  69, 76],
+  T_ACC:    [9, 16, 69, 76],
+
+  // CHƯƠNG 5 (rows 79..97): [P — PATTERN] Cake Mold vs 4-Column Financial Report Table
+  PA_HDR:   [1, 16, 79, 82],
+  PA_BAD:   [1, 8,  83, 88],
+  PA_GOOD:  [9, 16, 83, 88],
+  PA_TBL:   [1, 16, 89, 97],
+
+  // CHƯƠNG 6 (rows 99..116): [R — RULES] 20M Payment Control vs AI Audit Rules + OKR 9/10
+  R_HDR:    [1, 16, 99, 102],
+  R_LIFE:   [1, 8,  103, 111],
+  R_AI:     [9, 16, 103, 111],
+  R_QUESTION:[1, 16, 112, 116],
+
+  // CHƯƠNG 7 (Unhidden cols 18..28 = S..AB, rows 99..124): PCTPR Prompt Optimizer (Meta-Prompt)
+  OPT_HDR:  [18, 28, 99, 103],
+  OPT_META: [18, 28, 104, 109],
+  OPT_DONT: [18, 23, 110, 123],
+  OPT_DO:   [23, 28, 110, 123],
+
+  // CHƯƠNG 8 (rows 127..149): 3-Step Daily Routine + Grand Finale Summary Stage
+  FIN_3HDR: [3, 25, 127, 130],
+  FIN_S1:   [3, 10, 131, 137],
+  FIN_S2:   [10, 17, 131, 137],
+  FIN_S3:   [17, 25, 131, 137],
+  FIN_TOP:  [3, 25, 139, 144],
+  FIN_BOT:  [3, 25, 145, 150],
+};
+
+// ───────────────────────── Camera Keyframes (Locked to Whisper-verified VO timestamps) ─────────────────────────
+const CAM_KEYS = [
+  // Ch 1: Welcome 1981 -> Bad Brief -> 5 Pillars
+  { t: 0.00,  c: 8.5, r: 5.5,   z: 1.25 },
+  { t: 1.20,  c: 8.5, r: 8.5,   z: 1.00 },
+  { t: 9.00,  c: 8.5, r: 8.5,   z: 1.00 },
+  { t: 10.10, c: 8.5, r: 10.5,  z: 1.02 },
+  { t: 18.20, c: 8.5, r: 10.5,  z: 1.02 },
+  { t: 19.20, c: 8.5, r: 12.8,  z: 0.98 },
+  { t: 28.20, c: 8.5, r: 12.8,  z: 0.98 },
+
+  // Ch 2: [P — PERSONA] Running Nutrition vs Coach -> Tax vs CFO
+  { t: 29.10, c: 8.5, r: 28.5,  z: 1.00 },
+  { t: 36.80, c: 8.5, r: 28.5,  z: 1.00 },
+  { t: 37.80, c: 6.8, r: 28.8,  z: 1.05 },
+  { t: 46.80, c: 6.8, r: 28.8,  z: 1.05 },
+  { t: 47.80, c: 10.2, r: 28.8, z: 1.05 },
+  { t: 55.80, c: 10.2, r: 28.8, z: 1.05 },
+  { t: 56.90, c: 8.5, r: 32.2,  z: 0.98 },
+  { t: 66.00, c: 8.5, r: 32.2,  z: 0.98 },
+
+  // Ch 3: [C — CONTEXT] Tailor/Accounting -> {{PLACEHOLDERS}}
+  { t: 67.00, c: 8.5, r: 49.5,  z: 0.98 },
+  { t: 75.50, c: 8.5, r: 49.5,  z: 0.98 },
+  { t: 76.40, c: 8.5, r: 52.0,  z: 1.00 },
+  { t: 85.80, c: 8.5, r: 52.0,  z: 1.00 },
+
+  // Ch 4: [T — TASK] Action Verbs & AR 60-day Aging
+  { t: 86.80, c: 8.5, r: 69.0,  z: 0.98 },
+  { t: 105.6, c: 8.5, r: 69.0,  z: 0.98 },
+
+  // Ch 5: [P — PATTERN] Cake Mold & 4-Col Financial Table
+  { t: 106.7, c: 8.5, r: 87.5,  z: 0.97 },
+  { t: 115.2, c: 8.5, r: 87.5,  z: 0.97 },
+  { t: 116.1, c: 8.5, r: 89.2,  z: 1.02 },
+  { t: 125.1, c: 8.5, r: 89.2,  z: 1.02 },
+
+  // Ch 6: [R — RULES] 20M Voucher Control & OKR 9/10 + Question
+  { t: 126.1, c: 8.5, r: 106.5, z: 0.98 },
+  { t: 145.6, c: 8.5, r: 106.5, z: 0.98 },
+  { t: 146.5, c: 8.5, r: 109.5, z: 1.00 },
+  { t: 154.2, c: 8.5, r: 109.5, z: 1.00 },
+
+  // Ch 7: Whip to Column Seam R..AB & Ride Unhide Reflow -> PCTPR Prompt Optimizer!
+  { t: 154.85, c: 17.5, r: 108.5, z: 1.02 },
+  { t: 156.20, c: 23.0, r: 110.5, z: 0.94 },
+  { t: 175.40, c: 23.0, r: 110.5, z: 0.94 },
+  { t: 176.40, c: 23.0, r: 113.8, z: 0.96 },
+  { t: 196.80, c: 23.0, r: 113.8, z: 0.96 },
+
+  // Ch 8: 3-Step Workflow -> Pastel Bloom Finale Stage
+  { t: 197.80, c: 14.0, r: 133.5, z: 0.78 },
+  { t: 207.60, c: 14.0, r: 133.5, z: 0.78 },
+  { t: 208.70, c: 14.0, r: 141.0, z: 0.78 },
+  { t: 224.00, c: 14.0, r: 141.0, z: 0.76 },
+];
+
+let CAM = { x: 0, y: 0, z: 1 }, HDR = 28, SHEET_Y = 152, VW = 1864, VH = 868, VCX = 960, VCY = 540;
+function evalCamera(t) {
+  let k = 0;
+  while (k < CAM_KEYS.length - 2 && t >= CAM_KEYS[k + 1].t) k++;
+  const A = CAM_KEYS[k], B = CAM_KEYS[k + 1];
+  const u = eio(seg(t, A.t, B.t));
+  const z = Math.exp(lerp(Math.log(A.z), Math.log(B.z), u));
+  const c = lerp(A.c, B.c, u), r = lerp(A.r, B.r, u);
+  return { x: colXf(c), y: r * RH, z };
+}
+const X = wx => VCX + (wx - CAM.x) * CAM.z;
+const Y = wy => VCY + (wy - CAM.y) * CAM.z;
+const XC = i => Math.round(X(colX(i)));
+const YR = j => Math.round(Y(j * RH));
+function mrect(key) {
+  const [c0, c1, r0, r1] = M[key];
+  const x0 = XC(c0), x1 = XC(c1), y0 = YR(r0), y1 = YR(r1);
+  return [x0, y0, x1 - x0, y1 - y0];
+}
+function cellBox(x, y, w, h, fill, border = INK, lw = 1.6) {
+  if (w <= 2 || h <= 2) return;
+  rect(x, y, w, h, fill);
+  g.strokeStyle = border; g.lineWidth = lw;
+  g.strokeRect(x + lw / 2, y + lw / 2, w - lw, h - lw);
+}
+
+// Helper to draw clean titled comparison cards inside merged spreadsheet ranges
+function drawCard(key, { badgeBg = INDIGO, badgeFg = '#FFFFFF', badgeTxt = '', title = '', bullets = [], bg = '#FFFFFF', titleCol = INK, z = 1 }) {
+  const [x, y, w, h] = mrect(key);
+  if (w < 24 || h < 24) return;
+  cellBox(x, y, w, h, bg, INK, 1.7);
+  const stripH = Math.round(32 * z);
+  rect(x + 1.6, y + 1.6, w - 3.2, stripH, badgeBg);
+  text(badgeTxt, x + 14 * z, y + stripH / 2 + 1, `800 ${13.5 * z}px ${MONO}`, badgeFg);
+
+  let curY = y + stripH + 22 * z;
+  if (title) {
+    const tFont = `800 ${17.5 * z}px ${UI}`;
+    const tLines = wrapLines(title, tFont, w - 28 * z);
+    tLines.forEach(ln => {
+      text(ln, x + 14 * z, curY, tFont, titleCol);
+      curY += 23 * z;
+    });
+    line(x + 12 * z, curY - 7 * z, x + w - 12 * z, curY - 7 * z, '#D6D5CE', 1);
+    curY += 6 * z;
+  }
+  const bFont = `500 ${14.8 * z}px ${UI}`;
+  bullets.forEach(b => {
+    const bLines = wrapLines(b, bFont, w - 28 * z);
+    bLines.forEach((ln, li) => {
+      if (curY < y + h - 10 * z) {
+        text(ln, x + (li === 0 ? 14 : 26) * z, curY, bFont, '#1F2937');
+        curY += 21 * z;
+      }
+    });
+    curY += 3 * z;
+  });
+}
+
+// ───────────────────────── Live Formula Bar (`fx` speaks every chapter!) ─────────────────────────
+function formulaState(t) {
+  const specs = [
+    [0.20,   1.30,   'B2:P6',     [['=CHAO_KE_TOAN_TRUONG(', INK], ['The_he_1981', REF_COLS[0]], ['; ', INK], ['"Chưa dùng AI = Dễ như Bảng tính"', OK_INK], [')', INK]]],
+    [9.40,   10.50,  'B8:P13',    [['=SO_SANH_GIAO_VIEC(', INK], ['"Làm báo cáo đi!"', NO], ['; ', INK], ['"Phân tích doanh thu"', NO], [') → ', INK], ['#MƠ_HỒ!', NO]]],
+    [18.50,  19.70,  'B15:P18',   [['=KHUNG_CHUAN_5_O(', INK], ['Persona', REF_COLS[0]], ['; ', INK], ['Context', REF_COLS[1]], ['; ', INK], ['Task', REF_COLS[2]], ['; ', INK], ['Pattern', REF_COLS[3]], ['; ', INK], ['Rules', REF_COLS[4]], [')', INK]]],
+    [28.80,  30.00,  'B22:P24',   [['=P_PERSONA(', INK], ['Vai_tro_Chuyen_gia', REF_COLS[0]], ['; ', INK], ['Goc_nhin_Chuyen_mon', INDIGO], [')', INK]]],
+    [37.10,  38.30,  'B26:H32',   [['=CHAY_BO_10KM(', INK], ['P="Chuyên gia Dinh dưỡng"', OK_INK], [') → ', INK], ['"Thực đơn & Bù điện giải"', REF_COLS[2]]]],
+    [47.30,  48.50,  'J26:P32',   [['=CHAY_BO_10KM(', INK], ['P="HLV Thể lực"', REF_COLS[0]], [') → ', INK], ['"Giáo án nhịp tim & Sức bền"', INDIGO]]],
+    [56.50,  57.70,  'B34:P39',   [['=CHI_PHI_QUY_3(', INK], ['Chuyen_vien_Thue', REF_COLS[1]], [' vs ', INK], ['Giam_doc_CFO', REF_COLS[0]], [')', INK]]],
+    [66.70,  67.90,  'B43:P51',   [['=C_CONTEXT(', INK], ['Loai_hinh_DN', REF_COLS[1]], ['; ', INK], ['Nguoi_doc_Bao_cao', REF_COLS[0]], ['; ', INK], ['Dieu_kien_Kem_theo', OK_INK], [')', INK]]],
+    [75.90,  77.10,  'B55:P58',   [['=BIEN_GIU_CHO(', INK], ['"{{NỘI_DUNG_BÁO_CÁO}}"', REF_COLS[1]], ['; ', INK], ['"{{DỮ_LIỆU_CẦN_PHÂN_TÍCH}}"', REF_COLS[0]], [')', INK]]],
+    [86.50,  87.70,  'B62:P76',   [['=T_TASK(', INK], ['"Đối chiếu công nợ >60 ngày"', OK_INK], ['; ', INK], ['"Xác định Top 5"', REF_COLS[0]], ['; ', INK], ['"Đề xuất lịch thu"', INDIGO], [')', INK]]],
+    [106.40, 107.60, 'B80:P96',   [['=P_PATTERN(', INK], ['"Bảng 4 cột: Khoản mục | Kỳ trước | Kỳ này | % Lệch"', REF_COLS[3]], [')', INK]]],
+    [125.80, 127.00, 'B100:P111', [['=R_RULES(', INK], ['"Cấm bịa số"', NO], ['; ', INK], ['"Less is More"', OK_INK], ['; ', INK], ['OKR="9/10 điểm"', INDIGO], [')', INK]]],
+    [155.10, 156.50, 'R100:AA123',[['=PCTPR_OPTIMIZER(', INK], ['Prompt_Tho', REF_COLS[1]], [') → ', INK], ['1_CODE_BLOCK_DUY_NHAT + {{INPUT}}', OK_INK]]],
+    [197.50, 198.80, 'D128:Y137', [['=QUY_TRINH_3_BUOC(', INK], ['1_Nhap_Tho', REF_COLS[1]], [' → ', INK], ['2_Copy_PCTPR', REF_COLS[0]], [' → ', INK], ['3_Dan_So_Lieu', OK_INK], [')', INK]]],
+    [208.40, 209.70, 'D140:Y150', [['=LAM_CHU_AI_1981(', INK], ['"Rõ Vai Trò · Đủ Bối Cảnh · Sắc Nhiệm Vụ · Chuẩn Mẫu · Chặt Luật"', OK_INK], [')', INK]]],
+  ];
+  let cur = specs[0];
+  for (const s of specs) if (t >= s[0]) cur = s;
+  const [t0, t1, name, parts] = cur;
+  const fullLen = parts.reduce((a, p) => a + p[0].length, 0);
+  const shown = Math.floor(clamp((t - t0) / Math.max(0.01, t1 - t0), 0, 1) * fullLen);
+  let rem = shown;
+  const out = [];
+  for (const [str, col] of parts) {
+    if (rem <= 0) break;
+    out.push([str.slice(0, rem), col]);
+    rem -= str.length;
+  }
+  return { name, parts: out, caret: t >= t0 && t < t1 + 0.8 };
+}
+
+function activeSelection(t) {
+  if (t < 9.3) return 'C1_HERO';
+  if (t < 13.0) return 'C1_LEFT';
+  if (t < 18.4) return 'C1_RIGHT';
+  if (t < 28.5) return 'C1_P0';
+  if (t < 37.0) return 'P_HDR';
+  if (t < 47.2) return 'P_LIFE_L';
+  if (t < 56.4) return 'P_LIFE_R';
+  if (t < 66.4) return 'P_ACC_R';
+  if (t < 75.8) return 'C_ACC';
+  if (t < 86.2) return 'C_V2';
+  if (t < 106.0) return 'T_ACC';
+  if (t < 115.5) return 'PA_GOOD';
+  if (t < 125.5) return 'PA_TBL';
+  if (t < 146.0) return 'R_AI';
+  if (t < 154.8) return 'R_QUESTION';
+  if (t < 175.8) return 'OPT_META';
+  if (t < 197.2) return 'OPT_DO';
+  if (t < 208.3) return 'FIN_S2';
+  return 'FIN_BOT';
+}
+
+// ───────────────────────── Draw Sheet Grid & All 8 Educational Chapters ─────────────────────────
+function drawSheet(t) {
+  const z = CAM.z;
+  rect(ROWH_W, SHEET_Y, VW, VH, '#FFFFFF');
+
+  g.save();
+  g.beginPath(); g.rect(ROWH_W, SHEET_Y, VW, VH); g.clip();
+
+  const c0 = 0, c1 = NC;
+  const r0 = Math.max(0, Math.floor((CAM.y - (VCY - SHEET_Y) / z) / RH) - 1);
+  const r1 = Math.min(162, Math.ceil((CAM.y + (SHEET_B - VCY) / z) / RH) + 1);
+  const drawVals = 11 * z >= 6.5;
+
+  // Finale 6-step banded colour-scale payoff radiating from (col 14, row 144) after t = 208.3s!
+  const bloomOn = t >= 208.3;
+  const bloomR = bloomOn ? (t - 208.3) * 18 : 0;
+
+  for (let i = c0; i <= c1; i++) {
+    const cw = colW(i); if (cw < 0.8) continue;
+    const x = XC(i), w = XC(i + 1) - x;
+    if (x + w < ROWH_W || x > W) continue;
+    for (let j = r0; j <= r1; j++) {
+      const y = YR(j), h = YR(j + 1) - y;
+      if (bloomOn) {
+        const d = Math.hypot((i - 14) * 0.85, (j - 144) * 0.55);
+        if (d <= bloomR) {
+          const band = Math.floor(d / 2.2) % PASTEL.length;
+          const fl = clamp(1 - (bloomR - d) / 2.4, 0, 1);
+          rect(x, y, w, h, fl > 0 ? hexMix(PASTEL[band], '#FFFFFF', fl * 0.65) : PASTEL[band]);
+          if (drawVals && w > 30) text(`+${90 + (i + j) % 10}%`, x + w / 2, y + h / 2 + 1, `500 ${9.5 * z}px ${MONO}`, 'rgba(23,18,10,0.25)', 'center');
+        }
+      }
+    }
+  }
+
+  // Crisp grid lines
+  g.strokeStyle = '#DAD9D3'; g.lineWidth = 1; g.beginPath();
+  for (let i = c0; i <= c1 + 1; i++) {
+    if (i <= NC && colW(i) < 0.8) continue;
+    const x = XC(i) + 0.5;
+    if (x >= ROWH_W && x <= W) { g.moveTo(x, SHEET_Y); g.lineTo(x, SHEET_B); }
+  }
+  for (let j = r0; j <= r1 + 1; j++) {
+    const y = YR(j) + 0.5;
+    if (y >= SHEET_Y && y <= SHEET_B) { g.moveTo(ROWH_W, y); g.lineTo(W, y); }
+  }
+  g.stroke();
+
+  // Double-line seam indicator before unhide of R..AA (`i = 17`)
+  if (colW(17) < 3) {
+    const sx = XC(17);
+    line(sx - 2, SHEET_Y, sx - 2, SHEET_B, INDIGO, 2);
+    line(sx + 2, SHEET_Y, sx + 2, SHEET_B, INDIGO, 2);
+  }
+
+  // ── CHAPTER 1: Welcome 1981 + Raw Command Pitfall + 5 PCTPR Cells ──
+  {
+    const [hx, hy, hw, hh] = mrect('C1_HERO');
+    cellBox(hx, hy, hw, hh, INDIGO, INK, 2);
+    rect(hx + 2, hy + 2, 14 * z, hh - 4, OK);
+    text('SỔ TAY TƯ DUY AI DÀNH RIÊNG CHO KẾ TOÁN TRƯỞNG THẾ HỆ 1981', hx + 28 * z, hy + hh * 0.36, `800 ${22 * z}px ${UI}`, '#FFFFFF');
+    text('Chưa từng dùng AI bao giờ? Đừng lo — nguyên lý làm việc với AI giống hệt giao việc & lập công thức bảng tính!', hx + 28 * z, hy + hh * 0.72, `500 ${15.5 * z}px ${UI}`, '#E2E8F0');
+
+    if (t >= 9.3) {
+      drawCard('C1_LEFT', {
+        badgeBg: AMBER, badgeFg: INK, badgeTxt: 'THỰC TẾ PHÒNG KẾ TOÁN: GIAO VIỆC CỤT LỦN',
+        title: 'Nói với nhân viên mới đúng 4 chữ: “Làm báo cáo đi!”',
+        bullets: [
+          '• Không rõ báo cáo thuế, quản trị hay công nợ?',
+          '• Không rõ kỳ số liệu, biểu mẫu trình ai?',
+          '→ Nhân viên đoán mò, nộp bản nháp sai ý 100%!'
+        ],
+        bg: '#FFFBEB', z
+      });
+    }
+    if (t >= 13.0) {
+      drawCard('C1_RIGHT', {
+        badgeBg: NO, badgeFg: '#FFFFFF', badgeTxt: 'KHI MỚI DÙNG AI: GÕ CÂU LỆNH THÔ NGẮN NGỦN',
+        title: 'Gõ: “Phân tích bảng doanh thu” hoặc “Tóm tắt báo cáo”',
+        bullets: [
+          '• AI trả lời sáo rỗng như sách giáo khoa chung chung',
+          '• Báo lỗi tư duy #MƠ_HỒ! — phải ngồi sửa tay mệt mỏi',
+          '→ Cần phiếu giao việc chuẩn 5 ô: P - C - T - P - R!'
+        ],
+        bg: SOFT_RED, titleCol: '#991B1B', z
+      });
+    }
+    if (t >= 18.6) {
+      const pillars = [
+        ['C1_P0', 18.8, 'P — PERSONA', 'Vai trò chuyên gia', REF_COLS[0]],
+        ['C1_P1', 19.6, 'C — CONTEXT', 'Bối cảnh & {{Biến}}', REF_COLS[1]],
+        ['C1_P2', 20.4, 'T — TASK', 'Động từ nhiệm vụ', REF_COLS[2]],
+        ['C1_P3', 21.2, 'P — PATTERN', 'Khuôn mẫu đầu ra', REF_COLS[3]],
+        ['C1_P4', 22.0, 'R — RULES', 'Quy tắc kiểm soát', REF_COLS[4]],
+      ];
+      for (const [k, t0, code, sub, col] of pillars) {
+        if (t < t0) continue;
+        const [x, y, w, h] = mrect(k);
+        const sc = popK(t, t0, 0.25, 0.16);
+        cellBox(x, y, w, h, '#FFFFFF', INK, 1.8);
+        rect(x + 2, y + 2, w - 4, 30 * z, col);
+        text(code, x + w / 2, y + 17 * z, `800 ${14 * z * sc}px ${MONO}`, '#FFFFFF', 'center');
+        text(sub, x + w / 2, y + h * 0.66, `700 ${15.5 * z}px ${UI}`, INK, 'center');
+      }
+    }
+  }
+
+  // ── CHAPTER 2: [P — PERSONA] Running 3km->10km & Accounting Tax vs CFO ──
+  if (t >= 28.6) {
+    const [x, y, w, h] = mrect('P_HDR');
+    cellBox(x, y, w, h, REF_COLS[0], INK, 2);
+    text('[P — PERSONA]  ·  VAI TRÒ, CHUYÊN MÔN & GÓC NHÌN AI CẦN ĐẢM NHẬN', x + 18 * z, y + h / 2 + 1, `800 ${19 * z}px ${UI}`, '#FFFFFF');
+
+    if (t >= 37.0) {
+      drawCard('P_LIFE_L', {
+        badgeBg: '#0D9488', badgeFg: '#FFFFFF', badgeTxt: 'VÍ DỤ ĐỜI THƯỜNG 1  ·  P = CHUYÊN GIA DINH DƯỠNG',
+        title: 'Mục tiêu: Cải thiện cự ly chạy bộ từ 3km lên 10km',
+        bullets: [
+          '• Tư vấn ăn tinh bột hấp thu chậm trước giờ chạy 90 phút',
+          '• Công thức bù nước & muối điện giải ở mốc km thứ 5',
+          '• Khẩu phần đạm phục hồi cơ bắp sau buổi chạy'
+        ],
+        bg: '#F0FDFA', z
+      });
+    }
+    if (t >= 47.2) {
+      drawCard('P_LIFE_R', {
+        badgeBg: '#2563EB', badgeFg: '#FFFFFF', badgeTxt: 'VÍ DỤ ĐỜI THƯỜNG 2  ·  P = HUẤN LUYỆN VIÊN THỂ LỰC',
+        title: 'Cùng câu hỏi chạy bộ 3km → 10km, nhưng đổi chữ P!',
+        bullets: [
+          '• Chia lịch chạy bền vùng nhịp tim Zone 2 (không hụt hơi)',
+          '• Quy tắc tăng quãng đường tối đa 10% mỗi tuần',
+          '• Bài tập bổ trợ khớp gối, cổ chân & nhịp sải bước'
+        ],
+        bg: '#EFF6FF', z
+      });
+    }
+    if (t >= 56.4) {
+      drawCard('P_ACC_L', {
+        badgeBg: '#D97706', badgeFg: '#FFFFFF', badgeTxt: 'NGHIỆP VỤ KẾ TOÁN 1  ·  P = CHUYÊN VIÊN THUẾ',
+        title: 'Cùng bảng chi phí Quý 3: Góc nhìn Bảo vệ Quyết toán Thuế',
+        bullets: [
+          '• Rà soát tính hợp pháp, hợp lệ, hợp lý của từng hóa đơn',
+          '• Cảnh báo ngay các khoản chi có nguy cơ bị xuất toán TNDN'
+        ],
+        bg: '#FFFBEB', z
+      });
+      drawCard('P_ACC_R', {
+        badgeBg: INDIGO, badgeFg: '#FFFFFF', badgeTxt: 'NGHIỆP VỤ KẾ TOÁN 2  ·  P = GIÁM ĐỐC TÀI CHÍNH (CFO)',
+        title: 'Cùng bảng chi phí Quý 3: Góc nhìn Quản trị Dòng tiền',
+        bullets: [
+          '• Đánh giá tỷ lệ chi phí/doanh thu & biên lợi nhuận ròng',
+          '• Chỉ ra định phí nào cần tối ưu để giữ dòng tiền dương'
+        ],
+        bg: '#EEF2FF', z
+      });
+    }
+  }
+
+  // ── CHAPTER 3: [C — CONTEXT] Tailor vs Accounting + {{PLACEHOLDER}} Variables ──
+  if (t >= 66.4) {
+    const [x, y, w, h] = mrect('C_HDR');
+    cellBox(x, y, w, h, REF_COLS[1], INK, 2);
+    text('[C — CONTEXT]  ·  BỐI CẢNH, ĐỐI TƯỢNG NHẬN KẾT QUẢ & BIẾN GIỮ CHỖ {{...}}', x + 18 * z, y + h / 2 + 1, `800 ${18.5 * z}px ${UI}`, '#FFFFFF');
+
+    drawCard('C_LIFE', {
+      badgeBg: AMBER, badgeFg: INK, badgeTxt: 'SO SÁNH ĐỜI THƯỜNG: ĐI MAY ĐO ÁO VEST',
+      title: 'Thợ may giỏi cũng bó tay nếu thiếu số đo & dịp mặc!',
+      bullets: [
+        '• Phải báo chiều cao, cân nặng, mặc họp HĐQT hay dạo phố',
+        '• Nêu rõ thời tiết mùa hè thoáng mát hay mùa đông giữ ấm'
+      ],
+      bg: '#FFFFFF', z
+    });
+    drawCard('C_ACC', {
+      badgeBg: INDIGO, badgeFg: '#FFFFFF', badgeTxt: 'LIÊN HỆ KẾ TOÁN TRƯỞNG: BỐI CẢNH DOANH NGHIỆP',
+      title: 'Đưa hóa đơn lẻ phải kèm ngành nghề & người nhận báo cáo!',
+      bullets: [
+        '• Công ty sản xuất hay thương mại? Áp dụng Thông tư 200 hay 133?',
+        '• Báo cáo gửi Tổng Giám đốc đọc nhanh hay giải trình Thuế?'
+      ],
+      bg: '#FFFFFF', z
+    });
+
+    if (t >= 75.8) {
+      const [vhx, vhy, vhw, vhh] = mrect('C_VAR_HD');
+      cellBox(vhx, vhy, vhw, vhh, '#FEF3C7', INK, 1.5);
+      text('MẸO VÀNG KHI CHƯA SẴN SỐ LIỆU: TẠO BIẾN GIỮ CHỖ (HỆT NHƯ Ô TRỐNG CHỜ ĐIỀN SỐ TRONG FILE MẪU!)', vhx + 16 * z, vhy + vhh / 2 + 1, `800 ${14.5 * z}px ${UI}`, '#92400E');
+
+      const vars = [
+        ['C_V0', 76.2, '{{NỘI_DUNG_BÁO_CÁO}}', 'Chờ dán văn bản báo cáo'],
+        ['C_V1', 77.0, '{{NỘI_DUNG_EMAIL}}', 'Chờ dán thư cần xử lý'],
+        ['C_V2', 77.8, '{{DỮ_LIỆU_CẦN_PHÂN_TÍCH}}', 'Chờ dán bảng số liệu'],
+        ['C_V3', 78.6, '{{ĐOẠN_CODE}}', 'Chờ dán công thức / VBA'],
+        ['C_V4', 79.4, '{{MỤC_TIÊU_DỰ_ÁN}}', 'Chờ điền chỉ tiêu quý'],
+      ];
+      for (const [k, t0, vname, vdesc] of vars) {
+        if (t < t0) continue;
+        const [vx, vy, vw, vh] = mrect(k);
+        cellBox(vx, vy, vw, vh, NOTE, '#D97706', 2);
+        text(vname, vx + vw / 2, vy + vh * 0.40, `800 ${12.2 * z}px ${MONO}`, '#B45309', 'center');
+        text(vdesc, vx + vw / 2, vy + vh * 0.74, `500 ${13 * z}px ${UI}`, INK, 'center');
+      }
+    }
+  }
+
+  // ── CHAPTER 4: [T — TASK] Clear Action Verbs, Kitchen Prep vs AR Aging ──
+  if (t >= 86.2) {
+    const [x, y, w, h] = mrect('T_HDR');
+    cellBox(x, y, w, h, REF_COLS[2], INK, 2);
+    text('[T — TASK]  ·  NHIỆM VỤ CỤ THỂ BẮT ĐẦU BẰNG ĐỘNG TỪ HÀNH ĐỘNG RÕ RÀNG', x + 18 * z, y + h / 2 + 1, `800 ${18.5 * z}px ${UI}`, '#FFFFFF');
+
+    const [rx, ry, rw, rh] = mrect('T_RULE');
+    cellBox(rx, ry, rw, rh, SOFT_OK, INK, 1.5);
+    text('✓ Giữ nguyên mục tiêu gốc   ·   ✓ Bỏ từ lặp mơ hồ   ·   ✓ Tự chọn giả định hợp lý nhất (không hỏi vặn lại người dùng!)', rx + 18 * z, ry + rh / 2 + 1, `700 ${15 * z}px ${UI}`, OK_INK);
+
+    if (t >= 95.4) {
+      drawCard('T_LIFE', {
+        badgeBg: AMBER, badgeFg: INK, badgeTxt: 'ĐỜI THƯỜNG: NHỜ SƠ CHẾ RAU TRONG BẾP',
+        title: '✕ Mơ hồ: “Xem hộ mớ rau” → Người nghe chỉ đứng nhìn!',
+        bullets: [
+          '✓ Động từ rõ: 1. Nhặt sạch gốc già và lá úa',
+          '✓ Động từ rõ: 2. Rửa kỹ qua 3 lần nước sạch',
+          '✓ Động từ rõ: 3. Cắt khúc 5 phân xếp ra rổ sẵn nấu!'
+        ],
+        bg: '#FFFFFF', z
+      });
+      drawCard('T_ACC', {
+        badgeBg: '#0D9488', badgeFg: '#FFFFFF', badgeTxt: 'PHÒNG KẾ TOÁN: RÀ SOÁT CÔNG NỢ PHẢI THU',
+        title: '✕ Mơ hồ: “Xem giúp bảng công nợ” → Nhận xét chung chung',
+        bullets: [
+          '✓ 1. ĐỐI CHIẾU số dư phải thu theo từng hợp đồng bán hàng',
+          '✓ 2. XÁC ĐỊNH Top 5 khách hàng quá hạn thanh toán > 60 ngày',
+          '✓ 3. ĐỀ XUẤT lịch nhắc nợ & phương án trích lập dự phòng!'
+        ],
+        bg: '#F0FDFA', z
+      });
+    }
+  }
+
+  // ── CHAPTER 5: [P — PATTERN] Cake Mold vs Crisp 4-Column Financial Table ──
+  if (t >= 106.0) {
+    const [x, y, w, h] = mrect('PA_HDR');
+    cellBox(x, y, w, h, REF_COLS[3], INK, 2);
+    text('[P — PATTERN]  ·  KHUÔN MẪU CẤU TRÚC & ĐỊNH DẠNG ĐẦU RA MONG MUỐN', x + 18 * z, y + h / 2 + 1, `800 ${18.5 * z}px ${UI}`, '#FFFFFF');
+
+    drawCard('PA_BAD', {
+      badgeBg: NO, badgeFg: '#FFFFFF', badgeTxt: 'KHÔNG KHÓA PATTERN = ĐỔ BỘT KHÔNG KHUÔN',
+      title: 'Bột chảy tràn lan = AI viết đoạn văn dài 3 trang chữ!',
+      bullets: [
+        '• Con số chìm nghỉm giữa hàng trăm dòng chữ lan man',
+        '• Kế toán trưởng mất công ngồi gõ lại từng số vào bảng'
+      ],
+      bg: SOFT_RED, z
+    });
+    drawCard('PA_GOOD', {
+      badgeBg: OK, badgeFg: INK, badgeTxt: 'KHÓA CHẶT PATTERN = ĐỔ VÀO KHUÔN BÁNH VUÔNG VỨC',
+      title: 'Chỉ định rõ: “Bảng 4 cột + 3 gạch đầu dòng nhận xét chính”',
+      bullets: [
+        '• Đầu ra ngay ngắn như biểu mẫu báo cáo quản trị chuẩn',
+        '• Sao chép dán thẳng vào báo cáo Ban Giám đốc trong 5 giây!'
+      ],
+      bg: SOFT_OK, z
+    });
+
+    if (t >= 115.5) {
+      const [tx, ty, tw0, th0] = mrect('PA_TBL');
+      cellBox(tx, ty, tw0, th0, '#FFFFFF', INK, 2);
+      const colSplits = [0, 0.36, 0.57, 0.78, 1.0];
+      const rows = [
+        ['KHOẢN MỤC BÁO CÁO KẾT QUẢ KINH DOANH', 'QUÝ TRƯỚC (Tỷ)', 'QUÝ NÀY (Tỷ)', 'CHÊNH LỆCH (%)'],
+        ['1. Doanh thu thuần bán hàng & cung cấp DV', '18,40', '21,20', '+15,2% (Tăng tốt)'],
+        ['2. Giá vốn hàng bán', '12,00', '12,60', '+5,0% (Kiểm soát chặt)'],
+        ['3. Lợi nhuận gộp về bán hàng', '6,40', '8,60', '+34,4% (Đột phá biên LN)'],
+      ];
+      const rh0 = th0 / rows.length;
+      rows.forEach((rData, ri) => {
+        const ry0 = ty + ri * rh0;
+        if (ri === 0) rect(tx + 1.5, ry0 + 1.5, tw0 - 3, rh0 - 1.5, INDIGO);
+        else if (ri === 3) rect(tx + 1.5, ry0, tw0 - 3, rh0 - 1.5, SOFT_OK);
+        if (ri > 0) line(tx, ry0, tx + tw0, ry0, '#CBD5E1', 1);
+        for (let ci = 0; ci < 4; ci++) {
+          const cx0 = tx + tw0 * colSplits[ci], cw0 = tw0 * (colSplits[ci + 1] - colSplits[ci]);
+          if (ci > 0) line(cx0, ty, cx0, ty + th0, '#CBD5E1', 1);
+          const fStr = ri === 0 ? `800 ${14 * z}px ${MONO}` : `${ri === 3 || ci === 3 ? 700 : 500} ${15 * z}px ${ci > 0 ? MONO : UI}`;
+          const col = ri === 0 ? '#FFFFFF' : (ci === 3 ? OK_INK : INK);
+          text(rData[ci], ci === 0 ? cx0 + 14 * z : cx0 + cw0 / 2, ry0 + rh0 / 2 + 1, fStr, col, ci === 0 ? 'left' : 'center');
+        }
+      });
+    }
+  }
+
+  // ── CHAPTER 6: [R — RULES] Internal Audit Controls, Less is More & OKR 9/10 ──
+  if (t >= 125.5) {
+    const [x, y, w, h] = mrect('R_HDR');
+    cellBox(x, y, w, h, REF_COLS[4], INK, 2);
+    text('[R — RULES]  ·  GIỚI HẠN, ĐIỀU CẤM, NGUYÊN TẮC “LESS IS MORE” & CHUẨN OKR ~9/10', x + 18 * z, y + h / 2 + 1, `800 ${18 * z}px ${UI}`, '#FFFFFF');
+
+    drawCard('R_LIFE', {
+      badgeBg: AMBER, badgeFg: INK, badgeTxt: 'THỰC TẾ KẾ TOÁN TRƯỞNG: CHỐT KIỂM SOÁT DUYỆT CHI',
+      title: 'Quy chế tài chính nội bộ bảo vệ an toàn két tiền:',
+      bullets: [
+        '• Hóa đơn ≥ 20 triệu đồng: BẮT BUỘC chuyển khoản ngân hàng',
+        '• Thiếu hợp đồng / biên bản nghiệm thu: TUYỆT ĐỐI KHÔNG CHI',
+        '• Số tiền bằng chữ & bằng số lệch 1 đồng cũng trả hồ sơ!'
+      ],
+      bg: '#FFFBEB', z
+    });
+
+    if (t >= 134.8) {
+      drawCard('R_AI', {
+        badgeBg: OK, badgeFg: INK, badgeTxt: 'ÁP DỤNG KỶ LUẬT KIỂM TOÁN ĐÓ CHO AI',
+        title: 'Khóa chặt đầu ra — Không lan man, không tự bịa số liệu!',
+        bullets: [
+          '• Cấm tự bịa số liệu, sự kiện không có trong bảng [INPUT]',
+          '• Tiếng Việt ngắn gọn “Less is More” · Không lặp ý giữa các mục',
+          '• Tiêu chí kiểm tra được · Mục tiêu OKR đạt ~9/10 điểm (Rất Tốt)!'
+        ],
+        bg: SOFT_OK, z
+      });
+    }
+
+    if (t >= 146.0) {
+      const [qx, qy, qw, qh] = mrect('R_QUESTION');
+      cellBox(qx, qy, qw, qh, INDIGO, INK, 2);
+      text('[?] Băn khoăn thật lòng: “Mới tập dùng AI, chẳng lẽ lần nào bận rộn cũng phải tự ngồi gõ đủ cả 5 mục P-C-T-P-R?”  →  MỞ CỘT S:AB!', qx + 18 * z, qy + qh / 2 + 1, `700 ${15.6 * z}px ${UI}`, AMBER);
+    }
+  }
+
+  // ── CHAPTER 7: UNHIDDEN COLUMNS R..AA (155.3s+) — PCTPR PROMPT OPTIMIZER (META-PROMPT) ──
+  if (t >= 155.2 && colW(17) > 35) {
+    const [hx, hy, hw, hh] = mrect('OPT_HDR');
+    cellBox(hx, hy, hw, hh, INDIGO, INK, 2.2);
+    rect(hx + 2, hy + 2, 14 * z, hh - 4, OK);
+    text('CÔNG CỤ TỐI ƯU HÓA PROMPT PCTPR (TƯ DUY META-PROMPT)  ·  KỸ SƯ ĐỀ BÀI TỰ ĐỘNG', hx + 26 * z, hy + hh / 2 + 1, `800 ${18 * z}px ${UI}`, '#FFFFFF');
+
+    const [mx, my, mw, mh] = mrect('OPT_META');
+    cellBox(mx, my, mw, mh, '#FFFBEB', INK, 1.8);
+    text('SO SÁNH THỰC TẾ DỄ NHỚ:  BỘ TỐI ƯU = KIẾN TRÚC SƯ VẼ BẢN THIẾT KẾ   ≠   KHÔNG PHẢI THỢ XÂY LÀM HỘ VIỆC THÔ!', mx + 16 * z, my + mh * 0.36, `800 ${16.5 * z}px ${UI}`, '#92400E');
+    text('Dù bạn nhập mệnh lệnh: “Hãy tóm tắt nội dung báo cáo” hay “Phân tích bảng doanh thu” → Công cụ CHỈ ĐÚC LẠI PROMPT CHUẨN 9/10!', mx + 16 * z, my + mh * 0.72, `600 ${15 * z}px ${UI}`, INK);
+
+    if (t >= 175.8) {
+      drawCard('OPT_DONT', {
+        badgeBg: NO, badgeFg: '#FFFFFF', badgeTxt: '✕ TUYỆT ĐỐI KHÔNG LÀM THAY NHIỆM VỤ THÔ',
+        title: 'Giữ kỷ luật thép — Không nhảy vào làm hộ người dùng:',
+        bullets: [
+          '✕ KHÔNG tóm tắt báo cáo, không viết email, không phân tích hộ',
+          '✕ KHÔNG BAO GIỜ TẠO ẢNH, không viết/sửa code, không dịch hộ',
+          '✕ KHÔNG hỏi ngược: “Vui lòng gửi báo cáo cần tóm tắt”',
+          '✕ KHÔNG đưa nhiều lựa chọn, không viết lời mở đầu/kết ngoài khung'
+        ],
+        bg: SOFT_RED, titleCol: '#991B1B', z
+      });
+    }
+    if (t >= 186.5) {
+      drawCard('OPT_DO', {
+        badgeBg: OK, badgeFg: INK, badgeTxt: '✓ TRẢ VỀ DUY NHẤT 1 CODE BLOCK SẴN SÀNG COPY',
+        title: 'Tự kiểm đủ 5 thành phần PCTPR đạt chuẩn OKR ~9/10:',
+        bullets: [
+          '✓ [P — PERSONA]  →  [C — CONTEXT]  →  [T — TASK]',
+          '✓ [P — PATTERN]  →  [R — RULES] (ngắn gọn, kiểm chứng được)',
+          '✓ Cuối cùng luôn chốt ô:  [INPUT]  {{NỘI_DUNG_BÁO_CÁO}}',
+          '✓ Copy 1 chạm sang AI làm việc → Đầu ra có kiểm soát 100%!'
+        ],
+        bg: SOFT_OK, titleCol: OK_INK, z
+      });
+    }
+  }
+
+  // ── CHAPTER 8: 3-Step Daily Routine (197.4s+) & Grand Finale Stage (208.4s+) ──
+  if (t >= 197.4) {
+    const [hx, hy, hw, hh] = mrect('FIN_3HDR');
+    cellBox(hx, hy, hw, hh, INDIGO, INK, 2);
+    text('QUY TRÌNH 3 BƯỚC HÀNG NGÀY CHO KẾ TOÁN TRƯỞNG (CHỈ MẤT 30 GIÂY — KHÔNG CẦN NHỚ THUỘC LÒNG!)', hx + 20 * z, hy + hh / 2 + 1, `800 ${19 * z}px ${UI}`, '#FFFFFF');
+
+    const steps = [
+      ['FIN_S1', 'BƯỚC 1 · GÕ Ý ĐỊNH THÔ', 'Gõ tự nhiên 1 câu vào Bộ Tối Ưu PCTPR', ['VD: “Phân tích bảng chi phí Quý 3 tìm khoản bất thường”'], AMBER, INK],
+      ['FIN_S2', 'BƯỚC 2 · COPY KHUNG PCTPR 9/10', 'Nhận ngay 1 Code Block đủ 5 mục chuẩn', ['Đã khóa sẵn Vai trò CFO, Bảng 4 cột & Luật cấm bịa số!'], REF_COLS[0], '#FFFFFF'],
+      ['FIN_S3', 'BƯỚC 3 · DÁN SỐ LIỆU VÀO [INPUT]', 'Thay ô {{DỮ_LIỆU}} bằng bảng số thật', ['Nhận báo cáo chuẩn xác, kiểm soát 100% chất lượng đầu ra!'], OK, INK],
+    ];
+    for (const [k, bTxt, ttl, bul, bBg, bFg] of steps) {
+      drawCard(k, { badgeBg: bBg, badgeFg: bFg, badgeTxt: bTxt, title: ttl, bullets: bul, bg: '#FFFFFF', z: z * 1.06 });
+    }
+  }
+
+  if (t >= 208.4) {
+    const [tx, ty, tw0, th0] = mrect('FIN_TOP');
+    cellBox(tx, ty, tw0, th0, '#FFFFFF', INK, 2.4);
+    rect(tx + 2.5, ty + 2.5, 16 * z, th0 - 5, INDIGO);
+    text('THÔNG ĐIỆP DÀNH TẶNG KẾ TOÁN TRƯỞNG THẾ HỆ 1981', tx + 32 * z, ty + th0 * 0.32, `800 ${15 * z}px ${MONO}`, INDIGO);
+    text('20 năm quản trị kế toán chặt chẽ chính là nền tảng vàng để anh chị làm chủ AI bài bản!', tx + 32 * z, ty + th0 * 0.70, `800 ${25 * z}px ${UI}`, INK);
+
+    if (t >= 216.2) {
+      const [bx, by, bw0, bh0] = mrect('FIN_BOT');
+      cellBox(bx, by, bw0, bh0, INDIGO, INK, 2.4);
+      rect(bx + 2.5, by + 2.5, 16 * z, bh0 - 5, OK);
+      text('5 CHỮ VÀNG KHI LÀM VIỆC VỚI AI  ·  CÔNG CỤ TỐI ƯU HÓA PROMPT PCTPR (OKR ~9/10)', bx + 32 * z, by + bh0 * 0.32, `800 ${15 * z}px ${MONO}`, OK);
+      text('[P] Rõ Vai Trò  ·  [C] Đủ Bối Cảnh  ·  [T] Sắc Nhiệm Vụ  ·  [P] Chuẩn Khuôn Mẫu  ·  [R] Chặt Quy Tắc', bx + 32 * z, by + bh0 * 0.70, `800 ${23.5 * z}px ${UI}`, '#FFFFFF');
+    }
+  }
+
+  // Hero Selection Box (thick ink border + fill handle)
+  const selKey = activeSelection(t);
+  if (selKey && M[selKey]) {
+    const [sx, sy, sw, sh] = mrect(selKey);
+    if (sw > 12 && sh > 12) {
+      g.strokeStyle = INK; g.lineWidth = 3.2;
+      g.strokeRect(sx - 1, sy - 1, sw + 2, sh + 2);
+      rect(sx + sw - 5, sy + sh - 5, 10, 10, '#FFFFFF');
+      rect(sx + sw - 3.5, sy + sh - 3.5, 7, 7, INK);
+    }
+  }
+
+  g.restore();
+}
+
+// ───────────────────────── Generic Spreadsheet Software Shell (Never Zooms!) ─────────────────────────
+function drawHeadersAndChrome(t) {
+  rect(0, SHEET_Y - HDR, ROWH_W, HDR, '#DDDCD5');
+  rect(ROWH_W, SHEET_Y - HDR, VW, HDR, '#EAE9E3');
+  rect(0, SHEET_Y, ROWH_W, VH, '#EAE9E3');
+
+  const selKey = activeSelection(t);
+  const [sc0, sc1, sr0, sr1] = selKey && M[selKey] ? M[selKey] : [-1, -1, -1, -1];
+
+  g.save();
+  g.beginPath(); g.rect(ROWH_W, SHEET_Y - HDR, VW, HDR); g.clip();
+  for (let i = 0; i <= NC; i++) {
+    const cw = colW(i); if (cw < 1) continue;
+    const x = XC(i), w = XC(i + 1) - x;
+    if (x + w < ROWH_W || x > W) continue;
+    const active = i >= sc0 && i < sc1;
+    if (active) { rect(x, SHEET_Y - HDR, w, HDR, '#D4D3CB'); rect(x, SHEET_Y - 3, w, 3, INK); }
+    line(x + w + 0.5, SHEET_Y - HDR, x + w + 0.5, SHEET_Y, '#BFBEB6');
+    if (w > 18) text(colName(i), x + w / 2, SHEET_Y - HDR / 2 + 1, `${active ? 800 : 600} 13px ${UI}`, active ? INK : '#4A4943', 'center');
+  }
+  g.restore();
+
+  g.save();
+  g.beginPath(); g.rect(0, SHEET_Y, ROWH_W, VH); g.clip();
+  const j0 = Math.max(0, Math.floor((CAM.y - (VCY - SHEET_Y) / CAM.z) / RH));
+  const j1 = Math.min(162, Math.ceil((CAM.y + (SHEET_B - VCY) / CAM.z) / RH));
+  for (let j = j0; j <= j1; j++) {
+    const y = YR(j), h = YR(j + 1) - y;
+    const active = j >= sr0 && j < sr1;
+    if (active) { rect(0, y, ROWH_W, h, '#D4D3CB'); rect(ROWH_W - 3, y, 3, h, INK); }
+    line(0, y + h + 0.5, ROWH_W, y + h + 0.5, '#BFBEB6');
+    if (h > 11) text(String(j + 1), ROWH_W / 2, y + h / 2 + 1, `${active ? 700 : 500} 12px ${MONO}`, active ? INK : '#57564F', 'center');
+  }
+  g.restore();
+  line(ROWH_W - 0.5, SHEET_Y - HDR, ROWH_W - 0.5, SHEET_B, '#A8A79F');
+  line(0, SHEET_Y - 0.5, W, SHEET_Y - 0.5, '#A8A79F');
+
+  // Title Bar
+  rect(0, 0, W, TITLE_H, '#DCDAD3');
+  rect(16, 9, 16, 16, OK); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(16, 9, 16, 16);
+  text('so-tay-pctpr-ke-toan-truong-1981.sheet', 42, TITLE_H / 2 + 1, `700 13.5px ${MONO}`, INK);
+  text('Hướng Dẫn Tư Duy Khung Tạo Prompt PCTPR & Công Cụ Tối Ưu Hóa Đầu Ra Có Kiểm Soát', W / 2, TITLE_H / 2 + 1, `600 13px ${UI}`, '#4A4943', 'center');
+  text(t < 154.9 ? 'Chế độ: Giải mã 5 thành phần PCTPR' : 'Chế độ: PCTPR Prompt Optimizer (OKR ~9/10)', W - 18, TITLE_H / 2 + 1, `700 12.5px ${MONO}`, OK_INK, 'right');
+  line(0, TITLE_H - 0.5, W, TITLE_H - 0.5, '#BDBCB4');
+
+  // Toolbar
+  const ty = TITLE_H, tm = ty + TOOL_H / 2;
+  rect(0, ty, W, TOOL_H, '#F1F0EB');
+  const tools = [
+    ['Inter', 78, false], ['B', 30, true],
+    ['1. P-Persona', 112, t >= 28.6 && t < 66.4],
+    ['2. C-Context', 114, t >= 66.4 && t < 86.2],
+    ['3. T-Task', 96, t >= 86.2 && t < 106.0],
+    ['4. P-Pattern', 112, t >= 106.0 && t < 125.5],
+    ['5. R-Rules', 102, t >= 125.5 && t < 154.9],
+    [t < 154.9 ? 'Cột ẩn R:AA (Optimizer)' : '✓ Đã mở PCTPR Optimizer (R:AA)', 236, t >= 154.9],
+    ['OKR: ~9/10 Điểm', 138, t >= 134.8],
+  ];
+  let tx = 14;
+  for (const [lbl, bw, active] of tools) {
+    rect(tx, ty + 7, bw, TOOL_H - 14, active ? AMBER : '#FFFFFF');
+    g.strokeStyle = active ? INK : '#C6C5BD'; g.lineWidth = 1;
+    g.strokeRect(tx + 0.5, ty + 7.5, bw - 1, TOOL_H - 15);
+    text(lbl, tx + bw / 2, tm + 1, `${active ? 700 : 500} 12px ${UI}`, INK, 'center');
+    tx += bw + 7;
+  }
+  line(0, ty + TOOL_H - 0.5, W, ty + TOOL_H - 0.5, '#C8C7BF');
+
+  // Formula Bar
+  const fy = TITLE_H + TOOL_H, fm = fy + FBAR_H / 2 + 1;
+  rect(0, fy, W, FBAR_H, '#F8F7F3');
+  const F = formulaState(t);
+  rect(12, fy + 8, 146, FBAR_H - 16, '#FFFFFF');
+  g.strokeStyle = '#B4B3AB'; g.strokeRect(12.5, fy + 8.5, 145, FBAR_H - 17);
+  text(F.name, 22, fm, `700 14.5px ${MONO}`, INK);
+  text('fx', 186, fm, `italic 700 18px ${UI}`, '#444', 'center');
+  rect(212, fy + 6, W - 226, FBAR_H - 12, '#FFFFFF');
+  g.strokeStyle = '#B4B3AB'; g.strokeRect(212.5, fy + 6.5, W - 227, FBAR_H - 13);
+  let fx = 226;
+  for (const [segStr, col] of F.parts) {
+    const f = `700 20px ${MONO}`;
+    text(segStr, fx, fm, f, col);
+    fx += tw(segStr, f);
+  }
+  if (F.caret && Math.floor(t * 8) % 2 === 0) rect(fx + 3, fy + 12, 2.5, FBAR_H - 24, INK);
+  line(0, fy + FBAR_H - 0.5, W, fy + FBAR_H - 0.5, '#B4B3AB');
+
+  // Unhide Context Menu right before 154.9s!
+  if (t >= 154.25 && t < 155.05) {
+    const mx = Math.min(1320, Math.max(380, XC(17) + 8)), my = SHEET_Y + 12, mw = 320, mh = 132;
+    rect(mx, my, mw, mh, '#FBFBF9'); g.strokeStyle = INK; g.lineWidth = 1.6; g.strokeRect(mx, my, mw, mh);
+    ['Chèn cột mới', 'Ẩn cột', 'Mở cột ẩn: PCTPR Prompt Optimizer (R:AA)', 'Kiểm tra chuẩn OKR 9/10'].forEach((it, idx) => {
+      const iy = my + 8 + idx * 29;
+      if (idx === 2) rect(mx + 4, iy, mw - 8, 27, t >= 154.7 ? OK : AMBER);
+      text(it, mx + 14, iy + 13.5, `${idx === 2 ? 700 : 500} 13px ${UI}`, INK);
+    });
+  }
+
+  // Sheet Tabs along Bottom Bar (lights up chapter by chapter!)
+  const by = SHEET_B;
+  rect(0, by, W, TABS_H, '#E5E4DE');
+  line(0, by + 0.5, W, by + 0.5, '#A2A19A');
+  const activeTab = t < 28.6 ? 0 : t < 66.4 ? 1 : t < 86.2 ? 2 : t < 106.0 ? 3 : t < 125.5 ? 4 : t < 154.9 ? 5 : t < 197.4 ? 6 : 7;
+  let tabX = 18;
+  [
+    '1_Mo_Dau_1981', '2_P_Vai_Tro', '3_C_Boi_Canh', '4_T_Nhiem_Vu',
+    '5_P_Khuon_Mau', '6_R_Quy_Tac', '7_Bo_Toi_Uu_PCTPR', '8_Thuc_Hanh_3_Buoc'
+  ].forEach((nm, idx) => {
+    const on = idx === activeTab;
+    const w = tw(nm, `700 12.5px ${UI}`) + 28;
+    if (on) { rect(tabX, by, w, TABS_H - 3, '#FFFFFF'); rect(tabX, by + TABS_H - 3, w, 3, OK); }
+    text(nm, tabX + w / 2, by + TABS_H / 2, `${on ? 700 : 500} 12.5px ${UI}`, on ? INK : '#57564F', 'center');
+    line(tabX + w + 0.5, by + 5, tabX + w + 0.5, by + TABS_H - 5, '#BDBCB4');
+    tabX += w;
+  });
+
+  // Status Bar
+  const sy = by + TABS_H, sm = sy + STAT_H / 2 + 1;
+  rect(0, sy, W, STAT_H, INK);
+  const recalc = (t >= 154.9 && t < 156.5) || (t >= 208.3 && t < 210.2);
+  rect(0, sy, 88, STAT_H, recalc ? AMBER : '#2B2418');
+  text(recalc ? 'OPTIMIZE' : 'READY', 44, sm, `700 11.5px ${MONO}`, recalc ? INK : '#FFFFFF', 'center');
+  const msg = t < 28.6 ? 'Tư duy cốt lõi: Đừng gõ câu lệnh cụt lủn — hãy điền phiếu giao việc 5 ô P - C - T - P - R'
+    : t < 66.4 ? '[P — Persona]: Cùng bài toán chạy bộ hoặc chi phí quý, đổi chuyên gia là đổi hoàn toàn góc nhìn!'
+    : t < 86.2 ? '[C — Context]: Nêu rõ bối cảnh doanh nghiệp & dùng biến giữ chỗ {{...}} khi chưa sẵn dữ liệu'
+    : t < 106.0 ? '[T — Task]: Bắt đầu bằng động từ hành động rõ ràng (Đối chiếu · Xác định · Đề xuất)'
+    : t < 125.5 ? '[P — Pattern]: Khóa khuôn mẫu bảng biểu cụ thể để dán thẳng vào báo cáo quản trị'
+    : t < 154.9 ? '[R — Rules]: Chốt kiểm soát nội bộ — Cấm tự bịa số liệu · Less is More · OKR ~9/10'
+    : t < 197.4 ? 'PCTPR Prompt Optimizer: Không bao giờ làm hộ việc thô — Chỉ xuất 1 Code Block chuẩn + [INPUT]'
+    : 'Hoàn tất: 3 bước thực hành mỗi ngày giúp Kế toán trưởng thế hệ 1981 làm chủ AI!';
+  text(msg, 104, sm, `500 12px ${UI}`, 'rgba(255,255,255,0.90)');
+  text(`ZOOM ${Math.round(CAM.z * 100)}%`, W - 20, sm, `700 12px ${MONO}`, AMBER, 'right');
+}
+
+// ───────────────────────── Yellow Cell-Comment Subtitle Note (STYLE.md §4) ─────────────────────────
+let VO = [];
+function drawCommentSub(t) {
+  const cue = VO.find(c => t >= c.c0 && t < c.c1);
+  if (!cue) return;
+  const a = Math.min(seg(t, cue.c0, cue.c0 + 0.14), 1 - seg(t, cue.c1 - 0.14, cue.c1));
+  if (a <= 0) return;
+
+  const f = `600 23.5px ${UI}`;
+  const lines = wrapLines(cue.sub, f, 1560);
+  const w = Math.max(...lines.map(l => tw(l, f))) + 52;
+  const h = lines.length === 1 ? 56 : lines.length === 2 ? 86 : 114;
+  const x = ROWH_W + 24, y = SHEET_B - h - 12;
+
+  g.save();
+  g.globalAlpha = eo(a);
+  rect(x, y, w, h, NOTE);
+  g.strokeStyle = INK; g.lineWidth = 1.7;
+  g.strokeRect(x + 0.8, y + 0.8, w - 1.6, h - 1.6);
+  // Red comment triangle in top-right corner
+  g.fillStyle = NO;
+  g.beginPath(); g.moveTo(x + w - 15, y + 1.5); g.lineTo(x + w - 1.5, y + 1.5); g.lineTo(x + w - 1.5, y + 15); g.fill();
+  lines.forEach((ln, idx) => {
+    const baseY = lines.length === 1 ? h / 2 + 1 : 27 + idx * 30;
+    text(ln, x + 22, y + baseY, f, INK);
+  });
+  g.restore();
+}
+
+// ───────────────────────── Deterministic Foley Events (`window.EV`) ─────────────────────────
+const EV = [];
+[0.3, 9.5, 18.6, 28.9, 37.2, 47.4, 56.6, 66.8, 76.0, 86.6, 106.5, 125.9, 155.2, 197.6, 208.5].forEach(tk => {
+  for (let q = 0; q < 8; q++) EV.push({ t: +(tk + q * 0.07).toFixed(3), type: 'key_click' });
+  EV.push({ t: +(tk + 0.95).toFixed(3), type: 'enter_hit' });
+});
+[18.8, 19.6, 20.4, 21.2, 22.0, 76.2, 77.0, 77.8, 78.6, 79.4, 115.6, 134.9, 175.9, 186.6, 216.3].forEach(th => {
+  EV.push({ t: th, type: 'cell_hop' });
+});
+for (let i = 0; i < 10; i++) EV.push({ t: +(154.92 + i * 0.07).toFixed(3), type: 'col_ratchet', idx: i });
+for (let b = 0; b < 18; b++) EV.push({ t: +(208.35 + b * 0.08).toFixed(3), type: 'paint_sweep', p: b / 18 });
+[22.2, 135.2, 186.9, 216.5].forEach(td => EV.push({ t: td, type: 'okr_ding' }));
+// 3 Planned Dramatic Silences (gates music to 0 before major turns!)
+EV.push(
+  { t: 27.60, dur: 0.95, type: 'silence' },
+  { t: 153.80, dur: 1.05, type: 'silence' },
+  { t: 207.40, dur: 0.90, type: 'silence' }
+);
+EV.sort((a, b) => a.t - b.t);
+window.DUR = DUR;
+window.EV = EV;
+
+function setupFrame(t) {
+  updateLayout(t);
+  CAM = evalCamera(t);
+  HDR = Math.round(26 * clamp(Math.sqrt(CAM.z), 0.92, 1.30));
+  SHEET_Y = TITLE_H + TOOL_H + FBAR_H + HDR;
+  VW = W - ROWH_W; VH = SHEET_B - SHEET_Y;
+  // Offset optical sheet center upward by 46px so bottom-left yellow subtitle note has clean room!
+  VCX = ROWH_W + VW / 2; VCY = SHEET_Y + (VH - 78) / 2;
+  CAM.x = Math.max(CAM.x, (VCX - ROWH_W) / CAM.z);
+  CAM.y = Math.max(CAM.y, (VCY - SHEET_Y) / CAM.z);
+}
+
+const noSub = new URLSearchParams(location.search).get('nosub') === '1';
+window.render = function (t) {
+  t = clamp(t, 0, DUR);
+  setupFrame(t);
+  rect(0, 0, W, H, INK);
+  drawSheet(t);
+  drawHeadersAndChrome(t);
+  if (!noSub) drawCommentSub(t);
+};
+
+const SAMPLE_VI = 'Chào anh chị Kế toán trưởng thế hệ 1981! Chuyên gia Dinh dưỡng Huấn luyện viên Thể lực {{NỘI_DUNG_BÁO_CÁO}} PCTPR 9/10';
+Promise.all([
+  document.fonts.load('500 24px Inter', SAMPLE_VI),
+  document.fonts.load('700 24px Inter', SAMPLE_VI),
+  document.fonts.load('800 32px Inter', SAMPLE_VI),
+  document.fonts.load('700 20px JBMono', SAMPLE_VI),
+  fetch('./vo/vo_timeline.json').then(r => r.ok ? r.json() : []).catch(() => []),
+]).then(async ([,,,, vo]) => {
+  await document.fonts.ready;
+  VO = (vo || []).map((c, idx, arr) => {
+    const nextT0 = idx + 1 < arr.length ? arr[idx + 1].t0 - 0.10 : DUR - 0.15;
+    const c0 = Math.max(0.05, c.t0 - 0.06);
+    const c1 = Math.min(nextT0, Math.max(c.t1 + 0.50, c0 + 1.85));
+    return { ...c, c0, c1 };
+  });
+  window.render(0);
+  window.READY = true;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Mô Hình Văn Phòng Tinh Gọn — Isometric Infographic</title>
+<style>
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Bold.ttf') format('truetype');
+  font-weight: 600 700;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-ExtraBold.ttf') format('truetype');
+  font-weight: 800 900;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #F2E6D0; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { initIsoFilm } from './film.js';
+
+const SAMPLE_VI = 'Team mọi người đã áp dụng AI để giảm được một nửa thời gian làm báo cáo với biên bản họp chưa? PCTPR 50-60% 100% 40%';
+
+async function boot() {
+  await Promise.all([
+    document.fonts.load('400 28px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('500 28px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('700 38px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('800 54px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('600 18px JBMono', SAMPLE_VI),
+  ]);
+  await document.fonts.ready;
+  let vo = [];
+  try {
+    const res = await fetch('/master_vo_v2/vo_timeline.json');
+    if (res.ok) vo = await res.json();
+  } catch (_) {}
+  initIsoFilm(document.getElementById('c'), vo);
+  window.render(0);
+  window.READY = true;
+}
+boot();
+</script>
+</body>
+</html>
