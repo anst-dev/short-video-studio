@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if [ -x "$ROOT/lemo-opuscar/.venv/Scripts/python.exe" ]; then
+  exec "$ROOT/lemo-opuscar/.venv/Scripts/python.exe" -X utf8 "$ROOT/video_studio_cli.py" "$@"
+elif [ -x "$ROOT/lemo-opuscar/.venv/bin/python" ]; then
+  exec "$ROOT/lemo-opuscar/.venv/bin/python" -X utf8 "$ROOT/video_studio_cli.py" "$@"
+else
+  exec python3 "$ROOT/video_studio_cli.py" "$@"
+fi
