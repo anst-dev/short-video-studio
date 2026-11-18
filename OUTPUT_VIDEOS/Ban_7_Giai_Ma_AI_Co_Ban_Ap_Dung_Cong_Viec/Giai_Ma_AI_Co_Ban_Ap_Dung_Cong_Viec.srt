@@ -1,0 +1,63 @@
+1
+00:00:00,640 --> 00:00:07,267
+Muốn áp dụng AI hiệu quả vào công việc, ta không cần học lập trình — chỉ cần nắm 7 khái niệm cốt lõi sau đây.
+
+2
+00:00:09,140 --> 00:00:16,594
+Khái niệm 1 — Mô hình Ngôn ngữ Lớn (LLM): AI không suy nghĩ như người, mà dự đoán từ tiếp theo dựa trên hàng tỷ tài liệu đã đọc.
+
+3
+00:00:18,740 --> 00:00:25,613
+Giống một Thủ thư đọc hết cả thư viện: Hãy giao AI viết nháp công văn, tóm tắt họp và gợi ý công thức bảng tính!
+
+4
+00:00:28,140 --> 00:00:34,842
+Khái niệm 2 — Token: AI cắt câu chữ thành từng mảnh nhỏ gọi là Token để đọc và tính phí, giống từng viên gạch xây tường.
+
+5
+00:00:37,740 --> 00:00:44,622
+Mẹo thực tế: Trước khi gửi bảng tính hay báo cáo dài, hãy xóa dòng trống và cột thừa để AI đọc nhanh, chính xác hơn!
+
+6
+00:00:47,140 --> 00:00:53,351
+Khái niệm 3 — Cửa sổ Ngữ cảnh (Context Window): Là chiếc bàn ghi nhớ ngắn hạn của AI trong một cuộc trò chuyện.
+
+7
+00:00:56,740 --> 00:01:04,851
+Hỏi dồn quá nhiều việc vào một ô chat sẽ làm tràn mặt bàn khiến AI quên quy tắc đầu buổi — hãy tách mỗi việc một cửa sổ chat mới!
+
+8
+00:01:07,440 --> 00:01:15,155
+Khái niệm 4 — Ảo giác AI (Hallucination): Khi thiếu dữ liệu, AI có thể tự bịa số liệu hoặc thông tư không có thật với giọng rất tự tin!
+
+9
+00:01:17,540 --> 00:01:25,375
+Cách khắc phục triệt để: Luôn đính kèm tài liệu gốc (RAG) và dặn rõ: “Chỉ trả lời theo file đính kèm, không có thì báo chưa đủ thông tin”.
+
+10
+00:01:28,140 --> 00:01:35,435
+Khái niệm 5 — System Prompt & Trợ lý Chuyên biệt (GPTs / Gems): Đóng gói sẵn vai trò và biểu mẫu dùng lặp lại mỗi tuần.
+
+11
+00:01:37,940 --> 00:01:44,960
+Giống lập sẵn từng bàn chuyên trách: 1 trợ lý chuyên Tóm tắt họp, 1 trợ lý chuyên Soát lỗi số liệu, 1 trợ lý chuyên Soạn thư!
+
+12
+00:01:47,540 --> 00:01:55,229
+Khái niệm 6 — Đa phương thức (Multimodal): AI nay có mắt đọc ảnh hóa đơn, có tai nghe ghi âm họp và có tay chạy bảng biểu!
+
+13
+00:01:57,740 --> 00:02:05,791
+Phối hợp đúng sở trường: ChatGPT mạnh lập kế hoạch & bảng tính; Claude mạnh đọc sâu hợp đồng dài; Gemini mạnh tra cứu đa nguồn.
+
+14
+00:02:08,740 --> 00:02:17,470
+Khái niệm 7 — Nguyên tắc 80/20 & Bảo mật: Để AI gánh 80% việc nháp nặng nhọc, con người giữ 20% kiểm định và quyết định cuối!
+
+15
+00:02:18,940 --> 00:02:26,813
+Tuyệt đối ẩn mật khẩu, lương thưởng và dữ liệu mật trước khi tải lên AI công cộng, đồng thời luôn đối soát số liệu trước khi ký duyệt!
+
+16
+00:02:29,140 --> 00:02:36,216
+Hiểu đúng bản chất — Giao đúng đề bài PCTPR — Đính kèm dữ liệu gốc: Bạn sẽ biến AI thành trợ lý đắc lực mỗi ngày!

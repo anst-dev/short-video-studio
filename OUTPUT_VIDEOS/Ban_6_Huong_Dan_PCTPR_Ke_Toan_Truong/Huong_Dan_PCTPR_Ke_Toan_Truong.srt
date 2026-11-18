@@ -1,0 +1,91 @@
+1
+00:00:00,640 --> 00:00:08,607
+Chào anh chị Kế toán trưởng thế hệ 1981! Chưa từng dùng AI bao giờ cũng đừng lo — nó quen thuộc hệt như bảng tính mỗi ngày.
+
+2
+00:00:09,440 --> 00:00:16,833
+Giao việc cho nhân viên mới mà chỉ nói 4 chữ: “Làm báo cáo đi!” thì chắc chắn nhận về bản nháp sai ý.
+
+3
+00:00:18,540 --> 00:00:26,632
+Với AI cũng vậy: gõ câu cụt lủn “Phân tích doanh thu” sẽ ra kết quả mơ hồ. Ta cần phiếu giao việc chuẩn 5 ô: P - C - T - P - R.
+
+4
+00:00:28,940 --> 00:00:35,802
+Ô thứ nhất — [P — PERSONA] (Vai trò): Bạn muốn AI đóng vai chuyên gia nào khi ngồi vào bàn làm việc?
+
+5
+00:00:37,140 --> 00:00:46,595
+Ví dụ thực tế: Muốn cải thiện cự ly chạy bộ từ 3km lên 10km — giao vai Chuyên gia Dinh dưỡng sẽ được tư vấn thực đơn và bù điện giải.
+
+6
+00:00:47,340 --> 00:00:55,029
+Nhưng cũng câu hỏi chạy bộ đó, nếu đổi vai thành Huấn luyện viên Thể lực, AI lại chia giáo án nhịp tim và bài tập sức bền!
+
+7
+00:00:56,540 --> 00:01:05,737
+Trong phòng kế toán cũng thế: Cùng bảng chi phí quý, giao vai Chuyên viên Thuế sẽ soi hóa đơn hợp lệ; giao vai Giám đốc Tài chính sẽ soi dòng tiền!
+
+8
+00:01:06,740 --> 00:01:15,353
+Ô thứ hai — [C — CONTEXT] (Bối cảnh): Cung cấp hoàn cảnh, người đọc kết quả và điều kiện đi kèm.
+
+9
+00:01:15,940 --> 00:01:25,077
+Chưa có sẵn số liệu ngay? Cứ đặt biến giữ chỗ như {{NỘI_DUNG_BÁO_CÁO}} hay {{DỮ_LIỆU_CẦN_PHÂN_TÍCH}} — hệt như tạo sẵn ô trống chờ điền số trong bảng tính!
+
+10
+00:01:26,540 --> 00:01:33,774
+Ô thứ ba — [T — TASK] (Nhiệm vụ): Bắt đầu bằng động từ hành động rõ ràng, giữ đúng mục tiêu gốc và bỏ chữ rườm rà.
+
+11
+00:01:35,740 --> 00:01:45,271
+Thực tế: Nói “Xem hộ mớ rau” thì người ta chỉ nhìn; nói “Nhặt gốc, rửa sạch, cắt khúc” mới nấu được. Với công nợ: Đối chiếu, Xác định khoản quá hạn 60 ngày và Đề xuất lịch thu!
+
+12
+00:01:46,440 --> 00:01:54,374
+Ô thứ tư — [P — PATTERN] (Khuôn mẫu đầu ra): Đổ bột không khuôn thì chảy tràn lan; có khuôn vuông mới thành chiếc bánh vuông vức.
+
+13
+00:01:55,640 --> 00:02:04,688
+Không khóa khuôn mẫu, AI viết tràn 3 trang chữ. Khóa rõ: “Bảng 4 cột: Khoản mục | Kỳ trước | Kỳ này | Chênh lệch %” — dán thẳng vào báo cáo sếp!
+
+14
+00:02:05,840 --> 00:02:12,462
+Ô thứ năm — [R — RULES] (Quy tắc & Giới hạn): Chính là chốt kiểm soát nội bộ và nguyên tắc kiểm toán đặt ra cho AI.
+
+15
+00:02:15,040 --> 00:02:24,885
+Giống quy chế chi trên 20 triệu bắt buộc chuyển khoản và đủ hóa đơn: Ta khóa luật “Cấm tự bịa số liệu, viết tiếng Việt cô đọng, kiểm chứng được, đạt chuẩn 9/10”.
+
+16
+00:02:26,140 --> 00:02:32,967
+Nhưng mới làm quen AI, chẳng lẽ lần nào hỏi cũng phải tự ngồi gõ đủ cả 5 mục P - C - T - P - R từ đầu?
+
+17
+00:02:35,440 --> 00:02:43,936
+Đó là lúc ta dùng Công cụ Tối ưu hóa Prompt PCTPR (tư duy Meta-Prompt) — một “Kỹ sư Đề bài” tự động chuẩn hóa câu hỏi thô giúp bạn!
+
+18
+00:02:45,740 --> 00:02:53,784
+Nguyên tắc sống còn: Công cụ tối ưu giống Kiến trúc sư vẽ bản thiết kế — TUYỆT ĐỐI KHÔNG nhảy vào xây nhà hay làm hộ nhiệm vụ thô!
+
+19
+00:02:55,940 --> 00:03:06,211
+Dù bạn gõ mệnh lệnh: “Hãy tóm tắt nội dung báo cáo” hay “Viết email xin nghỉ”, nó KHÔNG tóm tắt hộ, KHÔNG tạo ảnh, KHÔNG hỏi ngược “Vui lòng gửi file”.
+
+20
+00:03:06,740 --> 00:03:16,558
+Nó tự chọn định dạng hợp lý nhất, kiểm tra đủ 5 mục PCTPR và trả về DUY NHẤT 1 khung code block sạch tinh, đặt {{NỘI_DUNG_BÁO_CÁO}} ở cuối mục [INPUT].
+
+21
+00:03:17,540 --> 00:03:27,483
+Cách làm việc hàng ngày chỉ gói gọn 3 bước: (1) Nhập câu thô vào Bộ tối ưu → (2) Copy đề bài PCTPR 9/10 → (3) Dán số liệu thật vào ô [INPUT]!
+
+22
+00:03:28,440 --> 00:03:34,114
+Hai mươi năm làm kế toán đã rèn sẵn cho thế hệ 1981 tư duy rất chặt chẽ để dùng AI bài bản.
+
+23
+00:03:36,440 --> 00:03:41,859
+Ghi nhớ 5 chữ PCTPR: Rõ Vai Trò · Đủ Bối Cảnh · Sắc Nhiệm Vụ · Chuẩn Khuôn Mẫu · Chặt Quy Tắc!

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Bản Vẽ Cơ Khí Tự Động Hóa — Engineering Blueprint</title>
+<style>
+@font-face {
+  font-family: 'SpaceGrotesk';
+  src: url('./fonts/SpaceGrotesk-var.ttf') format('truetype');
+  font-weight: 300 700;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-Bold.ttf') format('truetype');
+  font-weight: 600 700;
+}
+@font-face {
+  font-family: 'BeVietnamPro';
+  src: url('./fonts/BeVietnamPro-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0D1116; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { initBlueprintFilm } from './film.js';
+
+const SAMPLE_VI = 'Team mọi người đã áp dụng AI để giảm được một nửa thời gian làm báo cáo với biên bản họp chưa? Quy trình PCTPR kiểm chứng chất lượng 50-60% 100% 40%';
+
+async function boot() {
+  await Promise.all([
+    document.fonts.load('500 28px SpaceGrotesk', SAMPLE_VI),
+    document.fonts.load('700 42px SpaceGrotesk', SAMPLE_VI),
+    document.fonts.load('400 26px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('700 38px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('800 54px BeVietnamPro', SAMPLE_VI),
+    document.fonts.load('600 20px JBMono', SAMPLE_VI),
+  ]);
+  await document.fonts.ready;
+  let vo = [];
+  try {
+    const res = await fetch('/master_vo_v2/vo_timeline.json');
+    if (res.ok) vo = await res.json();
+  } catch (_) {}
+  initBlueprintFilm(document.getElementById('c'), vo);
+  window.render(0);
+  window.READY = true;
+}
+boot();
+</script>
+</body>
+</html>

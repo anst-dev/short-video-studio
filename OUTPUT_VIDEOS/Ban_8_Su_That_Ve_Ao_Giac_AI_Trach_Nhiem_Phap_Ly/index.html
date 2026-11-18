@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Sự Thật Về Ảo Giác AI & Trách Nhiệm Pháp Lý — Halftone Dossier</title>
+<style>
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Medium.ttf') format('truetype'); font-weight: 500; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-Bold.ttf') format('truetype'); font-weight: 600 700; }
+@font-face { font-family: 'BeVietnamPro'; src: url('./fonts/BeVietnamPro-ExtraBold.ttf') format('truetype'); font-weight: 800 900; }
+@font-face { font-family: 'Archivo'; src: url('./fonts/Archivo-var.ttf') format('truetype'); font-weight: 100 900; }
+@font-face { font-family: 'JBMono'; src: url('./fonts/JetBrainsMono-var.ttf') format('truetype'); font-weight: 100 800; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #F5EFE0; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+'use strict';
+const W = 1920, H = 1080, TAU = Math.PI * 2;
+const cv = document.getElementById('c');
+const g = cv.getContext('2d');
+const NOSUB = /[?&]nosub=1/.test(location.search);
+
+// ══════ Halftone Dossier Palette (from STYLE.md §3) ══════
+const C = {
+  paper: '#F5EFE0', navy: '#161D2B', cobalt: '#2563EB', mustard: '#FACC15',
+  red: '#D92D20', redDk: '#B91C1C', teal: '#0D9488', tealSoft: '#CCFBF1',
+  cream: '#FFF8EB', offwhite: '#FFF4E2', night: '#0F172A', nightLt: '#1E293B',
+  ink: '#1A1D26', shadow: '#C7B99E', warmShadow: '#B8A88A',
+};
+const F = { sans: '"BeVietnamPro"', head: '"Archivo"', mono: '"JBMono"' };
+const font = (w, s, f) => `${w} ${s}px ${f || F.sans}`;
+
+// ══════ Utilities ══════
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const P = (t, a, d) => clamp((t - a) / Math.max(0.001, d));
+const outC = p => 1 - Math.pow(1 - p, 3);
+const inOutC = p => p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2;
+const outBack = p => { const c = 1.9; return 1 + (c+1)*Math.pow(p-1,3) + c*Math.pow(p-1,2); };
+const sine = p => 0.5 - 0.5 * Math.cos(Math.PI * p);
+function mulberry32(a) { return function() { a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function rrect(x,y,w,h,r) { g.beginPath(); g.roundRect(x,y,w,h,r); }
+function tw(s, f) { g.font = f; return g.measureText(s).width; }
+function txt(s,x,y,f,col=C.navy,align='center',base='middle') { g.font=f; g.fillStyle=col; g.textAlign=align; g.textBaseline=base; g.fillText(s,x,y); }
+function wrapWords(str, fStr, maxW) {
+  g.font = fStr; const words = str.split(' '); const out = []; let cur = '';
+  for (const w of words) { const test = cur ? cur+' '+w : w; if (g.measureText(test).width > maxW && cur) { out.push(cur); cur=w; } else cur=test; }
+  if (cur) out.push(cur); return out;
+}
+
+// ══════ Paper texture (pre-rendered once) ══════
+const PAPER = document.createElement('canvas'); PAPER.width=W; PAPER.height=H;
+(() => {
+  const p = PAPER.getContext('2d'), r = mulberry32(5);
+  // Mottled warm cream base
+  const sm = document.createElement('canvas'); sm.width=96; sm.height=54;
+  const sc = sm.getContext('2d'), si = sc.createImageData(96,54);
+  for (let i=0;i<si.data.length;i+=4) { const v=238+r()*17; si.data[i]=v; si.data[i+1]=v-2; si.data[i+2]=v-8; si.data[i+3]=255; }
+  sc.putImageData(si,0,0); p.imageSmoothingEnabled=true; p.drawImage(sm,0,0,W,H);
+  const bd = p.getImageData(0,0,W,H);
+  for (let i=0;i<bd.data.length;i+=4) { const n=(r()-0.5)*22; bd.data[i]=clamp(bd.data[i]+n,0,255); bd.data[i+1]=clamp(bd.data[i+1]+n,0,255); bd.data[i+2]=clamp(bd.data[i+2]+n-6,0,255); }
+  p.putImageData(bd,0,0);
+  // Vignette
+  const vg = p.createRadialGradient(960,540,350,960,540,1100);
+  vg.addColorStop(0,'rgba(255,255,255,0)'); vg.addColorStop(1,'rgba(100,80,60,0.3)');
+  p.fillStyle=vg; p.fillRect(0,0,W,H);
+  // Centre fold
+  p.strokeStyle='rgba(140,120,90,0.15)'; p.lineWidth=2.5; p.beginPath(); p.moveTo(960,0); p.lineTo(961,H); p.stroke();
+})();
+
+// ══════ Grain (per-frame specks) ══════
+function drawGrain(frame) {
+  const r = mulberry32(1000 + Math.floor(frame/2));
+  g.fillStyle = 'rgba(255,248,230,0.65)';
+  for (let i=0;i<400;i++) { g.beginPath(); g.arc(r()*W, r()*H, 0.5+r()*1.6, 0, 7); g.fill(); }
+  g.fillStyle = 'rgba(26,29,38,0.22)';
+  for (let i=0;i<70;i++) { g.beginPath(); g.arc(r()*W, r()*H, 0.5+r()*1.2, 0, 7); g.fill(); }
+}
+
+// ══════ Halftone dots (Canvas 2D version of STYLE.md §2) ══════
+function halftone(x0,y0,w,h,step,angle,color,densityFn,maxK=0.62,alpha=1) {
+  if (alpha<=0) return;
+  const a=angle*Math.PI/180, ca=Math.cos(a), sa=Math.sin(a);
+  const n=Math.ceil(Math.hypot(w,h)/step/2)+2;
+  g.save(); g.globalAlpha*=alpha; g.fillStyle=color; g.beginPath();
+  for (let i=-n;i<=n;i++) for (let j=-n;j<=n;j++) {
+    const u=i*step, v=j*step;
+    const x=x0+w/2+u*ca-v*sa, y=y0+h/2+u*sa+v*ca;
+    if (x<x0-step||x>x0+w+step||y<y0-step||y>y0+h+step) continue;
+    const s=clamp(densityFn(x,y)); if (s<0.05) continue;
+    const r=s*step*maxK;
+    g.moveTo(x+r,y); g.arc(x,y,r,0,TAU);
+  }
+  g.fill(); g.restore();
+}
+const radial = (cx,cy,R,pw=1.2) => (x,y) => Math.pow(clamp(1-Math.hypot(x-cx,y-cy)/R), pw);
+const edge = (R=900,pw=1.6) => (x,y) => Math.pow(clamp(Math.hypot(x-960,y-540)/R-0.35), pw)*1.3;
+
+// ══════ Stamp (rough-edged rubber stamp — STYLE.md §2.23) ══════
+function drawStamp(str, x, y, rot, scale, alpha, color=C.red) {
+  if (alpha <= 0) return;
+  const size = 56 * scale, f = font(900, size, F.head);
+  const sw = tw(str, f) + 48*scale, sh = size*1.4 + 30*scale, bw = 6*scale;
+  g.save(); g.globalAlpha *= alpha; g.translate(x, y); g.rotate(rot * Math.PI/180);
+  // Outer double border
+  g.strokeStyle = color; g.lineWidth = bw;
+  rrect(-sw/2, -sh/2, sw, sh, 8*scale); g.stroke();
+  g.lineWidth = bw*0.4;
+  rrect(-sw/2+bw*2, -sh/2+bw*2, sw-bw*4, sh-bw*4, 4*scale); g.stroke();
+  // Text
+  txt(str, 0, 2*scale, f, color);
+  // Rough ink grain overlay (simulate stampInk filter)
+  const r = mulberry32(42);
+  g.globalCompositeOperation = 'destination-out';
+  g.fillStyle = 'rgba(0,0,0,1)';
+  for (let i=0;i<Math.floor(60*scale*scale);i++) {
+    const sx = (r()-0.5)*sw*1.1, sy = (r()-0.5)*sh*1.1;
+    if (r() < 0.6) { g.beginPath(); g.arc(sx, sy, 0.8+r()*2.5, 0, TAU); g.fill(); }
+  }
+  g.restore();
+}
+
+function stampAnim(str, x, y, rot, t, t0, color=C.red) {
+  if (t < t0 - 0.09) return;
+  const p = P(t, t0-0.09, 0.09);
+  const after = Math.max(0, t-t0);
+  const bounce = 1 + 0.05*Math.sin(after*30)*Math.exp(-after*9);
+  const scale = lerp(2.6, 1, p < 1 ? p*p*p : 1) * bounce;
+  const alpha = p < 1 ? 0.3+0.7*p : 0.93;
+  drawStamp(str, x, y, rot, scale, alpha, color);
+}
+
+// ══════ Per-character headline pop (STYLE.md §5 "per-character pop") ══════
+function charsPop(str, x, y, f, fill, t, t0, stagger=0.05, dur=0.38, fromY=60, shadow=null) {
+  g.font = f;
+  const chars = [...str];
+  const widths = chars.map(c => g.measureText(c).width);
+  const total = widths.reduce((a,b)=>a+b,0);
+  let cx = x - total/2;
+  for (let i=0;i<chars.length;i++) {
+    const s = t0 + i*stagger;
+    const p = P(t, s, dur);
+    if (p <= 0) { cx += widths[i]; continue; }
+    const sc = outBack(p);
+    const sq = 1 + 0.25*Math.sin(p*Math.PI)*(1-p);
+    const dy = fromY*(1-outC(p));
+    g.save(); g.globalAlpha = Math.min(1, p*3);
+    g.translate(cx+widths[i]/2, y+dy);
+    g.scale(sc/sq, sc*sq);
+    if (shadow) {
+      g.font = f; g.fillStyle = shadow.fill; g.textAlign='center'; g.textBaseline='middle';
+      g.fillText(chars[i], shadow.dx, shadow.dy);
+    }
+    g.font = f; g.fillStyle = fill; g.textAlign='center'; g.textBaseline='middle';
+    g.fillText(chars[i], 0, 0);
+    g.restore();
+    cx += widths[i];
+  }
+}
+
+// ══════ Caption bar (dark pill + highlight keyword — STYLE.md §4) ══════
+function captionBar(str, x, y, t, t0, keywords={}) {
+  if (NOSUB || t < t0) return;
+  let fSize = 42;
+  while (fSize > 24 && tw(str, font(700, fSize)) > 1680) fSize -= 2;
+  const f = font(700, fSize);
+  const p = outC(P(t, t0, 0.35));
+  if (p <= 0) return;
+  const totalW = tw(str, f);
+  const padX = 32, h = Math.round(fSize * 1.6);
+  g.save(); g.globalAlpha = p;
+  g.translate(x, y + 36*(1-p));
+  // Shadow offset
+  rrect(-totalW/2-padX+6, -h/2+6, totalW+padX*2, h, 14);
+  g.fillStyle = C.cobalt; g.globalAlpha *= 0.4; g.fill();
+  g.globalAlpha = p;
+  // Main pill
+  rrect(-totalW/2-padX, -h/2, totalW+padX*2, h, 14);
+  g.fillStyle = C.navy; g.fill();
+  // Render text segments with keyword highlights
+  g.font = f; g.textBaseline = 'middle'; g.textAlign = 'left';
+  let tx = -totalW/2;
+  let remaining = str;
+  while (remaining.length > 0) {
+    let matched = false;
+    for (const [kw, col] of Object.entries(keywords)) {
+      if (remaining.startsWith(kw)) {
+        const kwW = tw(kw, f);
+        // Highlight background
+        rrect(tx-4, -h/2+6, kwW+8, h-12, 6);
+        g.fillStyle = col; g.fill();
+        g.fillStyle = col === C.mustard ? C.navy : C.cream;
+        g.fillText(kw, tx, 2);
+        tx += kwW;
+        remaining = remaining.slice(kw.length);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      const ch = remaining[0];
+      g.fillStyle = C.cream;
+      g.fillText(ch, tx, 2);
+      tx += tw(ch, f);
+      remaining = remaining.slice(1);
+    }
+  }
+  g.restore();
+}
+
+// ══════ HUD: Case number, chapter chip, REC dot ══════
+function drawHUD(t, caseNo, chipA, chipB, dark=false) {
+  const a = outC(P(t, 0.3, 0.5)); if (a<=0) return;
+  const ink = dark ? C.cream : C.navy;
+  g.save(); g.globalAlpha = a;
+  // Case number top-left
+  txt(caseNo, 72, 60, font(700, 24, F.mono), ink, 'left');
+  // Chapter chip
+  const cA = font(700, 22, F.mono), cB = font(700, 22);
+  const wA = tw(chipA, cA), wB = tw(chipB, cB);
+  const chipW = wA + wB + 32;
+  rrect(72, 78, chipW, 34, 8);
+  g.fillStyle = dark ? C.cream : C.navy; g.fill();
+  txt(chipA, 82, 95, cA, dark ? C.red : C.mustard, 'left');
+  txt(chipB, 82+wA+10, 95, cB, dark ? C.navy : C.cream, 'left');
+  // REC dot top-right
+  const blink = Math.floor(t*2)%2;
+  g.fillStyle = C.red; g.globalAlpha = a*(blink?0.3:1);
+  g.beginPath(); g.arc(1830, 60, 7, 0, TAU); g.fill();
+  g.globalAlpha = a;
+  txt('2026.11', 1810, 60, font(600, 22, F.mono), ink, 'right');
+  g.restore();
+}
+
+// ══════ Dot-wipe transition (STYLE.md §5 "dot wipe") ══════
+function dotWipe(t, t0, color=C.mustard) {
+  const dur = 0.44, p = P(t, t0, dur);
+  if (p <= 0 || p >= 1) return;
+  g.save(); g.fillStyle = color;
+  for (let y=0; y<=H+80; y+=80) for (let x=0; x<=W+80; x+=80) {
+    const delay = (x/W*0.6 + y/H*0.4) * 0.35;
+    const pp = clamp((p - delay) / 0.65);
+    const r = Math.sin(pp * Math.PI) * 58;
+    if (r > 0.5) { g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+  }
+  g.restore();
+}
+
+// ══════ Camera shake ══════
+function shakeOffset(t, shakes) {
+  let dx=0, dy=0;
+  for (const [t0, amp, dur] of shakes) {
+    if (t>=t0 && t<t0+dur) {
+      const k=1-(t-t0)/dur;
+      dx += amp*k*k*Math.sin(t*91+t0);
+      dy += amp*k*k*Math.cos(t*77+t0*3);
+    }
+  }
+  return [dx, dy];
+}
+
+// ══════ VO Timeline & Scenes ══════
+let VO = [], DUR = 136, SHOTS = [], EV = [];
+
+function buildScenes() {
+  // Compute shots from VO timeline
+  if (!VO.length) return;
+  DUR = Math.ceil(VO[VO.length-1].t1 + 3.5);
+
+  SHOTS = [
+    { id: 1, t0: 0,            t1: VO[0].t1+1.5,    label: 'CẢNH BÁO', chip: 'Mở đầu' },
+    { id: 2, t0: VO[1].t0-0.5, t1: VO[2].t1+1.2,    label: 'TÌNH TIẾT 01', chip: 'Cơ chế' },
+    { id: 3, t0: VO[3].t0-0.5, t1: VO[4].t1+1.2,    label: 'TÌNH TIẾT 02', chip: 'Tang vật' },
+    { id: 4, t0: VO[5].t0-0.5, t1: VO[5].t1+1.0,    label: 'BẪY TÂM LÝ', chip: 'Hào quang' },
+    { id: 5, t0: VO[6].t0-1.0, t1: VO[7].t1+1.5,    label: 'PHÁN QUYẾT', chip: 'Pháp lý' },
+    { id: 6, t0: VO[8].t0-0.8, t1: VO[11].t1+1.0,   label: 'QUY TRÌNH', chip: '4 Bước' },
+    { id: 7, t0: VO[12].t0-0.5, t1: DUR,             label: 'KẾT LUẬN', chip: 'Vàng' },
+  ];
+
+  EV = [
+    { t: 0.2, type: 'pop' },
+    // Stamp slams
+    { t: VO[0].t0 + 3.0, type: 'stamp_slam' },
+    { t: VO[3].t0 + 1.5, type: 'stamp_slam' },
+    { t: VO[4].t0 + 1.5, type: 'stamp_slam' },
+    // Dramatic silence #1 before c06
+    { t: VO[6].t0 - 0.75, dur: 0.75, type: 'silence' },
+    { t: VO[6].t0 + 2.5, type: 'stamp_slam' },
+    // Dramatic silence #2 before c12
+    { t: VO[12].t0 - 0.75, dur: 0.75, type: 'silence' },
+    { t: VO[12].t0 + 2.5, type: 'stamp_ding' },
+    // Scene transitions
+    { t: SHOTS[1].t0, type: 'dot_wipe' },
+    { t: SHOTS[2].t0, type: 'dot_wipe' },
+    { t: SHOTS[4].t0, type: 'dot_wipe' },
+    { t: SHOTS[5].t0, type: 'dot_wipe' },
+  ];
+
+  window.DUR = DUR;
+  window.EV = EV;
+}
+
+function currentShot(t) {
+  for (let i=SHOTS.length-1;i>=0;i--) if (t>=SHOTS[i].t0) return SHOTS[i];
+  return SHOTS[0];
+}
+
+function currentCue(t) {
+  for (let i=VO.length-1;i>=0;i--) if (t>=VO[i].t0 && t<VO[i].t1+1.5) return VO[i];
+  return null;
+}
+
+// ══════ Scene Drawing Functions ══════
+
+// Scene 1: WARNING — Case File Cover (c00)
+function drawScene1(t) {
+  // Paper base + blue halftone halo
+  halftone(0,0,W,H, 22, 15, C.cobalt, radial(960,440,620,1.0), 0.55, 0.3);
+  halftone(0,0,W,H, 24, 55, C.navy, edge(880,1.4), 0.5, 0.2);
+  // Case file header
+  const hf = font(900, 32, F.mono);
+  const ha = outC(P(t, 0.3, 0.5));
+  g.save(); g.globalAlpha = ha;
+  txt('HỒ SƠ CẢNH BÁO #08', 960, 160, font(700, 28, F.mono), C.red);
+  g.restore();
+  // Giant exhibit number (watermark alpha 0.06 — matches exhibit numerals, stays under text-ink floor)
+  const nf = font(900, 380, F.head);
+  const na = outC(P(t, 0.5, 0.6));
+  g.save(); g.globalAlpha = na * 0.06;
+  txt('08', 960, 420, nf, C.navy);
+  g.restore();
+  // Main headline
+  const c = VO[0];
+  if (c && t >= c.t0 - 0.2) {
+    charsPop('CẢNH BÁO', 960, 340, font(900, 120, F.head), C.navy, t, c.t0-0.1, 0.06, 0.4, 80,
+      { fill: C.cobalt, dx: 7, dy: 7 });
+    // Sub-headline
+    const sa = outC(P(t, c.t0+0.4, 0.5));
+    g.save(); g.globalAlpha = sa;
+    const lines = wrapWords('AI viết mượt như chuyên gia nhưng nội dung có thể bịa đặt 100%!', font(700, 42), 1200);
+    lines.forEach((ln, i) => txt(ln, 960, 490+i*56, font(700, 42), C.navy));
+    g.restore();
+    // Warning stamp
+    stampAnim('HƯ CẤU 100%!', 1340, 680, -7, t, c.t0+2.8, C.red);
+  }
+}
+
+// Scene 2: Mechanism — How AI fabricates (c01–c02)
+function drawScene2(t) {
+  // Breathing halo density (continuous ambient motion)
+  halftone(0,0,W,H, 24, 30, C.mustard, radial(400,400,560+45*Math.sin(t*0.55),1.1), 0.55, 0.25);
+  // "Slot machine" probability visualization
+  const c1 = VO[1], c2 = VO[2];
+  // Title
+  if (c1) {
+    const ta = outC(P(t, c1.t0, 0.5));
+    g.save(); g.globalAlpha = ta;
+    txt('CƠ CHẾ SINH CHỮ', 960, 180, font(900, 64, F.head), C.navy);
+    // Misregistration shadow
+    g.globalAlpha = ta*0.25;
+    txt('CƠ CHẾ SINH CHỮ', 960+7, 180+7, font(900, 64, F.head), C.cobalt);
+    g.restore();
+    // Two columns: "XÁC SUẤT HỢP TAI" vs "TRA CỨU SỰ THẬT"
+    const col1a = outC(P(t, c1.t0+1.0, 0.5));
+    g.save(); g.globalAlpha = col1a;
+    // Left column — what AI does
+    rrect(100, 260, 780, 420, 16);
+    g.fillStyle = C.offwhite; g.fill();
+    g.strokeStyle = C.navy; g.lineWidth = 4; g.stroke();
+    txt('AI LÀM GÌ?', 490, 300, font(800, 32), C.red, 'center');
+    txt('Ghép từ có xác suất', 490, 370, font(700, 36), C.navy);
+    txt('hợp tai nhất', 490, 420, font(700, 36), C.navy);
+    // Dice / slot icons (slot-machine bob — never stops rolling)
+    for (let i=0;i<5;i++) {
+      const bx = 200+i*130, by = 530 + 6*Math.sin(t*2.1 + i*1.26);
+      const hot = (Math.floor(t*1.4) % 5) === i;
+      rrect(bx-30, by-30, 60, 60, 8);
+      g.fillStyle = hot ? C.red : (i%2===0 ? C.mustard : C.cobalt); g.fill();
+      if (hot) { g.strokeStyle = C.navy; g.lineWidth = 3; g.stroke(); }
+      const words = ['từ','tiếp','theo','hợp','lý'];
+      txt(words[i], bx, by, font(700, 22), i%2===0 ? C.navy : C.cream);
+    }
+    g.restore();
+
+    // Right column — what it DOESN'T do
+    rrect(1040, 260, 780, 420, 16);
+    g.strokeStyle = 'rgba(217,45,32,0.3)'; g.lineWidth = 2; g.setLineDash([8,6]); g.stroke(); g.setLineDash([]);
+    if (c2 && t >= c2.t0 - 0.3) {
+      const col2a = outC(P(t, c2.t0, 0.5));
+      g.save(); g.globalAlpha = col2a;
+      rrect(1040, 260, 780, 420, 16);
+      g.fillStyle = C.offwhite; g.fill();
+      g.strokeStyle = C.red; g.lineWidth = 4; g.stroke();
+      txt('AI KHÔNG LÀM!', 1430, 300, font(800, 32), C.red);
+      txt('Tra cứu sự thật', 1430, 370, font(700, 36), C.navy);
+      txt('từ nguồn tin cậy', 1430, 420, font(700, 36), C.navy);
+      // X marks
+      g.strokeStyle = C.red; g.lineWidth = 6; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(1360,490); g.lineTo(1500,580); g.moveTo(1500,490); g.lineTo(1360,580); g.stroke();
+      g.restore();
+    }
+  }
+}
+
+// Scene 3: Exhibits #01 and #02 (c03–c04)
+function drawScene3(t) {
+  halftone(0,0,W,H, 22, 45, C.cobalt, radial(1500,300,500,1.2), 0.5, 0.2);
+  const c3 = VO[3], c4 = VO[4];
+  // Exhibit 01
+  if (c3) {
+    const ea = outC(P(t, c3.t0, 0.5));
+    g.save(); g.globalAlpha = ea;
+    // Giant halftone number behind
+    g.globalAlpha = ea*0.06;
+    txt('01', 480, 450, font(900, 500, F.head), C.navy);
+    g.globalAlpha = ea;
+    // Exhibit card
+    rrect(100, 160, 820, 540, 16);
+    g.fillStyle = C.offwhite; g.fill(); g.strokeStyle = C.navy; g.lineWidth = 3; g.stroke();
+    txt('TÌNH TIẾT 01', 510, 210, font(800, 28, F.mono), C.red);
+    txt('BẪY VĂN BẢN PHÁP LÝ', 510, 280, font(900, 44, F.head), C.navy);
+    // Fake circular
+    rrect(160, 330, 700, 180, 10);
+    g.fillStyle = '#FEF3C7'; g.fill(); g.strokeStyle = C.red; g.lineWidth = 2; g.setLineDash([6,4]); g.stroke(); g.setLineDash([]);
+    txt('Thông tư số TT-999/BTC-ẢO', 510, 380, font(700, 32, F.mono), C.red);
+    txt('⟵ Không tồn tại!', 510, 430, font(600, 26), C.red);
+    // Stamp
+    stampAnim('BỊA ĐẶT!', 650, 580, 8, t, c3.t0+3.0, C.red);
+    g.restore();
+  }
+  // Exhibit 02
+  if (c4) {
+    const eb = outC(P(t, c4.t0, 0.5));
+    g.save(); g.globalAlpha = eb;
+    g.globalAlpha = eb*0.06;
+    txt('02', 1440, 450, font(900, 500, F.head), C.navy);
+    g.globalAlpha = eb;
+    rrect(1000, 160, 820, 540, 16);
+    g.fillStyle = C.offwhite; g.fill(); g.strokeStyle = C.navy; g.lineWidth = 3; g.stroke();
+    txt('TÌNH TIẾT 02', 1410, 210, font(800, 28, F.mono), C.red);
+    txt('BẪY SỐ LIỆU BÁO CÁO', 1410, 280, font(900, 44, F.head), C.navy);
+    // Fake spreadsheet
+    for (let r=0;r<3;r++) for (let c=0;c<3;c++) {
+      rrect(1060+c*230, 340+r*55, 220, 48, 4);
+      g.fillStyle = r===0 ? C.navy : (c===2 && r===2 ? '#FEE2E2' : '#F8FAFC');
+      g.fill();
+      const vals = [['Hạng mục','Kế hoạch','Thực tế'],['Doanh thu','2.5 tỷ','3.1 tỷ ⚠'],['Chi phí','1.8 tỷ','??? ẢO']];
+      txt(vals[r][c], 1170+c*230, 364+r*55, font(r===0?700:600, r===0?20:22), r===0?C.cream:(c===2&&r===2?C.red:C.navy));
+    }
+    stampAnim('SỐ ẢO!', 1550, 580, -6, t, c4.t0+3.0, C.red);
+    g.restore();
+  }
+}
+
+// Scene 4: Cognitive Halo Trap (c05)
+function drawScene4(t) {
+  halftone(0,0,W,H, 24, 20, C.mustard, radial(960,500,700,0.9), 0.6, 0.2);
+  const c5 = VO[5];
+  if (!c5) return;
+  const a = outC(P(t, c5.t0, 0.5));
+  g.save(); g.globalAlpha = a;
+  // Halo illusion
+  const haloR = 300 + 50*Math.sin(t*2);
+  g.strokeStyle = C.mustard; g.lineWidth = 3; g.globalAlpha = a*0.4;
+  g.beginPath(); g.arc(960, 400, haloR, 0, TAU); g.stroke();
+  g.beginPath(); g.arc(960, 400, haloR+30, 0, TAU); g.stroke();
+  g.globalAlpha = a;
+  // Central question
+  charsPop('VĂN MƯỢT = ĐÚNG?', 960, 340, font(900, 80, F.head), C.navy, t, c5.t0, 0.06, 0.4, 60,
+    { fill: C.shadow, dx: 7, dy: 7 });
+  // Explanation
+  const lines = wrapWords('Văn phong chỉn chu đánh lừa não bộ rằng trình bày đẹp đồng nghĩa với số liệu đúng', font(600, 36), 1100);
+  lines.forEach((ln,i) => {
+    const la = outC(P(t, c5.t0+1.5+i*0.3, 0.4));
+    g.save(); g.globalAlpha = la;
+    txt(ln, 960, 500+i*52, font(600, 36), C.navy);
+    g.restore();
+  });
+  g.restore();
+}
+
+// Scene 5: DARK VERDICT — Legal accountability (c06–c07)
+function drawScene5(t) {
+  // Dark night background
+  g.fillStyle = C.night; g.fillRect(0,0,W,H);
+  // Dark halftone halo (breathing)
+  halftone(0,0,W,H, 24, 30, C.nightLt, radial(960,440,600+40*Math.sin(t*0.5),0.8), 0.6, 0.35);
+  const c6 = VO[6], c7 = VO[7];
+  if (!c6) return;
+  // Flash frame at scene start
+  const flash = P(t, c6.t0-0.5, 0.15);
+  if (flash > 0 && flash < 1) {
+    g.save(); g.globalAlpha = 0.42*(1-flash);
+    g.fillStyle = '#FFFFFF'; g.fillRect(0,0,W,H);
+    g.restore();
+  }
+  // Core message
+  const ma = outC(P(t, c6.t0, 0.6));
+  g.save(); g.globalAlpha = ma;
+  charsPop('AI KHÔNG THỂ', 960, 260, font(900, 90, F.head), C.cream, t, c6.t0+0.3, 0.05, 0.4, 50);
+  charsPop('NGỒI TÙ THAY BẠN!', 960, 400, font(900, 100, F.head), C.mustard, t, c6.t0+0.8, 0.05, 0.45, 60);
+  g.restore();
+  // Legal scale (pans gently in opposite phase — the scale never sleeps)
+  if (c7 && t >= c7.t0 - 0.3) {
+    const sa = outC(P(t, c7.t0, 0.5));
+    const b1 = 5*Math.sin(t*1.2), b2 = 5*Math.sin(t*1.2 + Math.PI);
+    g.save(); g.globalAlpha = sa;
+    // AI side
+    rrect(200, 580+b1, 660, 200, 14);
+    g.fillStyle = 'rgba(255,255,255,0.08)'; g.fill();
+    g.strokeStyle = C.red; g.lineWidth = 3; g.stroke();
+    txt('AI', 530, 640+b1, font(900, 48, F.head), C.red);
+    txt('0 Tư cách pháp nhân', 530, 700+b1, font(700, 30), C.cream);
+    // Human side
+    rrect(1060, 580+b2, 660, 200, 14);
+    g.fillStyle = 'rgba(255,255,255,0.08)'; g.fill();
+    g.strokeStyle = C.mustard; g.lineWidth = 3; g.stroke();
+    txt('CHỮ KÝ CỦA BẠN', 1390, 640+b2, font(900, 40, F.head), C.mustard);
+    txt('100% Trách nhiệm Pháp lý', 1390, 700+b2, font(700, 30), C.cream);
+    g.restore();
+  }
+  // Heavy stamp
+  stampAnim('KHÔNG NGỒI TÙ THAY!', 960, 790, -3, t, c6.t0+2.5, C.red);
+}
+
+// Scene 6: 4-Step Verification Protocol (c08–c11)
+function drawScene6(t) {
+  halftone(0,0,W,H, 22, 15, C.teal, radial(960,500,800+55*Math.sin(t*0.45),1.0), 0.5, 0.15);
+  const c8=VO[8], c9=VO[9], c10=VO[10], c11=VO[11];
+  if (!c8) return;
+  // Header
+  const ha = outC(P(t, c8.t0, 0.5));
+  g.save(); g.globalAlpha = ha;
+  txt('QUY TRÌNH KIỂM CHỨNG BẮT BUỘC', 960, 130, font(900, 48, F.head), C.navy);
+  g.globalAlpha = ha*0.3;
+  txt('QUY TRÌNH KIỂM CHỨNG BẮT BUỘC', 960+6, 130+6, font(900, 48, F.head), C.teal);
+  g.globalAlpha = ha;
+  g.restore();
+  // 4 step cards
+  const steps = [
+    { n: '01', title: 'Neo tài liệu gốc (RAG)', desc: 'Đính kèm file văn bản chuẩn', t0: c9 ? c9.t0 : c8.t0+1, color: C.teal },
+    { n: '02', title: 'Mở lối thoát trung thực', desc: 'AI phải ghi "CHƯA ĐỦ CĂN CỨ"', t0: c10 ? c10.t0 : c8.t0+10, color: C.cobalt },
+    { n: '03', title: 'Trích dẫn trang/khoản', desc: 'Bắt buộc nguyên văn số trang', t0: c11 ? c11.t0 : c8.t0+20, color: C.mustard },
+    { n: '04', title: 'Tính lại trên bảng tính', desc: 'Kiểm tra 100% số trọng yếu', t0: c11 ? c11.t0+2.0 : c8.t0+25, color: C.red },
+  ];
+  steps.forEach((st, i) => {
+    const sa = outC(P(t, st.t0, 0.45));
+    if (sa <= 0) return;
+    const y = 220 + i*180;
+    g.save(); g.globalAlpha = sa;
+    // Card
+    const sc = 0.9 + 0.1*outBack(P(t, st.t0, 0.4));
+    g.translate(960, y+70); g.scale(sc, sc); g.translate(-960, -(y+70));
+    rrect(200, y, 1520, 155, 16);
+    g.fillStyle = C.offwhite; g.fill();
+    g.strokeStyle = st.color; g.lineWidth = 3; g.stroke();
+    // Number badge
+    g.fillStyle = st.color;
+    g.beginPath(); g.arc(280, y+78, 42, 0, TAU); g.fill();
+    txt(st.n, 280, y+80, font(900, 36, F.head), C.cream);
+    // Title & desc
+    txt(st.title, 360, y+58, font(800, 36), C.navy, 'left');
+    txt(st.desc, 360, y+105, font(500, 26), C.ink, 'left');
+    // Checkmark (after 1s)
+    const ck = outC(P(t, st.t0+1.0, 0.3));
+    if (ck > 0) {
+      g.save(); g.globalAlpha = ck;
+      g.strokeStyle = C.teal; g.lineWidth = 5; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(1620, y+78); g.lineTo(1645, y+105); g.lineTo(1690, y+55); g.stroke();
+      g.restore();
+    }
+    // Audit sweep bar gliding across every card (continuous verification motion)
+    const sweep = ((t*0.35 + i*0.25) % 1) * 1520;
+    g.save(); g.globalAlpha = sa * 0.14;
+    const grad = g.createLinearGradient(200+sweep-90, 0, 200+sweep+90, 0);
+    grad.addColorStop(0, 'rgba(13,148,136,0)'); grad.addColorStop(0.5, st.color); grad.addColorStop(1, 'rgba(13,148,136,0)');
+    g.fillStyle = grad; g.fillRect(200+sweep-90, y+6, 180, 143);
+    g.restore();
+    g.restore();
+  });
+}
+
+// Scene 7: Conclusion — Golden Rule (c12)
+function drawScene7(t) {
+  halftone(0,0,W,H, 24, 15, C.mustard, radial(960,440,700,1.0), 0.6, 0.3);
+  halftone(0,0,W,H, 22, 55, C.teal, radial(300,800,500,1.2), 0.5, 0.15);
+  const c12 = VO[12];
+  if (!c12) return;
+  const a = outC(P(t, c12.t0, 0.6));
+  g.save(); g.globalAlpha = a;
+  // Golden verdict
+  charsPop('NGUYÊN TẮC VÀNG', 960, 300, font(900, 100, F.head), C.navy, t, c12.t0, 0.06, 0.45, 70,
+    { fill: C.shadow, dx: 7, dy: 7 });
+  // Two-part split
+  const parts = [
+    { icon: 'AI', label: 'Làm nháp tốc độ cao', color: C.cobalt, x: 480 },
+    { icon: '✓', label: 'Bạn kiểm tra & ký duyệt', color: C.teal, x: 1440 },
+  ];
+  parts.forEach(p => {
+    const pa = outC(P(t, c12.t0+1.0, 0.5));
+    g.save(); g.globalAlpha = pa;
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, 520, 60, 0, TAU); g.fill();
+    txt(p.icon, p.x, 522, font(900, 40, F.head), C.cream);
+    txt(p.label, p.x, 620, font(700, 34), C.navy);
+    g.restore();
+  });
+  // Arrow between
+  const aa = outC(P(t, c12.t0+1.5, 0.4));
+  g.save(); g.globalAlpha = aa;
+  g.strokeStyle = C.navy; g.lineWidth = 4; g.lineCap = 'round';
+  g.beginPath(); g.moveTo(600, 520); g.lineTo(1320, 520); g.stroke();
+  g.beginPath(); g.moveTo(1300, 505); g.lineTo(1320, 520); g.lineTo(1300, 535); g.stroke();
+  g.restore();
+  // Dual stamp
+  stampAnim('AI LÀM NHÁP', 500, 780, 5, t, c12.t0+2.0, C.cobalt);
+  stampAnim('NGƯỜI KÝ DUYỆT', 1400, 780, -4, t, c12.t0+2.5, C.teal);
+  g.restore();
+}
+
+// ══════ Main render ══════
+const SHAKES = [];
+
+function render(t) {
+  const frame = Math.round(t * 24);
+  g.save();
+  // Paper base
+  g.drawImage(PAPER, 0, 0);
+
+  // Determine current shot
+  const shot = currentShot(t);
+  const dark = shot && shot.id === 5;
+
+  // Draw the right scene
+  if (shot) {
+    // Camera shake
+    const [dx, dy] = shakeOffset(t, SHAKES);
+    if (dx !== 0 || dy !== 0) g.translate(dx, dy);
+
+    if (shot.id === 1) drawScene1(t);
+    else if (shot.id === 2) drawScene2(t);
+    else if (shot.id === 3) drawScene3(t);
+    else if (shot.id === 4) drawScene4(t);
+    else if (shot.id === 5) drawScene5(t);
+    else if (shot.id === 6) drawScene6(t);
+    else if (shot.id === 7) drawScene7(t);
+  }
+
+  // Dot-wipe transitions at scene boundaries
+  if (SHOTS.length > 1) {
+    for (let i=1;i<SHOTS.length;i++) {
+      if (SHOTS[i].id !== 5) dotWipe(t, SHOTS[i].t0 - 0.22, C.mustard);
+      else dotWipe(t, SHOTS[i].t0 - 0.22, C.navy);
+    }
+  }
+
+  // Grain overlay
+  if (!dark) drawGrain(frame);
+
+  // HUD
+  const chipA = shot ? shot.label : '';
+  const chipB = shot ? shot.chip : '';
+  drawHUD(t, 'HỒ SƠ #08', chipA, chipB, dark);
+
+  // Caption bar (subtitle from VO)
+  const cue = currentCue(t);
+  if (cue) {
+    const kw = {
+      'Ảo giác AI': C.red, 'Hallucination': C.red,
+      'bịa đặt': C.red, 'bịa': C.red, 'ảo': C.red,
+      'CHƯA ĐỦ CĂN CỨ': C.mustard, 'RAG': C.mustard,
+      'tài liệu gốc': C.teal, 'kiểm chứng': C.teal,
+      'ngồi tù': C.red, 'chữ ký': C.mustard,
+      'pháp nhân': C.red, 'trách nhiệm': C.mustard,
+    };
+    captionBar(cue.sub, 960, dark ? 950 : 980, t, cue.t0, kw);
+  }
+
+  // Fade out
+  const fadeA = P(t, DUR-2.0, 1.5);
+  if (fadeA > 0) { g.fillStyle = C.navy; g.globalAlpha = fadeA; g.fillRect(0,0,W,H); }
+
+  g.restore();
+}
+
+window.render = render;
+window.seek = render;
+
+// ══════ Init: load fonts, then VO timeline, then ready ══════
+const SAMPLE_VI = 'Tiếng Việt chuẩn sắc nét 50-60% ảo giác kiểm chứng';
+Promise.all([
+  document.fonts.load('400 24px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('700 32px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('800 48px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('900 64px "BeVietnamPro"', SAMPLE_VI),
+  document.fonts.load('900 80px "Archivo"', SAMPLE_VI),
+  document.fonts.load('700 20px "JBMono"', SAMPLE_VI),
+  fetch('./vo/vo_timeline.json').then(r => r.ok ? r.json() : []).catch(() => []),
+]).then(async ([,,,,,,vo]) => {
+  await document.fonts.ready;
+  VO = vo || [];
+  buildScenes();
+  // Build dynamic shake list from stamps
+  EV.forEach(ev => {
+    if (ev.type === 'stamp_slam') SHAKES.push([ev.t, 18, 0.35]);
+  });
+  render(0);
+  window.READY = true;
+  window.ready = true;
+});
+</script>
+</body>
+</html>

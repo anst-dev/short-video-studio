@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hệ Lưới Tuyệt Đối — Swiss Motion Graphics</title>
+<style>
+@font-face {
+  font-family: 'Archivo';
+  src: url('./fonts/Archivo-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #EAE9E5; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { initSwissFilm } from './film.js';
+
+const SAMPLE_VI = 'Team mọi người đã áp dụng AI để giảm được một nửa thời gian làm báo cáo với biên bản họp chưa? Quy trình PCTPR kiểm chứng chất lượng 50-60% 100% 40%';
+
+async function boot() {
+  await Promise.all([
+    document.fonts.load('400 28px Archivo', SAMPLE_VI),
+    document.fonts.load('500 28px Archivo', SAMPLE_VI),
+    document.fonts.load('700 48px Archivo', SAMPLE_VI),
+    document.fonts.load('800 96px Archivo', SAMPLE_VI),
+    document.fonts.load('900 180px Archivo', SAMPLE_VI),
+  ]);
+  await document.fonts.ready;
+  let vo = [];
+  try {
+    const res = await fetch('/master_vo_v2/vo_timeline.json');
+    if (res.ok) vo = await res.json();
+  } catch (_) {}
+  initSwissFilm(document.getElementById('c'), vo);
+  window.render(0);
+  window.READY = true;
+}
+boot();
+</script>
+</body>
+</html>

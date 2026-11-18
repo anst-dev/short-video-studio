@@ -1,0 +1,55 @@
+1
+00:00:00,640 --> 00:00:08,286
+Nghịch lý thực tế: Cùng thuộc lòng 5 chữ P - C - T - P - R, vì sao người tạo ra bản chuẩn 9 điểm, người vẫn nhận văn mẫu sáo rỗng?
+
+2
+00:00:10,140 --> 00:00:16,844
+Bởi P - C - T - P - R không phải tờ đơn điền cho đủ lệ, mà là 5 khóa tọa độ thu hẹp đại dương xác suất của AI.
+
+3
+00:00:19,740 --> 00:00:27,537
+Tầng ẩn 01 — Khống chế không gian xác suất: Câu lệnh ngắn thả AI trôi giữa hàng tỷ trang mạng, nên chỉ trả về mức trung bình cộng.
+
+4
+00:00:29,540 --> 00:00:36,567
+[P — Persona] không phải trò đóng kịch hình thức, mà để khóa chặt hệ từ vựng chuyên môn và thước đo khắt khe của đúng ngành nghề.
+
+5
+00:00:39,140 --> 00:00:46,230
+[C — Context] neo biên giới thực tại của doanh nghiệp bạn, còn [T — Task] dùng động từ biến đổi sắc bén thay cho lời nhờ vả mơ hồ.
+
+6
+00:00:48,940 --> 00:00:55,938
+[P — Pattern] thiết kế cấu trúc giảm tải cho não người đọc, giúp lãnh đạo hay khách hàng lướt 3 giây là nắm trọn trọng tâm.
+
+7
+00:00:58,540 --> 00:01:06,003
+Đặc biệt, [R — Rules] là nghệ thuật điêu khắc “Không gian âm”: Định nghĩa rõ điều cấm giúp cắt bỏ 80% lỗi suy diễn và lan man.
+
+8
+00:01:09,340 --> 00:01:17,077
+Tầng ẩn 02 — Tấm gương năng lực quản trị: Không giao nổi đề bài rõ cho AI chứng tỏ chính ta chưa rõ mình muốn đầu ra gì!
+
+9
+00:01:19,140 --> 00:01:26,272
+Khung P - C - T - P - R nâng vị thế của bạn: Từ người thợ cặm cụi gõ chữ sang Tổng công trình sư thiết kế đề bài và nghiệm thu.
+
+10
+00:01:28,940 --> 00:01:36,335
+Khi kết quả chưa ưng ý, người có tư duy hệ thống không ngồi sửa tay từng câu, mà bắt bệnh xem mắt xích nào đang lỏng.
+
+11
+00:01:38,740 --> 00:01:46,592
+Sai giọng điệu → chỉnh [P]; Lạc thực tế → thêm [C]; Bố cục rối → siết [Pattern]; Bịa số hay dài dòng → khóa chặt [Rules]!
+
+12
+00:01:49,540 --> 00:01:57,024
+Tầng ẩn 03 — Tách rời Dây chuyền tư duy và Dữ liệu: 5 khối đầu là khuôn cố định, còn dữ liệu tách riêng vào biến {{INPUT}} cuối cùng.
+
+13
+00:01:59,340 --> 00:02:06,252
+Nhờ đó, 1 câu lệnh chuẩn rèn kỹ 1 lần sẽ biến thành tài sản quy trình tái sử dụng hàng trăm lần cho cả phòng ban.
+
+14
+00:02:09,140 --> 00:02:16,462
+Nắm trọn 3 tầng tư duy ẩn này, bạn không còn học vẹt mẹo câu lệnh, mà thực sự làm chủ AI bằng bản lĩnh của người điều phối!

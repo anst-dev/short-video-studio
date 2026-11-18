@@ -1,0 +1,162 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.7,
+    "t1": 6.767,
+    "dur": 6.067,
+    "sub": "Muốn áp dụng AI hiệu quả vào công việc, ta không cần học lập trình — chỉ cần nắm 7 khái niệm cốt lõi sau đây.",
+    "say": "Muốn áp dụng AI hiệu quả vào công việc, anh chị không cần học lập trình, mà chỉ cần nắm vững bảy khái niệm cốt lõi sau đây.",
+    "asr": "muốn áp dùng AI hiểu quả vào công việc, anh chỉ không cần học lập trình mà chỉ cần nấm vấn bẩy khái niệm cốt lỗi sau đây.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 9.2,
+    "t1": 16.094,
+    "dur": 6.894,
+    "sub": "Khái niệm 1 — Mô hình Ngôn ngữ Lớn (LLM): AI không suy nghĩ như người, mà dự đoán từ tiếp theo dựa trên hàng tỷ tài liệu đã đọc.",
+    "say": "Khái niệm thứ nhất là Mô hình ngôn ngữ lớn: AI không suy nghĩ như con người, mà dự đoán từ tiếp theo dựa trên hàng tỷ trang tài liệu đã học.",
+    "asr": "khái niệm thứ nhất là một hình ngôn ngữ lớn, AI không suy nghĩ như con người, mà dự đoán từ tiếp theo dựa trên hàng tỉ trang tài liệu đã học.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 18.8,
+    "t1": 25.113,
+    "dur": 6.313,
+    "sub": "Giống một Thủ thư đọc hết cả thư viện: Hãy giao AI viết nháp công văn, tóm tắt họp và gợi ý công thức bảng tính!",
+    "say": "Nó giống một người thủ thư đã đọc hết thư viện, rất giỏi viết nháp công văn, tóm tắt biên bản họp và gợi ý công thức bảng tính.",
+    "asr": "Nó giống một người thủ thư đã đọc hết thư viện, giết giỏi viết nháp công văn, tóm tất biên bản hợp và hợp ý công thức bằng tính.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 28.2,
+    "t1": 34.342,
+    "dur": 6.142,
+    "sub": "Khái niệm 2 — Token: AI cắt câu chữ thành từng mảnh nhỏ gọi là Token để đọc và tính phí, giống từng viên gạch xây tường.",
+    "say": "Khái niệm thứ hai là Token: AI cắt câu chữ thành từng mảnh nhỏ để đọc và tính phí, giống như từng viên gạch dùng để xây tường.",
+    "asr": "khái niệm thứ 2 là Token, AI cắt câu chứ thành từng mạnh nhỏ để đọc và tính phí, giống như từng viên gạch dùng để xây tường.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 37.8,
+    "t1": 44.122,
+    "dur": 6.322,
+    "sub": "Mẹo thực tế: Trước khi gửi bảng tính hay báo cáo dài, hãy xóa dòng trống và cột thừa để AI đọc nhanh, chính xác hơn!",
+    "say": "Mẹo áp dụng thực tế là trước khi gửi bảng tính hay báo cáo dài, hãy xóa bớt dòng trống và cột thừa để AI xử lý nhanh và chuẩn hơn.",
+    "asr": "Mẹ áp dụng thực tế là trước khi gửi bằng tính hay bảo cao dài, hãy soá bất rồng trống và cô thừa để AI sử lý nhân và chuẩn hơn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 47.2,
+    "t1": 52.851,
+    "dur": 5.651,
+    "sub": "Khái niệm 3 — Cửa sổ Ngữ cảnh (Context Window): Là chiếc bàn ghi nhớ ngắn hạn của AI trong một cuộc trò chuyện.",
+    "say": "Khái niệm thứ ba là Cửa sổ ngữ cảnh: Đây chính là chiếc bàn ghi nhớ ngắn hạn của AI trong suốt một cuộc trò chuyện.",
+    "asr": "khái niệm thứ 3 là cửa số ngữ cảnh, đây chính là chiếc bản ghê nhớ ngãn hạn của AI trong xuất một cuộc trò chuyện.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 56.8,
+    "t1": 64.351,
+    "dur": 7.551,
+    "sub": "Hỏi dồn quá nhiều việc vào một ô chat sẽ làm tràn mặt bàn khiến AI quên quy tắc đầu buổi — hãy tách mỗi việc một cửa sổ chat mới!",
+    "say": "Nếu hỏi dồn quá nhiều việc khác nhau vào chung một ô chat, mặt bàn sẽ bị tràn khiến AI quên mất quy tắc ban đầu. Hãy tách mỗi đầu việc một cuộc trò chuyện mới.",
+    "asr": "Nếu hỏi dồn quá nhiều việc khác nhau vào chung một ô chát, mặt bàn sẽ bị tràn khiến AI quyền mất cuy tắc bàn đầu, hãy tác mối đầu việc một cuộc trò chuyện mới.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 67.5,
+    "t1": 74.655,
+    "dur": 7.155,
+    "sub": "Khái niệm 4 — Ảo giác AI (Hallucination): Khi thiếu dữ liệu, AI có thể tự bịa số liệu hoặc thông tư không có thật với giọng rất tự tin!",
+    "say": "Khái niệm thứ tư cực kỳ quan trọng là Ảo giác AI: Khi thiếu dữ liệu, nó có thể tự bịa ra con số hoặc điều khoản không có thật với giọng rất tự tin.",
+    "asr": "Cái nhiệm thứ tư cực kỳ quan trọng là ảo dát AI, khi thiếu giữ liệu, nó có thể tự biện ra con số hoặc điều khoản không có thật với giọng rất tự tin.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 77.6,
+    "t1": 84.875,
+    "dur": 7.275,
+    "sub": "Cách khắc phục triệt để: Luôn đính kèm tài liệu gốc (RAG) và dặn rõ: “Chỉ trả lời theo file đính kèm, không có thì báo chưa đủ thông tin”.",
+    "say": "Cách khắc phục triệt để là luôn đính kèm tài liệu chuẩn của công ty và dặn rõ: Chỉ trả lời dựa trên tài liệu đính kèm, không có thì báo chưa đủ thông tin.",
+    "asr": "Cách khắc phục chiệt để là luôn đến kèm tài liệu chuẩn của công ty và dặn gió, chỉ trả lời dựa trên tài liệu đến kèm, không có thì báo chưa lủ thông tin.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 88.2,
+    "t1": 94.935,
+    "dur": 6.735,
+    "sub": "Khái niệm 5 — System Prompt & Trợ lý Chuyên biệt (GPTs / Gems): Đóng gói sẵn vai trò và biểu mẫu dùng lặp lại mỗi tuần.",
+    "say": "Khái niệm thứ năm là Hướng dẫn hệ thống và Trợ lý chuyên biệt: Giúp đóng gói cố định vai trò và biểu mẫu cho những việc lặp lại hàng tuần.",
+    "asr": "khái niệm thứ 5 là hướng dẫn hệ thống và trợ lý truyền biệt, giúp đón gói cố định vai trò và biểu mẫu cho những việc lập lại hàng tuần.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 98.0,
+    "t1": 104.46,
+    "dur": 6.46,
+    "sub": "Giống lập sẵn từng bàn chuyên trách: 1 trợ lý chuyên Tóm tắt họp, 1 trợ lý chuyên Soát lỗi số liệu, 1 trợ lý chuyên Soạn thư!",
+    "say": "Giống như lập sẵn từng bàn nghiệp vụ riêng: một trợ lý chuyên tóm tắt họp, một trợ lý chuyên soát lỗi số liệu, mở lên là dùng ngay.",
+    "asr": "giống như lập sáng từng bàn nghiệp vụ riêng, một trợ lý chuyên tóng tắt họp, một trợ lý chuyên soát lỗi số liệu, mở lên là dùng ngay.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 107.6,
+    "t1": 114.729,
+    "dur": 7.129,
+    "sub": "Khái niệm 6 — Đa phương thức (Multimodal): AI nay có mắt đọc ảnh hóa đơn, có tai nghe ghi âm họp và có tay chạy bảng biểu!",
+    "say": "Khái niệm thứ sáu là Đa phương thức: AI ngày nay không chỉ đọc chữ mà còn đọc được ảnh chụp hóa đơn, nghe tệp ghi âm họp và phân tích bảng số liệu.",
+    "asr": "khái niệm thứ 6 là đa phương thức. AI ngày nay không chỉ đọc chữ mà còn đọc được ảnh chút hoá đơn. Nghe tẹp ghi âm hợp và phân tích bản số liệu.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 117.8,
+    "t1": 125.291,
+    "dur": 7.491,
+    "sub": "Phối hợp đúng sở trường: ChatGPT mạnh lập kế hoạch & bảng tính; Claude mạnh đọc sâu hợp đồng dài; Gemini mạnh tra cứu đa nguồn.",
+    "say": "Hãy phối hợp đúng sở trường từng công cụ: Chat G P T mạnh lập kế hoạch, Claude mạnh đọc sâu tài liệu dài, còn Gemini mạnh tra cứu thông tin đa nguồn.",
+    "asr": "Hãy phối hợp đúng sở trường từng công củ. Chát GP mạnh lập kế hoạch, Cloud mạnh đọc sâu tại liệu dài, còn Gemini mạnh tra cứu thông tin đang huồn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c12.wav"
+  },
+  {
+    "id": "c13",
+    "t0": 128.8,
+    "t1": 136.97,
+    "dur": 8.17,
+    "sub": "Khái niệm 7 — Nguyên tắc 80/20 & Bảo mật: Để AI gánh 80% việc nháp nặng nhọc, con người giữ 20% kiểm định và quyết định cuối!",
+    "say": "Cuối cùng, khái niệm thứ bảy là Nguyên tắc tám mươi hai mươi và Bảo mật: Hãy để AI gánh tám mươi phần trăm việc nháp, còn anh chị nắm hai mươi phần trăm kiểm chứng cuối cùng.",
+    "asr": "Quối cùng, khái niệm thứ 7 là nguyên tắc 80,20 và bảo mật, hãy để AI gánh 80% việc nháp, còn ăn chị 50,20% kiểm chứng cuối cùng.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c13.wav"
+  },
+  {
+    "id": "c14",
+    "t0": 139.0,
+    "t1": 146.313,
+    "dur": 7.313,
+    "sub": "Tuyệt đối ẩn mật khẩu, lương thưởng và dữ liệu mật trước khi tải lên AI công cộng, đồng thời luôn đối soát số liệu trước khi ký duyệt!",
+    "say": "Tuyệt đối che thông tin mật khẩu, bảng lương hay dữ liệu nhạy cảm trước khi đưa lên công cụ công cộng, và luôn đối soát lại con số trước khi ký duyệt.",
+    "asr": "Tuyệt đối trè thông tin mật khẩu, bảng lương hay giữ liệu nhạy cảm trước khi đưa lên công cổ công cổ, và luôn đối soát lại con số trước khi ký duyệt.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c14.wav"
+  },
+  {
+    "id": "c15",
+    "t0": 149.2,
+    "t1": 155.716,
+    "dur": 6.516,
+    "sub": "Hiểu đúng bản chất — Giao đúng đề bài PCTPR — Đính kèm dữ liệu gốc: Bạn sẽ biến AI thành trợ lý đắc lực mỗi ngày!",
+    "say": "Hiểu đúng bản chất, giao đúng đề bài P C T P R và đính kèm dữ liệu chuẩn, chắc chắn anh chị sẽ biến AI thành trợ lý đắc lực mỗi ngày!",
+    "asr": "Hiểu đúng bản chất, dào đúng để bài PCTPR và đính kèm giữ liệu chuẩn. Chắc chắn anh chỉ sẽ biến AI thành trợ lý đất lực mỗi ngày.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v4_khai_niem_ai_coban\\vo\\c15.wav"
+  }
+]

@@ -1,0 +1,51 @@
+1
+00:00:00,640 --> 00:00:08,603
+CẢNH BÁO NGƯỜI MỚI: AI viết mượt như chuyên gia 10 năm kinh nghiệm, nhưng nội dung có thể bịa đặt 100%!
+
+2
+00:00:09,940 --> 00:00:17,056
+Hiện tượng này gọi là “Ảo giác AI” (Hallucination): AI không tra cứu sự thật, mà ghép từng từ có xác suất hợp tai nhất.
+
+3
+00:00:19,540 --> 00:00:26,509
+Khi thiếu dữ liệu, thay vì nhận “Tôi không biết”, AI tự chế số hiệu thông tư, điều khoản và con số cực kỳ thuyết phục.
+
+4
+00:00:29,140 --> 00:00:35,991
+Tình tiết 01 — Bẫy Pháp lý: Nhiều luật sư, kế toán đã bị phạt nặng vì trích dẫn văn bản thuế và án lệ do AI tự bịa!
+
+5
+00:00:38,940 --> 00:00:45,820
+Tình tiết 02 — Bẫy Số liệu: AI sẵn sàng cộng sai tổng tiền hoặc tự điền tỷ lệ tăng trưởng ảo cho câu văn suôn sẻ.
+
+6
+00:00:48,540 --> 00:00:55,951
+Vì sao nhiều người bỏ qua khâu kiểm tra? Vì văn phong quá chỉn chu đánh lừa não bộ rằng “viết hay tức là viết đúng”.
+
+7
+00:00:59,340 --> 00:01:06,656
+SỰ THẬT SỐNG CÒN: AI không có tư cách pháp nhân, không nộp phạt thay, và AI không thể ngồi tù thay cho bạn!
+
+8
+00:01:09,340 --> 00:01:17,465
+Khi thanh tra thuế xuất toán hay hợp đồng xảy ra tranh chấp, người duy nhất chịu trách nhiệm trước pháp luật là chữ ký của bạn.
+
+9
+00:01:19,340 --> 00:01:25,570
+Vậy khóa chặt Ảo giác AI bằng cách nào? Hãy áp dụng ngay quy trình kiểm chứng 4 bước bắt buộc trước khi ký duyệt!
+
+10
+00:01:28,740 --> 00:01:35,815
+Bước 1 — Neo tài liệu gốc (RAG): Luôn đính kèm file văn bản chuẩn hoặc bảng số thật, tuyệt đối không bắt AI tự nhớ thông tư.
+
+11
+00:01:38,340 --> 00:01:45,706
+Bước 2 — Mở lối thoát trung thực ở mục [R — RULES]: Bắt buộc AI ghi rõ “CHƯA ĐỦ CĂN CỨ” nếu tài liệu không đề cập.
+
+12
+00:01:47,940 --> 00:01:54,968
+Bước 3 & 4 — Đòi trích dẫn số trang, điều khoản gốc và tính lại 100% con số trọng yếu trên bảng tính thật.
+
+13
+00:01:58,740 --> 00:02:05,967
+NGUYÊN TẮC VÀNG: Giao AI làm nháp tốc độ cao — Giữ trọn con dấu kiểm tra và trách nhiệm chữ ký trong tay bạn!

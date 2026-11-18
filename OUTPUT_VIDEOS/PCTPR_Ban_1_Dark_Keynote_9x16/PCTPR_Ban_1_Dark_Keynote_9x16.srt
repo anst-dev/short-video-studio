@@ -1,0 +1,43 @@
+1
+00:00:00,600 --> 00:00:04,463
+Team mọi người đã áp dụng AI để giảm được một nửa thời gian làm báo cáo với biên bản họp chưa?
+
+2
+00:00:05,200 --> 00:00:07,883
+Hay vẫn đang dùng AI chỉ để dịch thuật với viết caption?
+
+3
+00:00:08,800 --> 00:00:13,116
+Prompt ngắn → kết quả sáo rỗng → sửa tay liên tục → mất thời gian.
+
+4
+00:00:16,800 --> 00:00:22,817
+Biến hỗn loạn thành hệ thống mạch lạc: bảng tính động, dashboard KPI, checklist và luồng dữ liệu chuyển động.
+
+5
+00:00:25,500 --> 00:00:28,804
+Quy trình mới PCTPR: ChatGPT lập kế hoạch → Claude phân tích tài liệu.
+
+6
+00:00:31,200 --> 00:00:36,595
+Gemini hỗ trợ nghiên cứu → GPTs/Gems tóm tắt họp, kiểm tra lỗi dữ liệu & lập kế hoạch tuần.
+
+7
+00:00:38,800 --> 00:00:42,341
+Khối lượng công việc giảm từ 100% xuống còn 40%.
+
+8
+00:00:43,400 --> 00:00:47,856
+Biên bản họp tự động tóm tắt, báo cáo nhanh hơn, dữ liệu kiểm tra theo checklist nghiệm thu.
+
+9
+00:00:48,800 --> 00:00:52,998
+Không gian làm việc gọn gàng — nhân viên tập trung vào công việc giá trị cao thay vì giấy tờ.
+
+10
+00:00:54,000 --> 00:00:56,663
+Thời gian xử lý giấy tờ giảm thực tế 50-60%.
+
+11
+00:00:57,050 --> 00:00:59,607
+Muốn dùng AI bài bản từ System Prompt đến kiểm chứng chất lượng?

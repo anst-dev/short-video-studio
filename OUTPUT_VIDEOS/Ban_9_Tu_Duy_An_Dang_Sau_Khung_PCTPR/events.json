@@ -1,0 +1,1 @@
+{"dur":140,"ev":[{"t":0.2,"type":"crt_open"},{"t":68.65,"dur":0.75,"type":"silence"},{"t":69.30000000000001,"type":"scan_sweep"},{"t":108.85,"dur":0.75,"type":"silence"},{"t":109.5,"type":"scan_sweep"},{"t":131.7,"type":"okr_ding"}]}

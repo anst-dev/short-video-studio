@@ -1,0 +1,232 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.7,
+    "t1": 8.107,
+    "dur": 7.407,
+    "sub": "Chào anh chị Kế toán trưởng thế hệ 1981! Chưa từng dùng AI bao giờ cũng đừng lo — nó quen thuộc hệt như bảng tính mỗi ngày.",
+    "say": "Chào anh chị Kế toán trưởng thế hệ một chín tám mốt. Dù chưa từng dùng AI bao giờ, anh chị cũng đừng lo, vì cách tư duy với nó quen thuộc hệt như bảng tính mỗi ngày.",
+    "asr": "Chào anh chị kế toán trưởng thế hệ 181, rù chứ từng dùng AI bao giờ anh chị cũng đừng lo vì cách tư duy với nó quen thuộc hết như bằng tính mỗi ngày.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 9.5,
+    "t1": 16.333,
+    "dur": 6.833,
+    "sub": "Giao việc cho nhân viên mới mà chỉ nói 4 chữ: “Làm báo cáo đi!” thì chắc chắn nhận về bản nháp sai ý.",
+    "say": "Hãy hình dung giao việc cho nhân viên mới mà chỉ nói vỏn vẹn bốn chữ: Làm báo cáo đi, thì chắc chắn anh chị sẽ nhận về một bản nháp sai ý.",
+    "asr": "Hãy hình dung rao việc cho nhân viên mới mà chỉ nói vỏn vẹn bốn chữ. Làm báo cáo đi, thì chắc chắn anh chỉ sẽ nhận về một bản nháp xây.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 18.6,
+    "t1": 26.132,
+    "dur": 7.532,
+    "sub": "Với AI cũng vậy: gõ câu cụt lủn “Phân tích doanh thu” sẽ ra kết quả mơ hồ. Ta cần phiếu giao việc chuẩn 5 ô: P - C - T - P - R.",
+    "say": "Với AI cũng y hệt vậy. Gõ câu cụt lủn như phân tích doanh thu sẽ ra kết quả rất mơ hồ. Thay vào đó, ta dùng phiếu giao việc chuẩn năm ô: P, C, T, P, R.",
+    "asr": "Với AI cũng ý hệt vậy. Gó cầu cục luôn như phân tích doanh thu sẽ ra kết quả rất mơ hồ. Thầy vào đó, ta dùng phiếu dào việc truyền 5OPC beer.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 29.0,
+    "t1": 35.302,
+    "dur": 6.302,
+    "sub": "Ô thứ nhất — [P — PERSONA] (Vai trò): Bạn muốn AI đóng vai chuyên gia nào khi ngồi vào bàn làm việc?",
+    "say": "Ô thứ nhất, chữ P đầu tiên là vai trò chuyên gia: Anh chị muốn AI đóng vai người có chuyên môn nào khi ngồi vào bàn làm việc?",
+    "asr": "Ủa thứ nhất, chữ P đầu tiên là vai trọng chuyên gia, anh chỉ muốn ai đóng vài người có chuyên món nào khi ngồi vào bạn làm việc.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 37.2,
+    "t1": 46.095,
+    "dur": 8.895,
+    "sub": "Ví dụ thực tế: Muốn cải thiện cự ly chạy bộ từ 3km lên 10km — giao vai Chuyên gia Dinh dưỡng sẽ được tư vấn thực đơn và bù điện giải.",
+    "say": "Lấy ví dụ thực tế ngoài đời: Cùng muốn cải thiện cự ly chạy bộ từ ba ki lô mét lên mười ki lô mét, nếu giao vai Chuyên gia Dinh dưỡng, AI sẽ tư vấn thực đơn và cách bù điện giải.",
+    "asr": "lấy ví dụ thực tế ngoài đời. Cùng muốn cái thiện cử lý chạy bộ từ 3kg lên 10kg. Nếu dào vài chuyên gia dinh dưỡng, AI sẽ từ vấn thực đơn và cách bụi điện giải.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 47.4,
+    "t1": 54.529,
+    "dur": 7.129,
+    "sub": "Nhưng cũng câu hỏi chạy bộ đó, nếu đổi vai thành Huấn luyện viên Thể lực, AI lại chia giáo án nhịp tim và bài tập sức bền!",
+    "say": "Nhưng cũng chính câu hỏi chạy bộ đó, nếu đổi vai thành Huấn luyện viên Thể lực, AI lại chia giáo án nhịp tim và bài tập tăng sức bền mỗi tuần.",
+    "asr": "nhưng cũng chính câu hỏi chạy bộ đó. Nếu đổi vai thành huấn luyện viên thể lực, AI lại chia rau án nhịp tim và bài tập tăng sức bền mỗi tuần.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 56.6,
+    "t1": 65.237,
+    "dur": 8.637,
+    "sub": "Trong phòng kế toán cũng thế: Cùng bảng chi phí quý, giao vai Chuyên viên Thuế sẽ soi hóa đơn hợp lệ; giao vai Giám đốc Tài chính sẽ soi dòng tiền!",
+    "say": "Trong phòng kế toán cũng thế: Cùng một bảng chi phí quý, giao vai Chuyên viên Thuế thì AI soi hóa đơn hợp lệ, còn giao vai Giám đốc Tài chính thì AI phân tích dòng tiền.",
+    "asr": "Trong phòng kể toán cũng thế, cùng một bảng chi phí quý dào vài chuyên viên thuế thì AI soy hóa đơn hợp lệ. Còn dào vài giám đốc tại chính thì AI phân tích dòng tiền.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 66.8,
+    "t1": 74.853,
+    "dur": 8.053,
+    "sub": "Ô thứ hai — [C — CONTEXT] (Bối cảnh): Cung cấp hoàn cảnh, người đọc kết quả và điều kiện đi kèm.",
+    "say": "Ô thứ hai, chữ C là bối cảnh và điều kiện: Giống như đi may áo vest phải báo số đo và dịp mặc, làm kế toán phải rõ loại hình doanh nghiệp và người nhận báo cáo.",
+    "asr": "O thứ 2, chứ xe là bối cảnh và điều kiện. Dống như đi may ou vs phải báo số đó và dịp mặt. Làm kế toán phải gió loại hình dân nghiệp và người nhận báo cáo.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 76.0,
+    "t1": 84.577,
+    "dur": 8.577,
+    "sub": "Chưa có sẵn số liệu ngay? Cứ đặt biến giữ chỗ như {{NỘI_DUNG_BÁO_CÁO}} hay {{DỮ_LIỆU_CẦN_PHÂN_TÍCH}} — hệt như tạo sẵn ô trống chờ điền số trong bảng tính!",
+    "say": "Đặc biệt, khi chưa có sẵn tài liệu hay số liệu, ta cứ đặt biến giữ chỗ như nội dung báo cáo hoặc dữ liệu cần phân tích, hệt như chừa sẵn ô trống chờ điền số trên bảng tính.",
+    "asr": "Đặc biệt, khi chưa có sáng tài liệu hay số liệu, ta cứ đặt biến giữ chó như nội dùng báo cáo, hoặc giữ liệu cần phân tích, hết như chưa sáng ô chống trở điện số trên bảng tính.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 86.6,
+    "t1": 93.274,
+    "dur": 6.674,
+    "sub": "Ô thứ ba — [T — TASK] (Nhiệm vụ): Bắt đầu bằng động từ hành động rõ ràng, giữ đúng mục tiêu gốc và bỏ chữ rườm rà.",
+    "say": "Ô thứ ba, chữ T là nhiệm vụ cụ thể: Luôn bắt đầu bằng động từ hành động dứt khoát, giữ đúng mục tiêu ban đầu và loại bỏ mọi từ ngữ mơ hồ.",
+    "asr": "Ô thứ 3, chứ tê là nhiệm vụ củ thể. Luôn bắt đầu bằng động từ hành động zit quát, giữ đúng một tiêu ban đầu và loại bỏ mọi từ ngữ mơ hồ.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 95.8,
+    "t1": 104.771,
+    "dur": 8.971,
+    "sub": "Thực tế: Nói “Xem hộ mớ rau” thì người ta chỉ nhìn; nói “Nhặt gốc, rửa sạch, cắt khúc” mới nấu được. Với công nợ: Đối chiếu, Xác định khoản quá hạn 60 ngày và Đề xuất lịch thu!",
+    "say": "Ngoài đời, bảo xem hộ mớ rau thì người ta chỉ đứng nhìn; phải dặn nhặt gốc, rửa sạch, cắt khúc mới nấu được. Với công nợ cũng vậy: Đối chiếu, xác định khoản quá hạn sáu mươi ngày và đề xuất lịch thu hồi.",
+    "asr": "ngoài đời bảo xem hộ mỡ rau thì người ta chỉ đứng nhìn, phải dạng nhặt gốc dựa sạch cách khúc mới nấu được. Với công nợ cũng vậy, đối chiếu xác định khoảng quá hạn 60 ngày và để xuất lịch thu hồi.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 106.5,
+    "t1": 113.874,
+    "dur": 7.374,
+    "sub": "Ô thứ tư — [P — PATTERN] (Khuôn mẫu đầu ra): Đổ bột không khuôn thì chảy tràn lan; có khuôn vuông mới thành chiếc bánh vuông vức.",
+    "say": "Ô thứ tư, chữ P thứ hai là khuôn mẫu đầu ra: Đổ bột làm bánh mà không có khuôn thì bột chảy tràn lan; có khuôn vuông mới ra chiếc bánh vuông vức.",
+    "asr": "Ô thứ tư, chữ pi thứ hai là khuôn mẫu đầu ra. Độ bột lầm bánh mà không có khuôn thì bột chảy tràn lan. Có khuôn vương mới ra chức bánh vương vước.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 115.7,
+    "t1": 124.188,
+    "dur": 8.488,
+    "sub": "Không khóa khuôn mẫu, AI viết tràn 3 trang chữ. Khóa rõ: “Bảng 4 cột: Khoản mục | Kỳ trước | Kỳ này | Chênh lệch %” — dán thẳng vào báo cáo sếp!",
+    "say": "Nếu không khóa khuôn mẫu, AI sẽ viết dài ba trang đọc rất mỏi mắt. Chỉ cần khóa rõ bảng bốn cột gồm khoản mục, kỳ trước, kỳ này và phần trăm chênh lệch là dùng được ngay.",
+    "asr": "Nếu không khóa khuôn mẫu, AI sẽ viết giải ba trang đọc rất mỏi mắt. Chỉ cần khóa gió bảng 4 cột gồm khoản 1 kỳ trước, kỳ này và phân chăm chân lệch là dùng được ngay.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c12.wav"
+  },
+  {
+    "id": "c13",
+    "t0": 125.9,
+    "t1": 131.962,
+    "dur": 6.062,
+    "sub": "Ô thứ năm — [R — RULES] (Quy tắc & Giới hạn): Chính là chốt kiểm soát nội bộ và nguyên tắc kiểm toán đặt ra cho AI.",
+    "say": "Ô thứ năm, chữ R là quy tắc và điều cấm: Đây chính là chốt kiểm soát nội bộ và kỷ luật kiểm toán mà anh chị đặt ra cho AI.",
+    "asr": "O thứ 5, Chưa là quy tắc và điều cấm, đây chính là chốt kiểm soát nội bộ và kỳ luật kiểm toán mà anh chị đặt ra cho AI.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c13.wav"
+  },
+  {
+    "id": "c14",
+    "t0": 135.1,
+    "t1": 144.385,
+    "dur": 9.285,
+    "sub": "Giống quy chế chi trên 20 triệu bắt buộc chuyển khoản và đủ hóa đơn: Ta khóa luật “Cấm tự bịa số liệu, viết tiếng Việt cô đọng, kiểm chứng được, đạt chuẩn 9/10”.",
+    "say": "Giống quy chế chi trên hai mươi triệu bắt buộc chuyển khoản và đủ hóa đơn: Ta khóa luật cấm tự bịa số liệu, viết tiếng Việt ngắn gọn súc tích, mọi tiêu chí đều kiểm tra được, hướng tới chất lượng chín trên mười điểm.",
+    "asr": "giống quý chế chi trên 20 triệu bắt buộc truyền khoản và đủ hoa đơn. Tà khoá loạt cấm tự biệt số liệu, viết tiếng Việt ngắn gọn xuất tích, mọi tiêu chi đều kiểm tra được, hướng tới chất lượng 9,10 điểm.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c14.wav"
+  },
+  {
+    "id": "c15",
+    "t0": 146.2,
+    "t1": 152.467,
+    "dur": 6.267,
+    "sub": "Nhưng mới làm quen AI, chẳng lẽ lần nào hỏi cũng phải tự ngồi gõ đủ cả 5 mục P - C - T - P - R từ đầu?",
+    "say": "Đến đây hẳn anh chị sẽ hỏi: Mới làm quen AI, chẳng lẽ lần nào bận rộn cũng phải tự ngồi gõ đủ cả năm mục P, C, T, P, R từ đầu?",
+    "asr": "Đến đây hẳn anh chị sẽ hỏi. 15 quen AI chẳng lẽ là nào bận rộng cũng phải tự ngồi gó đủ cả nằm mục p, c-p-r, tự đầu.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c15.wav"
+  },
+  {
+    "id": "c16",
+    "t0": 155.5,
+    "t1": 163.436,
+    "dur": 7.936,
+    "sub": "Đó là lúc ta dùng Công cụ Tối ưu hóa Prompt PCTPR (tư duy Meta-Prompt) — một “Kỹ sư Đề bài” tự động chuẩn hóa câu hỏi thô giúp bạn!",
+    "say": "Đó chính là lúc ta dùng Công cụ Tối ưu hóa Prompt P C T P R: Một kỹ sư thiết kế đề bài tự động biến câu nói ngắn gọn của anh chị thành bản hướng dẫn hoàn chỉnh.",
+    "asr": "đó chính là lúc ta dùng công cụ Tối U Hoa Propicity Pier. Một kĩ sư thiết kế để bài tự động biến câu nói ngắn gọn của anh chị thành bản hướng dẫn hoàn trình.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c16.wav"
+  },
+  {
+    "id": "c17",
+    "t0": 165.8,
+    "t1": 173.284,
+    "dur": 7.484,
+    "sub": "Nguyên tắc sống còn: Công cụ tối ưu giống Kiến trúc sư vẽ bản thiết kế — TUYỆT ĐỐI KHÔNG nhảy vào xây nhà hay làm hộ nhiệm vụ thô!",
+    "say": "Nguyên tắc sống còn của công cụ này giống như kiến trúc sư chuyên vẽ bản thiết kế, tuyệt đối không tự ý nhảy vào làm thay công việc của người thợ thi công.",
+    "asr": "Nguyên tắc sống còn của công cộng này giống như chín chúc sư chuyên vẽ bản thích kế, tuyệt đối không tự ý nhảy vào làm thay công việc của người thợ thi công.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c17.wav"
+  },
+  {
+    "id": "c18",
+    "t0": 176.0,
+    "t1": 185.711,
+    "dur": 9.711,
+    "sub": "Dù bạn gõ mệnh lệnh: “Hãy tóm tắt nội dung báo cáo” hay “Viết email xin nghỉ”, nó KHÔNG tóm tắt hộ, KHÔNG tạo ảnh, KHÔNG hỏi ngược “Vui lòng gửi file”.",
+    "say": "Dù anh chị gõ mệnh lệnh trực tiếp như: Hãy tóm tắt nội dung báo cáo, hay viết thư xin nghỉ, công cụ tuyệt đối không tóm tắt hộ, không tạo ảnh, và cũng không hỏi ngược lại vui lòng gửi tài liệu.",
+    "asr": "Dù anh chỉ gó mệnh lệnh trực tiếp như Hãy tóm tắt nội dung báo cáo, hay viết thư sinh nghỉ, công cụ tuyệt đối không tóm tắt hộ, không tạo ảnh và cũng không hỏi ngược lại vui lòng người tài liệu.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c18.wav"
+  },
+  {
+    "id": "c19",
+    "t0": 186.8,
+    "t1": 196.058,
+    "dur": 9.258,
+    "sub": "Nó tự chọn định dạng hợp lý nhất, kiểm tra đủ 5 mục PCTPR và trả về DUY NHẤT 1 khung code block sạch tinh, đặt {{NỘI_DUNG_BÁO_CÁO}} ở cuối mục [INPUT].",
+    "say": "Thay vào đó, nó tự suy luận phương án hợp lý nhất, kiểm tra đủ năm thành phần P C T P R, rồi trả về duy nhất một khung đề bài sạch tinh, kèm ô chờ điền nội dung báo cáo ở cuối mục dữ liệu đầu vào.",
+    "asr": "Thầy vào đó, nó tự suy luận phương án hợp lý nhất, kiểm tra đủ năm thành phần PCTPR, rồi trả về duy nhất một khung đề bài sạch tinh, KEMO trở điện nội dung báo cáo ở cuối mục dưới liệu đầu vào.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c19.wav"
+  },
+  {
+    "id": "c20",
+    "t0": 197.6,
+    "t1": 206.983,
+    "dur": 9.383,
+    "sub": "Cách làm việc hàng ngày chỉ gói gọn 3 bước: (1) Nhập câu thô vào Bộ tối ưu → (2) Copy đề bài PCTPR 9/10 → (3) Dán số liệu thật vào ô [INPUT]!",
+    "say": "Nhờ vậy, thao tác hàng ngày chỉ còn ba bước cực dễ: Một, gõ yêu cầu thô vào bộ tối ưu. Hai, sao chép đề bài chuẩn chín trên mười điểm. Ba, dán số liệu thật vào ô đầu vào để nhận kết quả.",
+    "asr": "Nhờ vậy, thao tắc hàng ngày chỉ còn 3 bước cực dễ, 1 gói yêu cầu thô vào bộ tối yếu, 2 sau chép để bài chuẩn 90.000 tiềm, 3 gián số liệu thật và ô đầu vào để nhận kết quả.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c20.wav"
+  },
+  {
+    "id": "c21",
+    "t0": 208.5,
+    "t1": 213.614,
+    "dur": 5.114,
+    "sub": "Hai mươi năm làm kế toán đã rèn sẵn cho thế hệ 1981 tư duy rất chặt chẽ để dùng AI bài bản.",
+    "say": "Hai mươi năm quản trị kế toán đã rèn sẵn cho thế hệ một chín tám mốt tư duy rất chặt chẽ để dùng AI bài bản.",
+    "asr": "20 năm quản trị két đoán đã dễn sẵn cho thế hệ một chiến tám một tư duy dịch, chẽ để dùng AI bài bản.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c21.wav"
+  },
+  {
+    "id": "c22",
+    "t0": 216.5,
+    "t1": 221.359,
+    "dur": 4.859,
+    "sub": "Ghi nhớ 5 chữ PCTPR: Rõ Vai Trò · Đủ Bối Cảnh · Sắc Nhiệm Vụ · Chuẩn Khuôn Mẫu · Chặt Quy Tắc!",
+    "say": "Chỉ cần nhớ năm chữ P C T P R: Rõ vai trò, đủ bối cảnh, sắc nhiệm vụ, chuẩn khuôn mẫu và chặt quy tắc.",
+    "asr": "Chỉ cần nhớ nằm chữ PCTPR, ROV cho, đủ bối cảnh sắc nhận vụ, chuẩn khuôn mẫu và chặt quý tác.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v3_pctpr_ketoan\\vo\\c22.wav"
+  }
+]

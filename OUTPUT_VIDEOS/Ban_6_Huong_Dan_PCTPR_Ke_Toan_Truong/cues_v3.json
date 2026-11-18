@@ -1,0 +1,186 @@
+[
+  {
+    "id": "c00",
+    "target_t0": 0.7,
+    "max_dur": 8.0,
+    "speed": 1.07,
+    "sub": "Chào anh chị Kế toán trưởng thế hệ 1981! Chưa từng dùng AI bao giờ cũng đừng lo — nó quen thuộc hệt như bảng tính mỗi ngày.",
+    "say": "Chào anh chị Kế toán trưởng thế hệ một chín tám mốt. Dù chưa từng dùng AI bao giờ, anh chị cũng đừng lo, vì cách tư duy với nó quen thuộc hệt như bảng tính mỗi ngày."
+  },
+  {
+    "id": "c01",
+    "target_t0": 9.5,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Giao việc cho nhân viên mới mà chỉ nói 4 chữ: “Làm báo cáo đi!” thì chắc chắn nhận về bản nháp sai ý.",
+    "say": "Hãy hình dung giao việc cho nhân viên mới mà chỉ nói vỏn vẹn bốn chữ: Làm báo cáo đi, thì chắc chắn anh chị sẽ nhận về một bản nháp sai ý."
+  },
+  {
+    "id": "c02",
+    "target_t0": 18.6,
+    "max_dur": 9.0,
+    "speed": 1.07,
+    "sub": "Với AI cũng vậy: gõ câu cụt lủn “Phân tích doanh thu” sẽ ra kết quả mơ hồ. Ta cần phiếu giao việc chuẩn 5 ô: P - C - T - P - R.",
+    "say": "Với AI cũng y hệt vậy. Gõ câu cụt lủn như phân tích doanh thu sẽ ra kết quả rất mơ hồ. Thay vào đó, ta dùng phiếu giao việc chuẩn năm ô: P, C, T, P, R."
+  },
+  {
+    "id": "c03",
+    "target_t0": 29.0,
+    "max_dur": 7.5,
+    "speed": 1.07,
+    "sub": "Ô thứ nhất — [P — PERSONA] (Vai trò): Bạn muốn AI đóng vai chuyên gia nào khi ngồi vào bàn làm việc?",
+    "say": "Ô thứ nhất, chữ P đầu tiên là vai trò chuyên gia: Anh chị muốn AI đóng vai người có chuyên môn nào khi ngồi vào bàn làm việc?"
+  },
+  {
+    "id": "c04",
+    "target_t0": 37.2,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Ví dụ thực tế: Muốn cải thiện cự ly chạy bộ từ 3km lên 10km — giao vai Chuyên gia Dinh dưỡng sẽ được tư vấn thực đơn và bù điện giải.",
+    "say": "Lấy ví dụ thực tế ngoài đời: Cùng muốn cải thiện cự ly chạy bộ từ ba ki lô mét lên mười ki lô mét, nếu giao vai Chuyên gia Dinh dưỡng, AI sẽ tư vấn thực đơn và cách bù điện giải."
+  },
+  {
+    "id": "c05",
+    "target_t0": 47.4,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Nhưng cũng câu hỏi chạy bộ đó, nếu đổi vai thành Huấn luyện viên Thể lực, AI lại chia giáo án nhịp tim và bài tập sức bền!",
+    "say": "Nhưng cũng chính câu hỏi chạy bộ đó, nếu đổi vai thành Huấn luyện viên Thể lực, AI lại chia giáo án nhịp tim và bài tập tăng sức bền mỗi tuần."
+  },
+  {
+    "id": "c06",
+    "target_t0": 56.6,
+    "max_dur": 9.0,
+    "speed": 1.07,
+    "sub": "Trong phòng kế toán cũng thế: Cùng bảng chi phí quý, giao vai Chuyên viên Thuế sẽ soi hóa đơn hợp lệ; giao vai Giám đốc Tài chính sẽ soi dòng tiền!",
+    "say": "Trong phòng kế toán cũng thế: Cùng một bảng chi phí quý, giao vai Chuyên viên Thuế thì AI soi hóa đơn hợp lệ, còn giao vai Giám đốc Tài chính thì AI phân tích dòng tiền."
+  },
+  {
+    "id": "c07",
+    "target_t0": 66.8,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Ô thứ hai — [C — CONTEXT] (Bối cảnh): Cung cấp hoàn cảnh, người đọc kết quả và điều kiện đi kèm.",
+    "say": "Ô thứ hai, chữ C là bối cảnh và điều kiện: Giống như đi may áo vest phải báo số đo và dịp mặc, làm kế toán phải rõ loại hình doanh nghiệp và người nhận báo cáo."
+  },
+  {
+    "id": "c08",
+    "target_t0": 76.0,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Chưa có sẵn số liệu ngay? Cứ đặt biến giữ chỗ như {{NỘI_DUNG_BÁO_CÁO}} hay {{DỮ_LIỆU_CẦN_PHÂN_TÍCH}} — hệt như tạo sẵn ô trống chờ điền số trong bảng tính!",
+    "say": "Đặc biệt, khi chưa có sẵn tài liệu hay số liệu, ta cứ đặt biến giữ chỗ như nội dung báo cáo hoặc dữ liệu cần phân tích, hệt như chừa sẵn ô trống chờ điền số trên bảng tính."
+  },
+  {
+    "id": "c09",
+    "target_t0": 86.6,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Ô thứ ba — [T — TASK] (Nhiệm vụ): Bắt đầu bằng động từ hành động rõ ràng, giữ đúng mục tiêu gốc và bỏ chữ rườm rà.",
+    "say": "Ô thứ ba, chữ T là nhiệm vụ cụ thể: Luôn bắt đầu bằng động từ hành động dứt khoát, giữ đúng mục tiêu ban đầu và loại bỏ mọi từ ngữ mơ hồ."
+  },
+  {
+    "id": "c10",
+    "target_t0": 95.8,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Thực tế: Nói “Xem hộ mớ rau” thì người ta chỉ nhìn; nói “Nhặt gốc, rửa sạch, cắt khúc” mới nấu được. Với công nợ: Đối chiếu, Xác định khoản quá hạn 60 ngày và Đề xuất lịch thu!",
+    "say": "Ngoài đời, bảo xem hộ mớ rau thì người ta chỉ đứng nhìn; phải dặn nhặt gốc, rửa sạch, cắt khúc mới nấu được. Với công nợ cũng vậy: Đối chiếu, xác định khoản quá hạn sáu mươi ngày và đề xuất lịch thu hồi."
+  },
+  {
+    "id": "c11",
+    "target_t0": 106.5,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Ô thứ tư — [P — PATTERN] (Khuôn mẫu đầu ra): Đổ bột không khuôn thì chảy tràn lan; có khuôn vuông mới thành chiếc bánh vuông vức.",
+    "say": "Ô thứ tư, chữ P thứ hai là khuôn mẫu đầu ra: Đổ bột làm bánh mà không có khuôn thì bột chảy tràn lan; có khuôn vuông mới ra chiếc bánh vuông vức."
+  },
+  {
+    "id": "c12",
+    "target_t0": 115.7,
+    "max_dur": 9.0,
+    "speed": 1.07,
+    "sub": "Không khóa khuôn mẫu, AI viết tràn 3 trang chữ. Khóa rõ: “Bảng 4 cột: Khoản mục | Kỳ trước | Kỳ này | Chênh lệch %” — dán thẳng vào báo cáo sếp!",
+    "say": "Nếu không khóa khuôn mẫu, AI sẽ viết dài ba trang đọc rất mỏi mắt. Chỉ cần khóa rõ bảng bốn cột gồm khoản mục, kỳ trước, kỳ này và phần trăm chênh lệch là dùng được ngay."
+  },
+  {
+    "id": "c13",
+    "target_t0": 125.9,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Ô thứ năm — [R — RULES] (Quy tắc & Giới hạn): Chính là chốt kiểm soát nội bộ và nguyên tắc kiểm toán đặt ra cho AI.",
+    "say": "Ô thứ năm, chữ R là quy tắc và điều cấm: Đây chính là chốt kiểm soát nội bộ và kỷ luật kiểm toán mà anh chị đặt ra cho AI."
+  },
+  {
+    "id": "c14",
+    "target_t0": 135.1,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Giống quy chế chi trên 20 triệu bắt buộc chuyển khoản và đủ hóa đơn: Ta khóa luật “Cấm tự bịa số liệu, viết tiếng Việt cô đọng, kiểm chứng được, đạt chuẩn 9/10”.",
+    "say": "Giống quy chế chi trên hai mươi triệu bắt buộc chuyển khoản và đủ hóa đơn: Ta khóa luật cấm tự bịa số liệu, viết tiếng Việt ngắn gọn súc tích, mọi tiêu chí đều kiểm tra được, hướng tới chất lượng chín trên mười điểm."
+  },
+  {
+    "id": "c15",
+    "target_t0": 146.2,
+    "max_dur": 8.5,
+    "speed": 1.07,
+    "sub": "Nhưng mới làm quen AI, chẳng lẽ lần nào hỏi cũng phải tự ngồi gõ đủ cả 5 mục P - C - T - P - R từ đầu?",
+    "say": "Đến đây hẳn anh chị sẽ hỏi: Mới làm quen AI, chẳng lẽ lần nào bận rộn cũng phải tự ngồi gõ đủ cả năm mục P, C, T, P, R từ đầu?"
+  },
+  {
+    "id": "c16",
+    "target_t0": 155.5,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Đó là lúc ta dùng Công cụ Tối ưu hóa Prompt PCTPR (tư duy Meta-Prompt) — một “Kỹ sư Đề bài” tự động chuẩn hóa câu hỏi thô giúp bạn!",
+    "say": "Đó chính là lúc ta dùng Công cụ Tối ưu hóa Prompt P C T P R: Một kỹ sư thiết kế đề bài tự động biến câu nói ngắn gọn của anh chị thành bản hướng dẫn hoàn chỉnh."
+  },
+  {
+    "id": "c17",
+    "target_t0": 165.8,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Nguyên tắc sống còn: Công cụ tối ưu giống Kiến trúc sư vẽ bản thiết kế — TUYỆT ĐỐI KHÔNG nhảy vào xây nhà hay làm hộ nhiệm vụ thô!",
+    "say": "Nguyên tắc sống còn của công cụ này giống như kiến trúc sư chuyên vẽ bản thiết kế, tuyệt đối không tự ý nhảy vào làm thay công việc của người thợ thi công."
+  },
+  {
+    "id": "c18",
+    "target_t0": 176.0,
+    "max_dur": 10.0,
+    "speed": 1.07,
+    "sub": "Dù bạn gõ mệnh lệnh: “Hãy tóm tắt nội dung báo cáo” hay “Viết email xin nghỉ”, nó KHÔNG tóm tắt hộ, KHÔNG tạo ảnh, KHÔNG hỏi ngược “Vui lòng gửi file”.",
+    "say": "Dù anh chị gõ mệnh lệnh trực tiếp như: Hãy tóm tắt nội dung báo cáo, hay viết thư xin nghỉ, công cụ tuyệt đối không tóm tắt hộ, không tạo ảnh, và cũng không hỏi ngược lại vui lòng gửi tài liệu."
+  },
+  {
+    "id": "c19",
+    "target_t0": 186.8,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Nó tự chọn định dạng hợp lý nhất, kiểm tra đủ 5 mục PCTPR và trả về DUY NHẤT 1 khung code block sạch tinh, đặt {{NỘI_DUNG_BÁO_CÁO}} ở cuối mục [INPUT].",
+    "say": "Thay vào đó, nó tự suy luận phương án hợp lý nhất, kiểm tra đủ năm thành phần P C T P R, rồi trả về duy nhất một khung đề bài sạch tinh, kèm ô chờ điền nội dung báo cáo ở cuối mục dữ liệu đầu vào."
+  },
+  {
+    "id": "c20",
+    "target_t0": 197.6,
+    "max_dur": 9.5,
+    "speed": 1.07,
+    "sub": "Cách làm việc hàng ngày chỉ gói gọn 3 bước: (1) Nhập câu thô vào Bộ tối ưu → (2) Copy đề bài PCTPR 9/10 → (3) Dán số liệu thật vào ô [INPUT]!",
+    "say": "Nhờ vậy, thao tác hàng ngày chỉ còn ba bước cực dễ: Một, gõ yêu cầu thô vào bộ tối ưu. Hai, sao chép đề bài chuẩn chín trên mười điểm. Ba, dán số liệu thật vào ô đầu vào để nhận kết quả."
+  },
+  {
+    "id": "c21",
+    "target_t0": 208.5,
+    "max_dur": 9.0,
+    "speed": 1.07,
+    "sub": "Hai mươi năm làm kế toán đã rèn sẵn cho thế hệ 1981 tư duy rất chặt chẽ để dùng AI bài bản.",
+    "say": "Hai mươi năm quản trị kế toán đã rèn sẵn cho thế hệ một chín tám mốt tư duy rất chặt chẽ để dùng AI bài bản."
+  },
+  {
+    "id": "c22",
+    "target_t0": 216.5,
+    "max_dur": 9.0,
+    "speed": 1.07,
+    "sub": "Ghi nhớ 5 chữ PCTPR: Rõ Vai Trò · Đủ Bối Cảnh · Sắc Nhiệm Vụ · Chuẩn Khuôn Mẫu · Chặt Quy Tắc!",
+    "say": "Chỉ cần nhớ năm chữ P C T P R: Rõ vai trò, đủ bối cảnh, sắc nhiệm vụ, chuẩn khuôn mẫu và chặt quy tắc."
+  }
+]

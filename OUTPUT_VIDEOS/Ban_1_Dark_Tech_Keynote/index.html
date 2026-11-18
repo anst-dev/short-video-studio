@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Quy Trình Ánh Sáng — Dark Tech Keynote</title>
+<style>
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'InterTight';
+  src: url('./fonts/InterTight-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0A0B0F; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { initFilm } from './film.js';
+
+const SAMPLE_VI = 'Team mọi người đã áp dụng AI để giảm được một nửa thời gian làm báo cáo với biên bản họp chưa? Quy trình PCTPR kiểm chứng chất lượng 50-60% 100% 40%';
+
+async function boot() {
+  await Promise.all([
+    document.fonts.load('400 32px Inter', SAMPLE_VI),
+    document.fonts.load('500 32px Inter', SAMPLE_VI),
+    document.fonts.load('600 40px Inter', SAMPLE_VI),
+    document.fonts.load('700 48px Inter', SAMPLE_VI),
+    document.fonts.load('600 120px InterTight', SAMPLE_VI),
+    document.fonts.load('700 120px InterTight', SAMPLE_VI),
+    document.fonts.load('500 20px JBMono', SAMPLE_VI),
+    document.fonts.load('700 20px JBMono', SAMPLE_VI),
+  ]);
+  await document.fonts.ready;
+  let vo = [];
+  try {
+    const res = await fetch('/master_vo_v2/vo_timeline.json');
+    if (res.ok) vo = await res.json();
+  } catch (_) {}
+  initFilm(document.getElementById('c'), vo);
+  window.render(0);
+  window.READY = true;
+}
+boot();
+</script>
+</body>
+</html>

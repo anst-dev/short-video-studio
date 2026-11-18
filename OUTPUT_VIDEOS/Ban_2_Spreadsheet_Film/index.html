@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Ô Tính Tự Giải Phóng — Spreadsheet Film</title>
+<style>
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/Inter-var.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'JBMono';
+  src: url('./fonts/JetBrainsMono-var.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #17120A; }
+canvas { display: block; width: 1920px; height: 1080px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { clamp, lerp, seg, ss, eo, ei, eio, back, mulberry, hash } from '/core/lib.js';
+
+const W = 1920, H = 1080, DUR = 60.0;
+const cv = document.getElementById('c');
+const g = cv.getContext('2d');
+const UI = 'Inter', MONO = 'JBMono';
+
+// Palette strictly following styles/spreadsheet/STYLE.md (zero gradients, zero shadows, flat computed cells)
+const INK = '#17120A';
+const OK = '#B8F25A', OK_INK = '#254200';
+const NO = '#E8382D', NO_INK = '#FFFFFF';
+const INDIGO = '#2A2F6C', INDIGO_INK = '#FFFFFF';
+const AMBER = '#FFB21F', AMBER_INK = '#17120A';
+const SKY = '#DDF0FF', SKY_INK = '#123B66';
+const PALE = '#F3F2EC';
+const NOTE = '#FFF6C8';
+const REF_COLS = ['#2F6FE0', '#D97706', '#0D9488', '#8B3DFF'];
+const PASTEL = ['#D4F57A', '#FFF09A', '#FFC99E', '#FFB3C9', '#B9DCFF', '#A8EFD5'];
+
+// Shell layout constants
+const TITLE_H = 34, TOOL_H = 40, FBAR_H = 50, ROWH_W = 54, TABS_H = 32, STAT_H = 28;
+const SHEET_B = H - TABS_H - STAT_H;
+const CWID = 76, RH = 26, NC = 52;
+
+function rect(x, y, w, h, c) { g.fillStyle = c; g.fillRect(x, y, w, h); }
+function line(x0, y0, x1, y1, c, lw = 1) { g.strokeStyle = c; g.lineWidth = lw; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
+function text(s, x, y, f, c = INK, align = 'left', base = 'middle') { g.font = f; g.fillStyle = c; g.textAlign = align; g.textBaseline = base; g.fillText(s, x, y); }
+function tw(s, f) { g.font = f; return g.measureText(s).width; }
+function colName(i) { let s = '', n = i + 1; while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; }
+function popK(t, t0, dur = 0.22, amp = 0.28) { const dt = t - t0; if (dt < 0 || dt > dur) return 1; return 1 + amp * Math.sin(Math.PI * dt / dur); }
+function hexMix(a, b, u) {
+  const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
+  const ch = s => Math.round(lerp((pa >> s) & 255, (pb >> s) & 255, clamp(u, 0, 1)));
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+
+// ───────────────────────── Column Width Model (Hidden Columns S..Z = indices 18..25) ─────────────────────────
+// Before t = 25.4s, columns 18..25 (PCTPR AI Pipeline) are hidden (width = 0), then accordion open!
+const colWidths = new Float64Array(NC + 1);
+const colPrefix = new Float64Array(NC + 2);
+function isHiddenCol(i) { return i >= 18 && i <= 25; }
+function updateLayout(t) {
+  for (let i = 0; i <= NC; i++) {
+    if (isHiddenCol(i)) {
+      const idx = i - 18;
+      const openP = eio(seg(t, 25.45 + idx * 0.08, 26.05 + idx * 0.08));
+      colWidths[i] = CWID * 1.28 * openP;
+    } else {
+      colWidths[i] = CWID;
+    }
+  }
+  colPrefix[0] = 0;
+  for (let i = 0; i <= NC; i++) colPrefix[i + 1] = colPrefix[i] + colWidths[i];
+}
+const colW = i => colWidths[clamp(i, 0, NC)];
+const colX = i => colPrefix[clamp(i, 0, NC + 1)];
+function colXf(c) { const i = Math.max(0, Math.floor(c)), f = c - i; return colX(i) + colW(i) * f; }
+
+// ───────────────────────── Sheet Data: Chaos Cells + 100->40 Flying Workload Cells ─────────────────────────
+const R = mulberry(19862026);
+const CHAOS_BAD = ['#REF!', 'TRỄ!', '18TR', '47M', 'SỬA', 'LỆCH', '#N/A', 'GẤP!'];
+const chaosCells = new Map();
+for (let c = 1; c <= 16; c++) {
+  for (let r = 1; r <= 15; r++) {
+    // Leave clean room around merged question boxes when needed, or paint around & under
+    const spawn = 0.04 + hash(c * 13 + r * 7) * 0.78;
+    const label = CHAOS_BAD[Math.floor(R() * CHAOS_BAD.length)];
+    const kind = R() < 0.62 ? 'err' : 'warn';
+    chaosCells.set(`${c},${r}`, { spawn, label, kind });
+  }
+}
+
+// 10x10 = 100 Workload Cells at cols 2..11, rows 32..41 -> at t=39.2s, 40 hop to cols 14..17 rows 32..41 (lime), 60 clear!
+const workloadCells = [];
+for (let idx = 0; idx < 100; idx++) {
+  const hc = 2 + (idx % 10), hr = 32 + Math.floor(idx / 10);
+  const keep = idx < 40;
+  const dc = keep ? 14 + (idx % 4) : hc;
+  const dr = keep ? 32 + Math.floor(idx / 4) : hr;
+  const f0 = 39.25 + (idx % 20) * 0.055 + Math.floor(idx / 20) * 0.08;
+  const f1 = f0 + 0.62;
+  workloadCells.push({ idx, hc, hr, dc, dr, keep, f0, f1, appearT: 9.2 + (idx / 100) * 4.2 });
+}
+const homeWorkMap = new Map();
+workloadCells.forEach(w => homeWorkMap.set(`${w.hc},${w.hr}`, w));
+
+// System sweep cells (Scene 4: t = 16.5..25.0s, cols 2..15, rows 18..29)
+const sysCells = new Map();
+for (let c = 2; c <= 15; c++) {
+  for (let r = 18; r <= 29; r++) {
+    const dist = Math.hypot((c - 8.5) * 0.8, r - 23.5);
+    const tp = 16.55 + dist * 0.065;
+    const quad = (c <= 8 ? 0 : 1) + (r <= 23 ? 0 : 2);
+    sysCells.set(`${c},${r}`, { tp, quad, code: ['AUTO', 'KPI+', 'PASS', 'SYNC'][quad] });
+  }
+}
+
+// ───────────────────────── Merged Ranges Dictionary (`[c0, c1_excl, r0, r1_excl]`) ─────────────────────────
+const M = {
+  Q1: [2, 15, 2, 7],
+  Q2: [2, 15, 9, 14],
+  // Scene 3: 4 Broken Loop blocks (rows 15..20)
+  LP0: [1, 4, 15, 20],
+  LP1: [5, 8, 15, 20],
+  LP2: [9, 12, 15, 20],
+  LP3: [13, 17, 15, 20],
+  LP_HDR: [1, 17, 12, 14],
+  // Scene 4: 4 Coherent System headers/cards inside sheet (rows 18..29)
+  SYS_HDR: [2, 16, 16, 18],
+  SYS0: [2, 8, 19, 23],
+  SYS1: [10, 16, 19, 23],
+  SYS2: [2, 8, 25, 29],
+  SYS3: [10, 16, 25, 29],
+  // Scene 5: Unhidden PCTPR columns 18..25 (S..Z), rows 16..29
+  PCT_HDR: [18, 26, 16, 18],
+  AI0: [18, 20, 19, 29],
+  AI1: [20, 22, 19, 29],
+  AI2: [22, 24, 19, 29],
+  AI3: [24, 26, 19, 29],
+  // Scene 6 & 7: 100% -> 40% + 3 QA Verdict Merged Rows (rows 30..43)
+  WL_OLD_H: [2, 12, 30, 32],
+  WL_NEW_H: [14, 18, 30, 32],
+  WL_STAT: [14, 18, 42, 45],
+  QA0: [19, 28, 32, 35],
+  QA1: [19, 28, 36, 39],
+  QA2: [19, 28, 40, 43],
+  // Scene 8: Clean Workspace (rows 47..56) & Final Merged Verdict Stage (rows 59..71)
+  CLN_HDR: [3, 17, 47, 50],
+  CLN0: [3, 7, 51, 56],
+  CLN1: [8, 12, 51, 56],
+  CLN2: [13, 17, 51, 56],
+  STAGE_TOP: [5, 21, 59, 64],
+  STAGE_BOT: [5, 21, 65, 70],
+};
+
+// ───────────────────────── Camera Keyframes (`col, row, zoom`) ─────────────────────────
+const CAM_KEYS = [
+  { t: 0.00, c: 6.5, r: 5.5, z: 1.55 },
+  { t: 0.90, c: 8.5, r: 5.5, z: 1.12 },
+  { t: 4.70, c: 8.5, r: 5.5, z: 1.10 },
+  { t: 5.20, c: 8.5, r: 10.5, z: 1.14 },
+  { t: 8.40, c: 8.5, r: 10.5, z: 1.14 },
+  // Scene 3: Track across the 4 broken-loop columns
+  { t: 8.95, c: 5.5, r: 16.5, z: 1.16 },
+  { t: 12.80, c: 11.5, r: 16.5, z: 1.08 },
+  { t: 14.40, c: 9.0, r: 16.5, z: 1.00 },
+  { t: 16.40, c: 9.0, r: 16.5, z: 1.00 },
+  // Scene 4: Coherent System ranges
+  { t: 17.00, c: 9.0, r: 23.0, z: 1.02 },
+  { t: 24.60, c: 9.0, r: 23.0, z: 1.00 },
+  // Scene 5: Whip to folded column seam S..Z and ride the Unhide reflow!
+  { t: 25.30, c: 18.0, r: 21.5, z: 1.05 },
+  { t: 26.50, c: 22.0, r: 22.5, z: 0.98 },
+  { t: 38.30, c: 22.0, r: 22.5, z: 0.98 },
+  // Scene 6 & 7: 100->40 Workload + QA Verdicts
+  { t: 39.00, c: 11.5, r: 37.5, z: 0.96 },
+  { t: 43.20, c: 11.5, r: 37.5, z: 0.96 },
+  { t: 44.00, c: 19.5, r: 37.5, z: 0.94 },
+  { t: 48.30, c: 19.5, r: 37.5, z: 0.94 },
+  // Scene 8: Clean Workspace -> Farthest Colour-Scale Pullout + Merged Verdict Stage
+  { t: 49.10, c: 10.0, r: 51.8, z: 1.06 },
+  { t: 53.70, c: 10.0, r: 51.8, z: 1.06 },
+  { t: 54.35, c: 13.0, r: 64.5, z: 0.98 },
+  { t: 60.00, c: 13.0, r: 64.5, z: 0.95 },
+];
+
+let CAM = { x: 0, y: 0, z: 1 }, HDR = 28, SHEET_Y = 152, VW = 1866, VH = 868, VCX = 960, VCY = 540;
+function evalCamera(t) {
+  let k = 0;
+  while (k < CAM_KEYS.length - 2 && t >= CAM_KEYS[k + 1].t) k++;
+  const A = CAM_KEYS[k], B = CAM_KEYS[k + 1];
+  const u = eio(seg(t, A.t, B.t));
+  const z = Math.exp(lerp(Math.log(A.z), Math.log(B.z), u));
+  const c = lerp(A.c, B.c, u), r = lerp(A.r, B.r, u);
+  return { x: colXf(c), y: r * RH, z };
+}
+const X = wx => VCX + (wx - CAM.x) * CAM.z;
+const Y = wy => VCY + (wy - CAM.y) * CAM.z;
+const XC = i => Math.round(X(colX(i)));
+const YR = j => Math.round(Y(j * RH));
+function mrect(key) {
+  const [c0, c1, r0, r1] = M[key];
+  const x0 = XC(c0), x1 = XC(c1), y0 = YR(r0), y1 = YR(r1);
+  return [x0, y0, x1 - x0, y1 - y0];
+}
+function cellBox(x, y, w, h, fill, border = INK, lw = 1.5) {
+  if (w <= 1 || h <= 1) return;
+  rect(x, y, w, h, fill);
+  g.strokeStyle = border; g.lineWidth = lw;
+  g.strokeRect(x + lw / 2, y + lw / 2, w - lw, h - lw);
+}
+
+// ───────────────────────── Formula Bar State (Formula Bar IS the Dialogue!) ─────────────────────────
+function formulaState(t) {
+  const specs = [
+    [0.10, 0.85, 'B2:O6', [['=KIEM_TRA_TEAM(', INK], ['Bao_cao_tuan', REF_COLS[0]], ['; ', INK], ['Bien_ban_hop', REF_COLS[1]], [')', INK]]],
+    [4.85, 5.45, 'B9:O13', [['=CACH_DUNG_AI(', INK], ['"Dịch thuật"', NO], ['; ', INK], ['"Viết caption"', NO], [')', INK]]],
+    [8.60, 9.50, 'B15:Q19', [['=PROMPT_NGAN(', INK], ['"Tóm tắt giúp"', NO], [') → ', INK], ['#SÁO_RỖNG_SỬA_TAY!', NO]]],
+    [16.50, 17.40, 'C19:P28', [['=HE_THONG_MOI(', INK], ['Bang_tinh_dong', REF_COLS[2]], ['; ', INK], ['KPI_Dashboard', REF_COLS[0]], ['; ', INK], ['Checklist', OK_INK], [')', INK]]],
+    [25.20, 26.40, 'S19:Z28', [['=PCTPR(', INK], ['ChatGPT_Plan', REF_COLS[2]], ['; ', INK], ['Claude_Docs', REF_COLS[1]], ['; ', INK], ['Gemini_Res', REF_COLS[0]], ['; ', INK], ['Gems_QA', REF_COLS[3]], [')', INK]]],
+    [38.75, 39.55, 'O32:R41', [['=LOC_TUDONG(', INK], ['Khoi_luong_100', NO], [') → ', INK], ['CON_40_PHAN_TRAM', OK_INK]]],
+    [48.70, 49.45, 'D47:Q55', [['=TAP_TRUNG(', INK], ['Cong_viec_gia_tri_cao', INDIGO], ['; ', INK], ['Giay_to=0', OK_INK], [')', INK]]],
+    [54.00, 54.70, 'F59:U69', [['=KET_QUA_THUC_TE(', INK], ['"Giảm 50-60% thời gian giấy tờ"', OK_INK], ['; ', INK], ['"System Prompt → QA"', INDIGO], [')', INK]]],
+  ];
+  let cur = specs[0];
+  for (const s of specs) if (t >= s[0]) cur = s;
+  const [t0, t1, name, parts] = cur;
+  const fullLen = parts.reduce((a, p) => a + p[0].length, 0);
+  const shown = Math.floor(clamp((t - t0) / Math.max(0.01, t1 - t0), 0, 1) * fullLen);
+  let rem = shown;
+  const out = [];
+  for (const [str, col] of parts) {
+    if (rem <= 0) break;
+    const sub = str.slice(0, rem);
+    out.push([sub, col]);
+    rem -= str.length;
+  }
+  return { name, parts: out, caret: t >= t0 && t < t1 + 0.6 };
+}
+
+// Hero Selection Box state
+function activeSelection(t) {
+  if (t < 4.85) return 'Q1';
+  if (t < 8.55) return 'Q2';
+  if (t < 10.2) return 'LP0';
+  if (t < 11.8) return 'LP1';
+  if (t < 13.4) return 'LP2';
+  if (t < 16.5) return 'LP3';
+  if (t < 25.0) return t < 18.8 ? 'SYS0' : t < 20.6 ? 'SYS1' : t < 22.4 ? 'SYS2' : 'SYS3';
+  if (t < 38.5) return t < 28.6 ? 'AI0' : t < 31.3 ? 'AI1' : t < 33.8 ? 'AI2' : 'AI3';
+  if (t < 43.3) return 'WL_STAT';
+  if (t < 48.5) return t < 44.9 ? 'QA0' : t < 46.4 ? 'QA1' : 'QA2';
+  if (t < 54.0) return 'CLN_HDR';
+  return t < 56.95 ? 'STAGE_TOP' : 'STAGE_BOT';
+}
+
+// Celebrate colour-scale bloom at t >= 54.0s around STAGE_TOP / STAGE_BOT
+function bloomCell(i, j, t) {
+  if (t < 54.0) return null;
+  const dc = Math.max(0, i < 5 ? 5 - i : i >= 21 ? i - 20 : 0);
+  const dr = Math.max(0, j < 59 ? 59 - j : j >= 70 ? j - 69 : 0);
+  if (dc === 0 && dr === 0) return null;
+  const dist = Math.max(dc * 0.85, dr);
+  const tr = 54.05 + dist * 0.045 + hash(i * 7 + j * 13) * 0.03;
+  if (t < tr) return null;
+  const step = Math.floor(dist / 1.8) % PASTEL.length;
+  return { fill: PASTEL[step], val: String(50 + (step * 2)), flash: t - tr < 0.12 ? (1 - (t - tr) / 0.12) * 0.75 : 0 };
+}
+
+function wrapCellLines(str, fontStr, maxW) {
+  g.font = fontStr;
+  const words = str.split(' ');
+  const lines = [];
+  let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (g.measureText(test).width > maxW && cur) { lines.push(cur); cur = w; }
+    else cur = test;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// ───────────────────────── Sheet Grid & Content Painter ─────────────────────────
+function drawSheet(t) {
+  const z = CAM.z;
+  g.save();
+  g.beginPath(); g.rect(ROWH_W, SHEET_Y, VW, VH); g.clip();
+  rect(ROWH_W, SHEET_Y, VW, VH, '#FFFFFF');
+
+  const xl = CAM.x - (VCX - ROWH_W) / z, xr = CAM.x + (W - VCX) / z;
+  let i0 = 0; while (i0 < NC && colX(i0 + 1) < xl) i0++;
+  let i1 = i0; while (colX(i1) < xr && i1 < NC) i1++;
+  const j0 = Math.max(0, Math.floor((CAM.y - (VCY - SHEET_Y) / z) / RH));
+  const j1 = Math.min(82, Math.ceil((CAM.y + (SHEET_B - VCY) / z) / RH));
+
+  const fs = 11 * z, showVal = fs >= 6.5;
+  const valFont = `600 ${fs}px ${MONO}`;
+  const lightGrid = new Path2D(), darkGrid = new Path2D();
+
+  for (let i = i0; i <= i1; i++) {
+    const cw = colW(i); if (cw < 0.6) continue;
+    const x = XC(i), w = XC(i + 1) - x;
+    for (let j = j0; j <= j1; j++) {
+      const y = YR(j), h = YR(j + 1) - y;
+      let fill = null, val = '', ink = '#8C8B84', painted = false, flash = 0;
+      const key = `${i},${j}`;
+
+      // 1. Opening Chaos Cells (t < 16.5s)
+      if (t < 16.5 && chaosCells.has(key)) {
+        const cc = chaosCells.get(key);
+        if (t >= cc.spawn) {
+          fill = cc.kind === 'err' ? '#FFD6D3' : '#FFF0C2';
+          ink = cc.kind === 'err' ? '#B42318' : '#9A6700';
+          val = cc.label;
+          painted = true;
+          flash = t - cc.spawn < 0.12 ? (1 - (t - cc.spawn) / 0.12) * 0.85 : 0;
+        }
+      }
+
+      // 2. Coherent System Sweep Cells (t >= 16.5s)
+      if (!fill && t >= 16.5 && sysCells.has(key)) {
+        const sc = sysCells.get(key);
+        if (t >= sc.tp) {
+          const streamOn = ((Math.floor(t * 6) + i + j) % 7 === 0);
+          fill = streamOn ? OK : ['#ECFDF3', '#EFF8FF', '#F4F3FF', '#ECFDF3'][sc.quad];
+          ink = streamOn ? OK_INK : '#344054';
+          val = sc.code;
+          painted = true;
+          flash = t - sc.tp < 0.12 ? (1 - (t - sc.tp) / 0.12) * 0.85 : 0;
+        }
+      }
+
+      // 3. Unhidden PCTPR Columns S..Z background texture when narrow (`#` / `##` gag!)
+      if (!fill && isHiddenCol(i) && j >= 19 && j <= 28 && t >= 25.45) {
+        fill = '#F7FEE7'; ink = OK_INK; painted = true;
+        if (w < 24) val = '#';
+        else if (w < 54) val = '##';
+        else val = 'OK';
+      }
+
+      // 4. 10x10 = 100 Workload Cells at home (before flying)
+      if (homeWorkMap.has(key)) {
+        const wc = homeWorkMap.get(key);
+        if (t >= wc.appearT && t < wc.f0) {
+          fill = NO; ink = '#FFFFFF'; val = '1%'; painted = true;
+          flash = t - wc.appearT < 0.12 ? 0.7 : 0;
+        } else if (t >= wc.f1 && !wc.keep) {
+          fill = '#F8FAFC'; ink = '#CBD5E1'; val = '—';
+        }
+      }
+
+      // 5. Finale Colour Scale Bloom (t >= 54.0s)
+      if (!fill) {
+        const bl = bloomCell(i, j, t);
+        if (bl) { fill = bl.fill; val = bl.val; ink = 'rgba(23,18,10,0.35)'; painted = true; flash = bl.flash; }
+      }
+
+      if (fill) rect(x, y, w, h, fill);
+      if (flash > 0) rect(x, y, w, h, `rgba(255,255,255,${flash})`);
+      const p = painted ? darkGrid : lightGrid;
+      p.moveTo(x + w + 0.5, y); p.lineTo(x + w + 0.5, y + h);
+      p.moveTo(x, y + h + 0.5); p.lineTo(x + w, y + h + 0.5);
+      if (showVal && val) text(val, x + w / 2, y + h / 2 + 0.5, valFont, ink, 'center');
+    }
+  }
+  g.lineWidth = 1;
+  g.strokeStyle = '#DAD9D3'; g.stroke(lightGrid);
+  g.strokeStyle = 'rgba(23,18,10,0.38)'; g.stroke(darkGrid);
+
+  // Folded double-seam indicator where columns S..Z are hidden before t=25.5s
+  if (colW(18) < 2) {
+    const sx = XC(18);
+    line(sx - 1.5, SHEET_Y, sx - 1.5, SHEET_B, NO, 2);
+    line(sx + 2.5, SHEET_Y, sx + 2.5, SHEET_B, NO, 2);
+  }
+
+  // Landed 40% Lime Workload Cells + Flying L-path Hopping Cells
+  for (const wc of workloadCells) {
+    if (!wc.keep) continue;
+    if (t >= wc.f0 && t < wc.f1) {
+      const u = eio(seg(t, wc.f0, wc.f1));
+      // Snap to whole cells along L-path (STYLE.md §5 & §9)
+      const ur = clamp(u * 1.35, 0, 1), uc = clamp(u * 1.35 - 0.35, 0, 1);
+      const c = Math.round(lerp(wc.hc, wc.dc, uc)), r = Math.round(lerp(wc.hr, wc.dr, ur));
+      const x = XC(c), y = YR(r), w = XC(c + 1) - x, h = YR(r + 1) - y;
+      rect(x, y, w, h, AMBER);
+      g.strokeStyle = INK; g.lineWidth = 2; g.strokeRect(x, y, w, h);
+    } else if (t >= wc.f1) {
+      const x = XC(wc.dc), y = YR(wc.dr), w = XC(wc.dc + 1) - x, h = YR(wc.dr + 1) - y;
+      rect(x, y, w, h, OK);
+      if (t - wc.f1 < 0.12) rect(x, y, w, h, `rgba(255,255,255,${(1 - (t - wc.f1) / 0.12) * 0.8})`);
+      g.strokeStyle = 'rgba(23,18,10,0.45)'; g.lineWidth = 1; g.strokeRect(x + 0.5, y + 0.5, w, h);
+      if (showVal) text('OK', x + w / 2, y + h / 2 + 0.5, valFont, OK_INK, 'center');
+    }
+  }
+
+  drawMergedRanges(t);
+  drawReferenceBoxes(t);
+  drawHeroSelection(t);
+  g.restore();
+}
+
+function drawMergedRanges(t) {
+  const z = CAM.z;
+
+  // Q1 (0.75s+)
+  if (t >= 0.72 && t < 8.85) {
+    const [x, y, w, h] = mrect('Q1');
+    cellBox(x, y, w, h, '#FFFFFF', INK, 2);
+    rect(x + 2, y + 2, 12 * z, h - 4, INDIGO);
+    text('CÂU HỎI #1 · HIỆU SUẤT BÁO CÁO & BIÊN BẢN HỌP', x + 26 * z, y + 26 * z, `700 ${13 * z}px ${MONO}`, INDIGO);
+    text('Team mọi người đã áp dụng AI để giảm được 1/2 thời gian', x + 26 * z, y + h * 0.50, `800 ${28 * z}px ${UI}`, INK);
+    text('làm báo cáo với biên bản họp chưa?', x + 26 * z, y + h * 0.78, `800 ${28 * z}px ${UI}`, '#1D4ED8');
+  }
+
+  // Q2 (4.85s+)
+  if (t >= 4.85 && t < 8.85) {
+    const [x, y, w, h] = mrect('Q2');
+    cellBox(x, y, w, h, '#FFF5F5', NO, 2);
+    rect(x + 2, y + 2, 12 * z, h - 4, NO);
+    text('THỰC TRẠNG PHỔ BIẾN · CHƯA CHẠM LÕI CÔNG VIỆC', x + 26 * z, y + 26 * z, `700 ${13 * z}px ${MONO}`, NO);
+    text('Hay vẫn đang dùng AI chỉ để dịch thuật với viết caption?', x + 26 * z, y + h * 0.62, `800 ${29 * z * popK(t, 4.95, 0.2, 0.12)}px ${UI}`, NO);
+  }
+
+  // Scene 3: 4 Broken Loop Merged Cells (t >= 8.55s)
+  if (t >= 8.55 && t < 17.0) {
+    const [hx, hy, hw, hh] = mrect('LP_HDR');
+    cellBox(hx, hy, hw, hh, NO, INK, 1.5);
+    text('QUÁ TRÌNH CŨ GÂY LÃNG PHÍ:   PROMPT NGẮN   →   KẾT QUẢ SÁO RỖNG   →   SỬA TAY LIÊN TỤC   →   MẤT THỜI GIAN', hx + 18 * z, hy + hh / 2 + 1, `800 ${17 * z}px ${UI}`, '#FFFFFF');
+
+    const loops = [
+      ['LP0', 8.65, '01 · PROMPT NGẮN', 'Gõ 3–5 chữ sơ sài', 'Thiếu dữ liệu & vai trò'],
+      ['LP1', 10.15, '02 · KẾT QUẢ SÁO RỖNG', 'Văn mẫu chung chung', 'Sai lệch ngữ cảnh thực'],
+      ['LP2', 11.75, '03 · SỬA TAY LIÊN TỤC', 'Xóa đi viết lại 14 lần', 'Dò tay từng con số'],
+      ['LP3', 13.35, '04 · MẤT THỜI GIAN', '100% QUÁ TẢI GIẤY TỜ', 'Tốn gấp đôi giờ làm'],
+    ];
+    for (const [k, t0, title, l1, l2] of loops) {
+      if (t < t0) continue;
+      const [x, y, w, h] = mrect(k);
+      const isLast = k === 'LP3';
+      cellBox(x, y, w, h, isLast ? '#FFE4E2' : '#FFFFFF', isLast ? NO : INK, 1.8);
+      rect(x + 1.5, y + 1.5, w - 3, 28 * z, isLast ? NO : '#F4F3EE');
+      text(title, x + 12 * z, y + 15 * z, `800 ${13 * z}px ${MONO}`, isLast ? '#FFFFFF' : NO);
+      text(l1, x + 12 * z, y + h * 0.54, `700 ${17 * z}px ${UI}`, INK);
+      text(l2, x + 12 * z, y + h * 0.78, `500 ${14 * z}px ${UI}`, '#57534E');
+    }
+  }
+
+  // Scene 4: 4 Coherent System Modules (t >= 16.6s)
+  if (t >= 16.6) {
+    const [hx, hy, hw, hh] = mrect('SYS_HDR');
+    cellBox(hx, hy, hw, hh, OK, INK, 1.8);
+    text('HỆ THỐNG LÀM VIỆC MẠCH LẠC  ·  TỰ ĐỘNG HÓA BẢNG TÍNH, KPI, CHECKLIST & LUỒNG DỮ LIỆU', hx + 16 * z, hy + hh / 2 + 1, `800 ${16.5 * z}px ${UI}`, INK);
+
+    const sys = [
+      ['SYS0', 17.0, 'BẢNG TÍNH ĐỘNG', 'Tự động gom & chuẩn hóa số liệu tuần (0.6s)', REF_COLS[2]],
+      ['SYS1', 17.3, 'DASHBOARD KPI', 'Cập nhật tức thì tiến độ & hiệu suất 2.8×', REF_COLS[0]],
+      ['SYS2', 17.6, 'CHECKLIST NGHIỆM THU', 'Đối soát 100% lỗi công thức & biên bản', OK_INK],
+      ['SYS3', 17.9, 'SƠ ĐỒ & LUỒNG DỮ LIỆU', 'Dữ liệu chạy thông suốt Input → Báo cáo', REF_COLS[3]],
+    ];
+    for (const [k, t0, title, desc, accent] of sys) {
+      if (t < t0) continue;
+      const [x, y, w, h] = mrect(k);
+      cellBox(x, y, w, h, '#FFFFFF', INK, 1.6);
+      rect(x + 1.5, y + 1.5, 9 * z, h - 3, accent);
+      text(title, x + 20 * z, y + h * 0.34, `800 ${19 * z}px ${UI}`, INK);
+      text(desc, x + 20 * z, y + h * 0.70, `500 ${14.5 * z}px ${UI}`, '#3F3F46');
+    }
+  }
+
+  // Scene 5: Unhidden PCTPR Columns S..Z (t >= 25.9s once columns widen)
+  if (t >= 25.85 && colW(18) > 45) {
+    const [hx, hy, hw, hh] = mrect('PCT_HDR');
+    cellBox(hx, hy, hw, hh, INDIGO, INK, 1.8);
+    text('QUY TRÌNH MỚI:  P C T P R   (Persona · Context · Task · Process · Result)', hx + 16 * z, hy + hh / 2 + 1, `800 ${16.5 * z}px ${UI}`, '#FFFFFF');
+
+    const ais = [
+      ['AI0', 26.2, 'ChatGPT', 'LẬP KẾ HOẠCH', ['Dựng cấu trúc báo cáo', 'Phân rã mục tiêu tuần', 'Chuẩn hóa khung đề cương'], REF_COLS[2]],
+      ['AI1', 28.5, 'Claude', 'PHÂN TÍCH TÀI LIỆU', ['Đọc sâu biên bản 20 trang', 'Rút trích luận điểm chính', 'Đối chiếu chéo bảng biểu'], REF_COLS[1]],
+      ['AI2', 31.2, 'Gemini', 'HỖ TRỢ NGHIÊN CỨU', ['Tổng hợp dữ liệu đa nguồn', 'Tra cứu nguồn tham chiếu', 'Kiểm chứng dẫn chứng'], REF_COLS[0]],
+      ['AI3', 33.6, 'GPTs / Gems', 'CHUYÊN BIỆT HÓA', ['✓ Tóm tắt họp tự động', '✓ Kiểm tra lỗi dữ liệu', '✓ Lập kế hoạch tuần'], REF_COLS[3]],
+    ];
+    for (const [k, t0, name, role, bullets, col] of ais) {
+      const [x, y, w, h] = mrect(k);
+      if (w < 40) continue;
+      const active = t >= t0;
+      cellBox(x, y, w, h, active ? '#FFFFFF' : '#F4F3EE', INK, 1.6);
+      rect(x + 1.5, y + 1.5, w - 3, 34 * z, active ? col : '#9CA3AF');
+      text(name, x + 12 * z, y + 18 * z, `800 ${17 * z}px ${UI}`, '#FFFFFF');
+      text(role, x + 12 * z, y + 54 * z, `700 ${12.5 * z}px ${MONO}`, col);
+      bullets.forEach((b, bi) => {
+        text(b, x + 12 * z, y + (96 + bi * 46) * z, `600 ${13.5 * z}px ${UI}`, INK);
+        line(x + 10 * z, y + (118 + bi * 46) * z, x + w - 10 * z, y + (118 + bi * 46) * z, '#E5E7EB', 1);
+      });
+    }
+  }
+
+  // Scene 6 & 7: Workload 100% -> 40% Headers + 3 QA Verdict Merged Rows
+  if (t >= 9.2) {
+    const [ox, oy, ow, oh] = mrect('WL_OLD_H');
+    const cleared = t >= 40.4;
+    cellBox(ox, oy, ow, oh, cleared ? '#F4F4F0' : NO, INK, 1.5);
+    text(cleared ? 'KHỐI LƯỢNG CŨ: ĐÃ CẮT GIẢM 60 Ô LẶP LẠI' : 'KHỐI LƯỢNG CÔNG VIỆC CŨ: 100 Ô = 100% QUÁ TẢI', ox + 14 * z, oy + oh / 2 + 1, `800 ${15 * z}px ${UI}`, cleared ? '#71717A' : '#FFFFFF');
+  }
+  if (t >= 39.0) {
+    const [nx, ny, nw, nh] = mrect('WL_NEW_H');
+    cellBox(nx, ny, nw, nh, OK, INK, 1.6);
+    text('CÒN 40 Ô = 40%', nx + nw / 2, ny + nh / 2 + 1, `800 ${17 * z}px ${UI}`, INK, 'center');
+
+    const [sx, sy, sw, sh] = mrect('WL_STAT');
+    const pct = Math.round(lerp(100, 40, eio(seg(t, 39.25, 41.2))));
+    cellBox(sx, sy, sw, sh, pct <= 45 ? OK : AMBER, INK, 2);
+    text(`${pct}%`, sx + sw / 2, sy + sh * 0.44, `800 ${34 * z * popK(t, 41.2, 0.25, 0.22)}px ${UI}`, INK, 'center');
+    text('TẢI GIẤY TỜ', sx + sw / 2, sy + sh * 0.80, `700 ${12 * z}px ${MONO}`, OK_INK, 'center');
+  }
+  if (t >= 43.3) {
+    const qas = [
+      ['QA0', 43.4, '✓ BIÊN BẢN HỌP TỰ ĐỘNG TÓM TẮT', 'Chốt ngay quyết định, đầu việc & người phụ trách sau 0.8s'],
+      ['QA1', 44.9, '✓ BÁO CÁO ĐƯỢC TẠO NHANH HƠN 3.2×', 'Tự động tổng hợp số liệu tuần & biểu đồ không cần gõ lại'],
+      ['QA2', 46.4, '✓ KIỂM TRA THEO CHECKLIST NGHIỆM THU', '12/12 tiêu chí khớp bảng gốc · Không sai số · Đạt chuẩn 100%'],
+    ];
+    for (const [k, t0, h1, h2] of qas) {
+      if (t < t0) continue;
+      const [x, y, w, h] = mrect(k);
+      const flashU = seg(t, t0, t0 + 0.22);
+      cellBox(x, y, w, h, hexMix('#FFFFFF', OK, flashU), INK, 1.8);
+      text(h1, x + 16 * z, y + h * 0.36, `800 ${18 * z}px ${UI}`, INK);
+      text(h2, x + 16 * z, y + h * 0.72, `500 ${14.5 * z}px ${UI}`, '#1F2937');
+    }
+  }
+
+  // Scene 8: Clean Workspace (48.5s+) & Final Merged Cell Stage (54.0s+)
+  if (t >= 48.5) {
+    const [hx, hy, hw, hh] = mrect('CLN_HDR');
+    cellBox(hx, hy, hw, hh, '#FFFFFF', INK, 2);
+    rect(hx + 2, hy + 2, 12 * z, hh - 4, OK);
+    text('KHÔNG GIAN LÀM VIỆC GỌN GÀNG  ·  NHÂN VIÊN TẬP TRUNG VÀO CÔNG VIỆC GIÁ TRỊ CAO', hx + 26 * z, hy + hh / 2 + 1, `800 ${19 * z}px ${UI}`, INK);
+
+    const cols = [
+      ['CLN0', 'HOẠCH ĐỊNH CHIẾN LƯỢC', 'Dành trọn tâm trí phân tích tăng trưởng thay vì loay hoay gom file'],
+      ['CLN1', 'RA QUYẾT ĐỊNH NHANH', 'Số liệu sạch & biên bản rõ ràng ngay sau mỗi cuộc họp'],
+      ['CLN2', 'KHÔNG CÒN QUÁ TẢI', 'Chấm dứt cảnh sửa tay báo cáo đến tối muộn'],
+    ];
+    for (const [k, cTitle, cBody] of cols) {
+      const [x, y, w, h] = mrect(k);
+      cellBox(x, y, w, h, '#FAFAF7', INK, 1.5);
+      rect(x + 1.5, y + 1.5, w - 3, 28 * z, OK);
+      text(cTitle, x + 12 * z, y + 15 * z, `800 ${13 * z}px ${MONO}`, OK_INK);
+      const ls = wrapCellLines(cBody, `500 ${14.5 * z}px ${UI}`, w - 24 * z);
+      ls.forEach((ln, li) => text(ln, x + 12 * z, y + (54 + li * 22) * z, `500 ${14.5 * z}px ${UI}`, '#27272A'));
+    }
+  }
+
+  if (t >= 53.95) {
+    const [tx, ty, tw0, th0] = mrect('STAGE_TOP');
+    const open1 = eo(seg(t, 53.95, 54.30));
+    cellBox(tx, ty, tw0 * open1, th0, '#FFFFFF', INK, 2.5);
+    if (open1 > 0.75) {
+      rect(tx + 2.5, ty + 2.5, 16 * z, th0 - 5, OK);
+      text('KẾT QUẢ ĐO LƯỜNG THỰC TẾ TẠI DOANH NGHIỆP', tx + 34 * z, ty + 28 * z, `700 ${14 * z}px ${MONO}`, OK_INK);
+      text('Thời gian xử lý giấy tờ giảm thực tế 50-60%.', tx + 34 * z, ty + th0 * 0.66, `800 ${36 * z * popK(t, 54.25, 0.25, 0.14)}px ${UI}`, INK);
+    }
+
+    if (t >= 56.92) {
+      const [bx, by, bw0, bh0] = mrect('STAGE_BOT');
+      const open2 = eo(seg(t, 56.92, 57.28));
+      cellBox(bx, by, bw0 * open2, bh0, INDIGO, INK, 2.5);
+      if (open2 > 0.75) {
+        rect(bx + 2.5, by + 2.5, 16 * z, bh0 - 5, AMBER);
+        text('LỘ TRÌNH TRIỂN KHAI CHUẨN HÓA CHO TEAM', bx + 34 * z, by + 28 * z, `700 ${14 * z}px ${MONO}`, AMBER);
+        text('Muốn dùng AI bài bản từ System Prompt đến kiểm chứng chất lượng?', bx + 34 * z, by + bh0 * 0.66, `800 ${28.5 * z}px ${UI}`, '#FFFFFF');
+      }
+    }
+  }
+}
+
+function drawReferenceBoxes(t) {
+  if (t < 26.0 || t >= 38.5 || colW(18) < 45) return;
+  const keys = ['AI0', 'AI1', 'AI2', 'AI3'];
+  keys.forEach((k, idx) => {
+    const [x, y, w, h] = mrect(k);
+    g.strokeStyle = REF_COLS[idx]; g.lineWidth = 2.5;
+    g.strokeRect(x - 2, y - 2, w + 4, h + 4);
+    for (const [cx, cy] of [[x - 5, y - 5], [x + w - 1, y - 5], [x - 5, y + h - 1], [x + w - 1, y + h - 1]]) {
+      rect(cx, cy, 6, 6, REF_COLS[idx]);
+    }
+  });
+}
+
+function drawHeroSelection(t) {
+  const key = activeSelection(t);
+  if (!key || !M[key]) return;
+  const [x, y, w, h] = mrect(key);
+  if (w < 8 || h < 8) return;
+  g.strokeStyle = INK; g.lineWidth = 3.2;
+  g.strokeRect(x - 1, y - 1, w + 2, h + 2);
+  // Crisp fill handle at bottom-right corner
+  rect(x + w - 5, y + h - 5, 10, 10, '#FFFFFF');
+  rect(x + w - 3.5, y + h - 3.5, 7, 7, INK);
+}
+
+// ───────────────────────── Spreadsheet Shell Chrome (Never Zooms!) ─────────────────────────
+function drawHeadersAndChrome(t) {
+  // Column & Row headers
+  rect(0, SHEET_Y - HDR, ROWH_W, HDR, '#DDDCD5');
+  rect(ROWH_W, SHEET_Y - HDR, VW, HDR, '#EAE9E3');
+  rect(0, SHEET_Y, ROWH_W, VH, '#EAE9E3');
+
+  const selKey = activeSelection(t);
+  const [sc0, sc1, sr0, sr1] = selKey && M[selKey] ? M[selKey] : [-1, -1, -1, -1];
+
+  g.save();
+  g.beginPath(); g.rect(ROWH_W, SHEET_Y - HDR, VW, HDR); g.clip();
+  for (let i = 0; i <= NC; i++) {
+    const cw = colW(i); if (cw < 1) continue;
+    const x = XC(i), w = XC(i + 1) - x;
+    if (x + w < ROWH_W || x > W) continue;
+    const active = i >= sc0 && i < sc1;
+    if (active) { rect(x, SHEET_Y - HDR, w, HDR, '#D4D3CB'); rect(x, SHEET_Y - 3, w, 3, INK); }
+    line(x + w + 0.5, SHEET_Y - HDR, x + w + 0.5, SHEET_Y, '#BFBEB6');
+    if (w > 18) text(colName(i), x + w / 2, SHEET_Y - HDR / 2 + 1, `${active ? 800 : 600} 13px ${UI}`, active ? INK : '#4A4943', 'center');
+  }
+  g.restore();
+
+  g.save();
+  g.beginPath(); g.rect(0, SHEET_Y, ROWH_W, VH); g.clip();
+  const j0 = Math.max(0, Math.floor((CAM.y - (VCY - SHEET_Y) / CAM.z) / RH));
+  const j1 = Math.min(82, Math.ceil((CAM.y + (SHEET_B - VCY) / CAM.z) / RH));
+  for (let j = j0; j <= j1; j++) {
+    const y = YR(j), h = YR(j + 1) - y;
+    const active = j >= sr0 && j < sr1;
+    if (active) { rect(0, y, ROWH_W, h, '#D4D3CB'); rect(ROWH_W - 3, y, 3, h, INK); }
+    line(0, y + h + 0.5, ROWH_W, y + h + 0.5, '#BFBEB6');
+    if (h > 11) text(String(j + 1), ROWH_W / 2, y + h / 2 + 1, `${active ? 700 : 500} 12px ${MONO}`, active ? INK : '#57564F', 'center');
+  }
+  g.restore();
+  line(ROWH_W - 0.5, SHEET_Y - HDR, ROWH_W - 0.5, SHEET_B, '#A8A79F');
+  line(0, SHEET_Y - 0.5, W, SHEET_Y - 0.5, '#A8A79F');
+
+  // Title bar (generic drawn shell — zero brand logos)
+  rect(0, 0, W, TITLE_H, '#DCDAD3');
+  rect(16, 9, 16, 16, OK); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(16, 9, 16, 16);
+  text('he-thong-ai-van-phong-pctpr.sheet', 42, TITLE_H / 2 + 1, `700 13.5px ${MONO}`, INK);
+  text('Team Văn Phòng  ·  Giảm 50–60% Thời Gian Báo Cáo & Biên Bản Họp', W / 2, TITLE_H / 2 + 1, `600 13px ${UI}`, '#4A4943', 'center');
+  text(t < 16.5 ? 'Chế độ: Thủ công (Quá tải)' : 'Chế độ: Hệ thống PCTPR Tự động', W - 18, TITLE_H / 2 + 1, `600 12.5px ${MONO}`, t < 16.5 ? NO : OK_INK, 'right');
+  line(0, TITLE_H - 0.5, W, TITLE_H - 0.5, '#BDBCB4');
+
+  // Toolbar
+  const ty = TITLE_H, tm = ty + TOOL_H / 2;
+  rect(0, ty, W, TOOL_H, '#F1F0EB');
+  const tools = [
+    ['Inter', 86, false], ['11', 42, false], ['B', 32, true], ['%', 34, t >= 39 && t < 43],
+    ['Σ Auto', 74, t >= 16.5], ['Conditional Format', 158, t >= 16.5],
+    [t < 25.4 ? '8 Cột ẩn (S:Z)' : 'Đã mở cột PCTPR (S:Z)', 196, t >= 25.4 && t < 38.5],
+    ['Checklist QA: 12/12', 164, t >= 43.3],
+  ];
+  let tx = 14;
+  for (const [lbl, bw, active] of tools) {
+    rect(tx, ty + 7, bw, TOOL_H - 14, active ? AMBER : '#FFFFFF');
+    g.strokeStyle = active ? INK : '#C6C5BD'; g.lineWidth = 1;
+    g.strokeRect(tx + 0.5, ty + 7.5, bw - 1, TOOL_H - 15);
+    text(lbl, tx + bw / 2, tm + 1, `${active ? 700 : 500} 12.5px ${UI}`, INK, 'center');
+    tx += bw + 8;
+  }
+  line(0, ty + TOOL_H - 0.5, W, ty + TOOL_H - 0.5, '#C8C7BF');
+
+  // Formula bar
+  const fy = TITLE_H + TOOL_H, fm = fy + FBAR_H / 2 + 1;
+  rect(0, fy, W, FBAR_H, '#F8F7F3');
+  const F = formulaState(t);
+  rect(12, fy + 8, 142, FBAR_H - 16, '#FFFFFF');
+  g.strokeStyle = '#B4B3AB'; g.strokeRect(12.5, fy + 8.5, 141, FBAR_H - 17);
+  text(F.name, 24, fm, `700 15px ${MONO}`, INK);
+  text('fx', 184, fm, `italic 700 18px ${UI}`, '#444', 'center');
+  rect(210, fy + 6, W - 224, FBAR_H - 12, '#FFFFFF');
+  g.strokeStyle = '#B4B3AB'; g.strokeRect(210.5, fy + 6.5, W - 225, FBAR_H - 13);
+  let fx = 226;
+  for (const [segStr, col] of F.parts) {
+    const f = `700 22px ${MONO}`;
+    text(segStr, fx, fm, f, col);
+    fx += tw(segStr, f);
+  }
+  if (F.caret && Math.floor(t * 8) % 2 === 0) rect(fx + 3, fy + 12, 2.5, FBAR_H - 24, INK);
+  line(0, fy + FBAR_H - 0.5, W, fy + FBAR_H - 0.5, '#B4B3AB');
+
+  // Context Menu on Unhide (25.05 – 25.55s)
+  if (t >= 25.05 && t < 25.60) {
+    const mx = Math.min(1380, Math.max(400, XC(18) + 8)), my = SHEET_Y + 8, mw = 280, mh = 136;
+    rect(mx, my, mw, mh, '#FBFBF9'); g.strokeStyle = INK; g.lineWidth = 1.5; g.strokeRect(mx, my, mw, mh);
+    const items = ['Chèn cột', 'Ẩn cột', 'Mở cột ẩn: Quy trình PCTPR (S:Z)', 'Kiểm chứng công thức'];
+    items.forEach((it, idx) => {
+      const iy = my + 8 + idx * 30;
+      if (idx === 2) rect(mx + 4, iy, mw - 8, 28, t >= 25.35 ? OK : AMBER);
+      text(it, mx + 14, iy + 14, `${idx === 2 ? 700 : 500} 13.5px ${UI}`, INK);
+    });
+  }
+
+  // Bottom Tabs + Status Bar
+  const by = SHEET_B;
+  rect(0, by, W, TABS_H, '#E5E4DE');
+  line(0, by + 0.5, W, by + 0.5, '#A2A19A');
+  const activeTab = t < 38.5 ? 0 : t < 48.5 ? 1 : 2;
+  let tabX = 24;
+  [['Quy_Trinh_PCTPR', 0], ['Giam_Tai_40_Phan_Tram', 1], ['Khong_Gian_Gia_Tri_Cao', 2]].forEach(([nm, idx]) => {
+    const on = idx === activeTab;
+    const w = tw(nm, `700 13px ${UI}`) + 32;
+    if (on) { rect(tabX, by, w, TABS_H - 3, '#FFFFFF'); rect(tabX, by + TABS_H - 3, w, 3, OK); }
+    text(nm, tabX + w / 2, by + TABS_H / 2, `${on ? 700 : 500} 13px ${UI}`, on ? INK : '#57564F', 'center');
+    line(tabX + w + 0.5, by + 5, tabX + w + 0.5, by + TABS_H - 5, '#BDBCB4');
+    tabX += w;
+  });
+
+  const sy = by + TABS_H, sm = sy + STAT_H / 2 + 1;
+  rect(0, sy, W, STAT_H, INK);
+  const mode = (t >= 16.5 && t < 18.0) || (t >= 25.4 && t < 26.8) || (t >= 39.2 && t < 41.2) ? 'Recalc' : 'Ready';
+  rect(0, sy, 84, STAT_H, mode === 'Recalc' ? AMBER : '#2B2418');
+  text(mode.toUpperCase(), 42, sm, `700 11.5px ${MONO}`, mode === 'Recalc' ? INK : '#FFFFFF', 'center');
+  const statusMsg = t < 8.5 ? 'Cảnh báo: 14 ô lỗi #REF!  ·  47 email  ·  18 trang biên bản chờ xử lý'
+    : t < 16.5 ? 'Vòng lặp thủ công: Prompt ngắn → Sáo rỗng → Sửa tay 14 lần → 100% tải'
+    : t < 25.0 ? 'Đã đồng bộ: Bảng tính động  ·  Dashboard KPI  ·  Checklist  ·  Luồng dữ liệu'
+    : t < 38.5 ? 'PCTPR Active: ChatGPT (Plan) · Claude (Docs) · Gemini (Research) · GPTs/Gems (QA)'
+    : t < 48.5 ? 'Nghiệm thu đạt 12/12  ·  Khối lượng giấy tờ giảm từ 100 ô xuống 40 ô (-60%)'
+    : 'Hoàn tất: Thời gian xử lý giấy tờ giảm thực tế 50–60%';
+  text(statusMsg, 100, sm, `500 12px ${UI}`, 'rgba(255,255,255,0.88)');
+  text(`ZOOM ${Math.round(CAM.z * 100)}%`, W - 20, sm, `700 12px ${MONO}`, AMBER, 'right');
+}
+
+// ───────────────────────── Cell-Comment Subtitle Note (STYLE.md §4) ─────────────────────────
+let VO = [];
+function drawCommentSub(t) {
+  const cue = VO.find(c => t >= c.c0 && t < c.c1);
+  if (!cue || ['c00', 'c01', 'c09', 'c10'].includes(cue.id)) return;
+  const a = Math.min(seg(t, cue.c0, cue.c0 + 0.12), 1 - seg(t, cue.c1 - 0.12, cue.c1));
+  if (a <= 0) return;
+
+  const f = `600 25px ${UI}`;
+  const lines = wrapCellLines(cue.sub, f, 1280);
+  const w = Math.max(...lines.map(l => tw(l, f))) + 52;
+  const h = lines.length === 1 ? 58 : 88;
+  const x = ROWH_W + 24, y = SHEET_B - h - 16;
+
+  g.save();
+  g.globalAlpha = eo(a);
+  rect(x, y, w, h, NOTE);
+  g.strokeStyle = INK; g.lineWidth = 1.6;
+  g.strokeRect(x + 0.8, y + 0.8, w - 1.6, h - 1.6);
+  // Classic red cell-comment corner triangle
+  g.fillStyle = NO;
+  g.beginPath(); g.moveTo(x + w - 15, y + 1.5); g.lineTo(x + w - 1.5, y + 1.5); g.lineTo(x + w - 1.5, y + 15); g.fill();
+  lines.forEach((ln, idx) => {
+    text(ln, x + 22, y + (lines.length === 1 ? h / 2 + 1 : 28 + idx * 32), f, INK);
+  });
+  g.restore();
+}
+
+// ───────────────────────── Sound Events (`window.EV`) ─────────────────────────
+const EV = [];
+for (const [, cc] of chaosCells) if (cc.spawn < 0.8) EV.push({ t: +cc.spawn.toFixed(3), type: 'cell_err' });
+for (const [, sc] of sysCells) if ((sc.tp * 100 | 0) % 3 === 0) EV.push({ t: +sc.tp.toFixed(3), type: 'paint_sweep', p: clamp((sc.tp - 16.5) / 1.2) });
+for (let i = 0; i < 8; i++) EV.push({ t: +(25.48 + i * 0.08).toFixed(3), type: 'col_ratchet', idx: i });
+workloadCells.filter((w, i) => w.keep && i % 2 === 0).forEach(w => EV.push({ t: +w.f1.toFixed(3), type: 'cell_land', idx: w.idx }));
+[0.85, 4.95, 8.65, 10.15, 11.75, 13.35, 16.50, 25.35, 26.2, 28.5, 31.2, 33.6, 39.25, 41.2, 43.4, 44.9, 46.4, 48.7, 54.0, 56.95].forEach(te => EV.push({ t: te, type: 'enter_hit' }));
+[0.2, 4.9, 8.7, 16.6, 25.3, 38.8, 48.8, 54.1].forEach(tk => {
+  for (let q = 0; q < 7; q++) EV.push({ t: +(tk + q * 0.065).toFixed(3), type: 'key_click' });
+});
+EV.push({ t: 15.80, type: 'silence' }, { t: 53.40, type: 'silence' });
+EV.sort((a, b) => a.t - b.t);
+window.DUR = DUR;
+window.EV = EV;
+
+function setupFrame(t) {
+  updateLayout(t);
+  CAM = evalCamera(t);
+  HDR = Math.round(26 * clamp(Math.sqrt(CAM.z), 0.95, 1.35));
+  SHEET_Y = TITLE_H + TOOL_H + FBAR_H + HDR;
+  VW = W - ROWH_W; VH = SHEET_B - SHEET_Y;
+  VCX = ROWH_W + VW / 2; VCY = SHEET_Y + (VH - 48) / 2;
+  CAM.x = Math.max(CAM.x, (VCX - ROWH_W) / CAM.z);
+  CAM.y = Math.max(CAM.y, (VCY - SHEET_Y) / CAM.z);
+}
+
+const noSub = new URLSearchParams(location.search).get('nosub') === '1';
+window.render = function (t) {
+  t = clamp(t, 0, DUR);
+  setupFrame(t);
+  rect(0, 0, W, H, INK);
+  drawSheet(t);
+  drawHeadersAndChrome(t);
+  if (!noSub) drawCommentSub(t);
+};
+
+window.TEXTS = function (t) {
+  setupFrame(t);
+  const out = [], put = (id, txt, k) => {
+    const [x, y, w, h] = mrect(k);
+    out.push({ id, text: txt, x0: x, y0: y, x1: x + w, y1: y + h });
+  };
+  if (t >= 0.8 && t < 4.7) put('q1', 'Team mọi người đã áp dụng AI để giảm được 1/2 thời gian làm báo cáo với biên bản họp chưa?', 'Q1');
+  if (t >= 4.9 && t < 8.4) put('q2', 'Hay vẫn đang dùng AI chỉ để dịch thuật với viết caption?', 'Q2');
+  if (t >= 8.7 && t < 16.4) put('lp', 'Prompt ngắn → Kết quả sáo rỗng → Sửa tay liên tục → Mất thời gian', 'LP_HDR');
+  if (t >= 17.0 && t < 24.8) put('sys', 'Hệ thống làm việc mạch lạc', 'SYS_HDR');
+  if (t >= 26.2 && t < 38.4) put('pct', 'Quy trình mới: PCTPR', 'PCT_HDR');
+  if (t >= 39.1 && t < 48.4) put('wl', '40% Tải giấy tờ', 'WL_STAT');
+  if (t >= 48.7 && t < 53.8) put('cln', 'Không gian làm việc gọn gàng', 'CLN_HDR');
+  if (t >= 54.2 && t <= 60.0) put('v1', 'Thời gian xử lý giấy tờ giảm thực tế 50-60%.', 'STAGE_TOP');
+  return out;
+};
+
+const SAMPLE_VI = 'Team mọi người đã áp dụng AI để giảm được 1/2 thời gian làm báo cáo với biên bản họp chưa? PCTPR 50-60%';
+Promise.all([
+  document.fonts.load('500 24px Inter', SAMPLE_VI),
+  document.fonts.load('600 24px Inter', SAMPLE_VI),
+  document.fonts.load('800 32px Inter', SAMPLE_VI),
+  document.fonts.load('700 20px JBMono', SAMPLE_VI),
+  fetch('/master_vo_v2/vo_timeline.json').then(r => r.ok ? r.json() : []).catch(() => []),
+]).then(async ([,,,, vo]) => {
+  await document.fonts.ready;
+  VO = (vo || []).map((c, idx, arr) => {
+    const nextT0 = idx + 1 < arr.length ? arr[idx + 1].t0 - 0.12 : 59.92;
+    const c0 = Math.max(0.05, c.t0 - 0.08);
+    const c1 = Math.min(nextT0, Math.max(c.t1 + 0.55, c0 + 1.85));
+    return { ...c, c0, c1 };
+  });
+  window.render(0);
+  window.READY = true;
+});
+</script>
+</body>
+</html>
