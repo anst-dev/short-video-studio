@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lemo-Opuscar &amp; Dashi Video Studio — 107 Phong Cách, Xem Demo, Tạo Prompt &amp; Skill</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><div class="brand-caret"></div></div>
+      <div>
+        <h1>Video Style Studio <span>107 PHONG CÁCH · LEMO-OPUSCAR + DASHI</span></h1>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="tab-studio">1. Chọn Phong Cách &amp; Xem Demo (107)</button>
+      <button class="tab-btn" data-tab="tab-skill">2. Tạo Skill Riêng (.agents/skills)</button>
+      <button class="tab-btn" data-tab="tab-videos">3. Phòng Chiếu Video Đã Xuất</button>
+    </nav>
+  </header>
+
+  <!-- VIEW 1: 107 STYLES + DEMO VIDEOS + AGENT CLI PROMPT BUILDER -->
+  <main id="tab-studio" class="view active">
+    <div class="studio-grid">
+      <section>
+        <div class="toolbar">
+          <div class="source-row">
+            <span class="source-label">Kho thư viện:</span>
+            <button class="src-pill active" data-src="ALL" type="button">Tất cả (107)</button>
+            <button class="src-pill" data-src="lemo" type="button">Lemo-Opuscar (99)</button>
+            <button class="src-pill src-dashi" data-src="dashi" type="button">🔥 Dashi Thuyết Minh Hoạt Họa (8)</button>
+          </div>
+          <div class="search-row">
+            <input id="searchInput" class="search-input" type="text" placeholder="Tìm trong 107 phong cách (VD: dashi, flowchart, tay vẽ, keynote, spreadsheet, swiss, blueprint...)" />
+            <button id="btnPreset5" class="chip-action" type="button">⚡ Chọn 5 phong cách hợp Công sở &amp; AI</button>
+            <button id="btnPureCode" class="chip-action secondary" type="button">✓ Chỉ hiện Pure Code</button>
+            <button id="btnHoverToggle" class="chip-action" type="button" title="Bật/tắt tự phát nháp không tiếng khi rê chuột lên ảnh bìa">🎬 Rê chuột xem trước: BẬT</button>
+            <button id="btnClearSel" class="chip-action secondary" type="button">Bỏ chọn</button>
+          </div>
+          <div id="catPills" class="cat-pills"></div>
+        </div>
+        <div id="cardsGrid" class="cards-grid"></div>
+      </section>
+
+      <aside class="builder-panel">
+        <div class="panel-head">
+          <h2>Bộ Tạo Prompt Dán Vào Agent CLI</h2>
+          <span id="selCountBadge" class="badge-count">Đã chọn: 1</span>
+        </div>
+        <div id="selectedPills" class="selected-list"></div>
+
+        <div class="field">
+          <label><span>Mẫu kịch bản có sẵn</span></label>
+          <select id="presetStory">
+            <option value="office_ai">Câu chuyện Team Văn Phòng giảm 50–60% thời gian nhờ AI (PCTPR)</option>
+            <option value="saas_launch">Video ra mắt sản phẩm phần mềm / công cụ AI mới</option>
+            <option value="data_report">Video giải thích báo cáo số liệu &amp; quy trình vận hành</option>
+            <option value="custom">Tự nhập kịch bản riêng của bạn...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label><span>Nội dung / Kịch bản chi tiết</span></label>
+          <textarea id="storyInput"></textarea>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label><span>Thời lượng</span></label>
+            <select id="durSelect">
+              <option value="30">30 giây (Ngắn gọn)</option>
+              <option value="45">45 giây (Vừa vặn)</option>
+              <option value="60" selected>60 giây (Chuẩn 1 phút)</option>
+              <option value="90">90 giây (Chuyên sâu)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><span>Tỷ lệ khung hình</span></label>
+            <select id="aspectSelect">
+              <option value="16:9" selected>16:9 Ngang (1920×1080)</option>
+              <option value="9:16">9:16 Dọc TikTok/Reels (1080×1920)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label><span>Giọng đọc TTS</span></label>
+            <select id="voiceSelect">
+              <option value="omnivoice" selected>OmniVoice Tiếng Việt (Local Neural)</option>
+              <option value="neutts">NeuTTS (Tiếng Anh / Đức)</option>
+              <option value="kokoro">Kokoro ONNX (Tiếng Anh)</option>
+              <option value="none">Không lời thoại (Chỉ nhạc &amp; Foley)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><span>Môi trường Agent CLI</span></label>
+            <select id="cliTarget">
+              <option value="agy" selected>Antigravity CLI / IDE (Skill + Workflow)</option>
+              <option value="universal">Claude Code / Codex / Gemini CLI</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label><span>Prompt hoàn chỉnh (Chỉ cần Copy &amp; Dán vào Agent CLI)</span></label>
+          <pre id="promptPreview" class="prompt-box"></pre>
+        </div>
+
+        <button id="btnCopyPrompt" class="btn-primary" type="button">📋 Sao Chép Prompt Để Dán Vào Agent CLI</button>
+        <button id="btnJumpSkill" class="btn-secondary" type="button">🛠️ Tạo Skill Riêng Từ Phong Cách Đang Chọn</button>
+      </aside>
+    </div>
+  </main>
+
+  <!-- VIEW 2: CUSTOM SKILL GENERATOR + LIVE DEMO PREVIEW -->
+  <main id="tab-skill" class="view">
+    <div class="skill-layout">
+      <div class="card-panel">
+        <h2>Tạo Skill Riêng Cho Phong Cách (`SKILL.md`)</h2>
+        <p style="color:var(--dim);font-size:13.5px">
+          Đóng gói bất kỳ phong cách nào trong 107 phong cách (Lemo-Opuscar + Dashi) thành một Skill độc lập lưu thẳng vào
+          <code>.agents/skills/</code>. Xem ngay video demo của phong cách ở khung dưới trước khi xuất!
+        </p>
+
+        <div class="field">
+          <label><span>Chọn phong cách gốc (107 mẫu)</span></label>
+          <select id="skillStyleSelect"></select>
+        </div>
+
+        <div class="skill-demo-box">
+          <video id="skillDemoVideo" controls preload="metadata" playsinline crossorigin="anonymous"></video>
+          <div class="skill-demo-caption">
+            <span id="skillDemoTitle">Video Demo phong cách gốc</span>
+            <a id="skillDemo1080" href="#" target="_blank" rel="noopener">Mở file gốc ↗</a>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label><span>Tên Skill (tự động chuẩn hóa)</span></label>
+            <input id="skillNameInput" type="text" placeholder="lemo-style-dark-keynote" />
+          </div>
+          <div class="field">
+            <label><span>Màu nhấn thương hiệu (Tuỳ chọn)</span></label>
+            <input id="skillAccentInput" type="text" placeholder="#B7F34A hoặc để trống" />
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label><span>Khung hình mặc định</span></label>
+            <select id="skillAspectSelect">
+              <option value="16:9" selected>16:9 Ngang (1920×1080)</option>
+              <option value="9:16">9:16 Dọc (1080×1920)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label><span>Giọng đọc mặc định</span></label>
+            <select id="skillVoiceSelect">
+              <option value="omnivoice" selected>OmniVoice Tiếng Việt</option>
+              <option value="neutts">NeuTTS</option>
+              <option value="kokoro">Kokoro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label><span>Quy tắc riêng của bạn (Logo, Tone giọng, CTA mặc định...)</span></label>
+          <textarea id="skillRulesInput" placeholder="VD: Luôn kết thúc bằng câu kêu gọi hành động rõ ràng, ưu tiên nhịp cắt dứt khoát trên nền 120 BPM..."></textarea>
+        </div>
+
+        <button id="btnSaveSkillDisk" class="btn-primary" type="button">⚡ Lưu Trực Tiếp Vào .agents/skills/ &amp; Tạo Lệnh CLI</button>
+        <button id="btnDownloadSkill" class="btn-secondary" type="button">⬇️ Tải File SKILL.md Về Máy</button>
+
+        <div class="field" style="margin-top:6px">
+          <label><span>Các Skill đang có sẵn trong Workspace (.agents/skills/)</span></label>
+          <div id="installedSkillsList" class="selected-list"></div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="panel-head">
+          <h2>Nội Dung SKILL.md &amp; Câu Lệnh Gọi Nhanh</h2>
+          <button id="btnCopySkillCmd" class="btn-mini" type="button">📋 Copy Lệnh Gọi Skill</button>
+        </div>
+        <pre id="skillCliSnippet" class="prompt-box" style="max-height:110px"></pre>
+        <pre id="skillMdPreview" class="prompt-box" style="max-height:620px"></pre>
+      </div>
+    </div>
+  </main>
+
+  <!-- VIEW 3: RENDERED VIDEOS PLAYER -->
+  <main id="tab-videos" class="view">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div>
+        <h2 style="font-size:20px;font-weight:800">Phòng Chiếu Các Bản Video Đã Xuất (`OUTPUT_VIDEOS/`)</h2>
+        <p style="color:var(--dim);font-size:13.5px">Xem trực tiếp và kiểm tra chất lượng hình ảnh, phụ đề, giọng đọc OmniVoice &amp; âm lượng −14 LUFS.</p>
+      </div>
+      <button id="btnRefreshVideos" class="chip-action" type="button">↻ Làm mới danh sách</button>
+    </div>
+    <div id="videosGrid" class="videos-grid"></div>
+  </main>
+
+  <!-- CINEMA DEMO VIDEO + STYLE.MD / 风格卡.MD MODAL -->
+  <div id="styleModal" class="modal-backdrop">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 id="modalTitle">Xem Demo Phong Cách</h3>
+          <span id="modalSub" class="modal-sub"></span>
+        </div>
+        <div class="modal-nav-actions">
+          <button id="btnPrevStyle" class="btn-mini" type="button" title="Phím mũi tên trái (←)">← Trước</button>
+          <button id="btnNextStyle" class="btn-mini" type="button" title="Phím mũi tên phải (→)">Tiếp →</button>
+          <button id="btnModalSelect" class="btn-mini btn-accent-outline" type="button">✓ Chọn phong cách này</button>
+          <button id="btnCloseModal" class="btn-mini" type="button">Đóng ✕</button>
+        </div>
+      </div>
+
+      <div class="modal-subtabs">
+        <button id="mTabDemo" class="mtab-btn active" type="button">🎬 Phim Demo Có Âm Thanh</button>
+        <button id="mTabSpec" class="mtab-btn" type="button">📜 Đặc Tả Kỹ Thuật (STYLE.md / 风格卡.md)</button>
+      </div>
+
+      <div id="modalDemoPane" class="modal-demo-pane">
+        <div class="demo-video-stage">
+          <video id="demoModalVideo" controls playsinline crossorigin="anonymous"></video>
+        </div>
+        <div class="demo-info-bar">
+          <div class="demo-info-text">
+            <div id="demoFilmHeading" class="demo-film-heading"></div>
+            <div id="demoFilmLine" class="demo-film-line"></div>
+          </div>
+          <div class="demo-info-btns">
+            <button id="btnCacheDemo" class="btn-mini" type="button">⬇️ Lưu Offline vào máy</button>
+            <a id="linkDemo1080" class="btn-mini" href="#" target="_blank" rel="noopener" style="text-decoration:none">↗ Bản Gốc</a>
+            <button id="btnModalJumpSkill" class="btn-mini" type="button">🛠️ Tạo Skill riêng</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modalSpecPane" class="modal-body" style="display:none">Đang tải...</div>
+    </div>
+  </div>
+
+  <div id="toastMsg" class="toast-msg">Đã sao chép vào Clipboard!</div>
+  <script src="/app.js"></script>
+</body>
+</html>
