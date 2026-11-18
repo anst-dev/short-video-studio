@@ -27,6 +27,8 @@ projects/*/out/
 projects/*/fonts/
 projects/*/stills/
 projects/*/stills_qa/
+projects/*/autoresearch_qa/
+projects/**/*.wav
 
 logs/
 autoresearch/

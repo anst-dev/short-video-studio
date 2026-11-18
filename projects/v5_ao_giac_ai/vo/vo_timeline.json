@@ -1,0 +1,132 @@
+[
+  {
+    "id": "c00",
+    "t0": 0.7,
+    "t1": 8.103,
+    "dur": 7.403,
+    "sub": "CẢNH BÁO NGƯỜI MỚI: AI viết mượt như chuyên gia 10 năm kinh nghiệm, nhưng nội dung có thể bịa đặt 100%!",
+    "say": "Cảnh báo cho người mới dùng AI: Nó viết trôi chảy như chuyên gia mười năm kinh nghiệm, nhưng nội dung bên trong có thể bịa đặt một trăm phần trăm.",
+    "asr": "Cảnh báo cho người mới dùng AI, nó viết trôi trảy như chuyên gia 10 năm kinh nghiệm, nhưng nội dung bên trong có thể biệt đặt 100%",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c00.wav"
+  },
+  {
+    "id": "c01",
+    "t0": 10.0,
+    "t1": 16.556,
+    "dur": 6.556,
+    "sub": "Hiện tượng này gọi là “Ảo giác AI” (Hallucination): AI không tra cứu sự thật, mà ghép từng từ có xác suất hợp tai nhất.",
+    "say": "Hiện tượng này gọi là Ảo giác AI: Bản chất AI không tra cứu sự thật, mà chỉ ghép từng từ tiếp theo sao cho đọc lên nghe hợp lý nhất.",
+    "asr": "Huyện tượng này gọi là ảo dắc AI, bản chất AI không cho cứu sự thật mà chỉ gép từ từ tiếp theo sau cho đọc lên nghe hợp lý nhất.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c01.wav"
+  },
+  {
+    "id": "c02",
+    "t0": 19.6,
+    "t1": 26.009,
+    "dur": 6.409,
+    "sub": "Khi thiếu dữ liệu, thay vì nhận “Tôi không biết”, AI tự chế số hiệu thông tư, điều khoản và con số cực kỳ thuyết phục.",
+    "say": "Khi gặp khoảng trống dữ liệu, thay vì thú nhận không biết, AI tự chế ra số hiệu thông tư, điều khoản và con số nghe cực kỳ thuyết phục.",
+    "asr": "khi gặp khoảng trống dưới liệu, thay vì thú nhận không biết ai từ chế ra số hiệu thông tư, điều khoản và con số nghe cực kỳ thuyết phục.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c02.wav"
+  },
+  {
+    "id": "c03",
+    "t0": 29.2,
+    "t1": 35.491,
+    "dur": 6.291,
+    "sub": "Tình tiết 01 — Bẫy Pháp lý: Nhiều luật sư, kế toán đã bị phạt nặng vì trích dẫn văn bản thuế và án lệ do AI tự bịa!",
+    "say": "Tình tiết thứ nhất là bẫy văn bản pháp lý: Đã có luật sư và kế toán bị phạt nặng vì trích dẫn thông tư và án lệ do AI tự tưởng tượng.",
+    "asr": "Tình tiết thứ nhất là bấy văn bản pháp lý, đã có lột sư và kế toán bị phạt nặng vị trích dẫn thông tư và ăn lệ do AI tự tưởng tượng.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c03.wav"
+  },
+  {
+    "id": "c04",
+    "t0": 39.0,
+    "t1": 45.32,
+    "dur": 6.32,
+    "sub": "Tình tiết 02 — Bẫy Số liệu: AI sẵn sàng cộng sai tổng tiền hoặc tự điền tỷ lệ tăng trưởng ảo cho câu văn suôn sẻ.",
+    "say": "Tình tiết thứ hai là bẫy số liệu báo cáo: AI có thể cộng sai tổng tiền hoặc tự điền tỷ lệ tăng trưởng ảo để đoạn văn nghe xuôi tai.",
+    "asr": "Tình tiết thứ 2 là bấy số liệu báo cáo. AI có thể scộng sai tổng tiền hoặc tự điện tỷ lệ tăng trường ảo để đoạn văn nghe suy tay.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c04.wav"
+  },
+  {
+    "id": "c05",
+    "t0": 48.6,
+    "t1": 55.451,
+    "dur": 6.851,
+    "sub": "Vì sao nhiều người bỏ qua khâu kiểm tra? Vì văn phong quá chỉn chu đánh lừa não bộ rằng “viết hay tức là viết đúng”.",
+    "say": "Vì sao rất nhiều người bỏ qua bước kiểm tra? Bởi văn phong quá chỉn chu đã đánh lừa não bộ rằng trình bày đẹp đồng nghĩa với số liệu đúng.",
+    "asr": "vì sao rất nhiều người bỏ qua bước kiểm tra. Bởi văn phong quá trịn chú đã đánh lửa náo bộ rằng trình bày đẹp đồng nghĩa với số liệu đúng.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c05.wav"
+  },
+  {
+    "id": "c06",
+    "t0": 59.4,
+    "t1": 66.156,
+    "dur": 6.756,
+    "sub": "SỰ THẬT SỐNG CÒN: AI không có tư cách pháp nhân, không nộp phạt thay, và AI không thể ngồi tù thay cho bạn!",
+    "say": "Hãy khắc cốt ghi tâm sự thật sống còn này: AI không có tư cách pháp nhân, không nộp phạt thay, và AI không thể ngồi tù thay cho bạn.",
+    "asr": "Hãy khắc cố ghi tâm sự thật sống còn này. AI không có từ cách pháp nhân, không lột phạt thay, và AI không thể ngồi tù thay cho bạn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c06.wav"
+  },
+  {
+    "id": "c07",
+    "t0": 69.4,
+    "t1": 76.965,
+    "dur": 7.565,
+    "sub": "Khi thanh tra thuế xuất toán hay hợp đồng xảy ra tranh chấp, người duy nhất chịu trách nhiệm trước pháp luật là chữ ký của bạn.",
+    "say": "Khi thanh tra thuế xuất toán hay hợp đồng phát sinh thiệt hại, người duy nhất chịu trách nhiệm trước pháp luật chính là chủ nhân chữ ký dưới tờ trình.",
+    "asr": "khi thành trà thuế xuất toán hay hợp đồng phát sinh kiệt hại, người duy nhất triệu trách nhiệm trước pháp luật chính là chủ nhân trước kí dưới tờ trình.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c07.wav"
+  },
+  {
+    "id": "c08",
+    "t0": 79.4,
+    "t1": 85.07,
+    "dur": 5.67,
+    "sub": "Vậy khóa chặt Ảo giác AI bằng cách nào? Hãy áp dụng ngay quy trình kiểm chứng 4 bước bắt buộc trước khi ký duyệt!",
+    "say": "Vậy làm sao khóa chặt ảo giác AI ngay từ gốc? Hãy áp dụng quy trình kiểm chứng bốn bước bắt buộc trước khi đặt bút ký.",
+    "asr": "Vậy làm sao khóa chặt ảo dạc AI ngày từ gốc? Hãy áp dụng quý trình kiểm chứng 4 bước bắt buộc trước khi đặt bút ký.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c08.wav"
+  },
+  {
+    "id": "c09",
+    "t0": 88.8,
+    "t1": 95.315,
+    "dur": 6.515,
+    "sub": "Bước 1 — Neo tài liệu gốc (RAG): Luôn đính kèm file văn bản chuẩn hoặc bảng số thật, tuyệt đối không bắt AI tự nhớ thông tư.",
+    "say": "Bước một là neo tài liệu gốc: Luôn đính kèm tệp văn bản chuẩn hoặc bảng số thật, tuyệt đối không bắt AI tự nhớ điều luật trong đầu.",
+    "asr": "Bước 1 là nèo tài liệu góc, luôn đính kèm tẹp văn bản chuẩn hoặc bản số thật, tuyệt đối không bắt AI tự nhớ điều luật trong đầu.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c09.wav"
+  },
+  {
+    "id": "c10",
+    "t0": 98.4,
+    "t1": 105.206,
+    "dur": 6.806,
+    "sub": "Bước 2 — Mở lối thoát trung thực ở mục [R — RULES]: Bắt buộc AI ghi rõ “CHƯA ĐỦ CĂN CỨ” nếu tài liệu không đề cập.",
+    "say": "Bước hai là mở lối thoát trung thực trong phần Quy tắc: Dặn rõ nếu tài liệu không nêu, AI bắt buộc ghi chưa đủ căn cứ, cấm tự suy diễn.",
+    "asr": "Bước 2 là mở lối thoát chung thực trong phần quý tác, dạng gió nếu tài liệu không nều, AI bắt buộc ghi chưa đủ can cứ, cấm tự suy diễn.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c10.wav"
+  },
+  {
+    "id": "c11",
+    "t0": 108.0,
+    "t1": 114.468,
+    "dur": 6.468,
+    "sub": "Bước 3 & 4 — Đòi trích dẫn số trang, điều khoản gốc và tính lại 100% con số trọng yếu trên bảng tính thật.",
+    "say": "Bước ba và bốn là bắt trích dẫn nguyên văn số trang, điều khoản, đồng thời tính lại toàn bộ con số trọng yếu trên bảng tính thật.",
+    "asr": "Bước 3 và 4 là bắt trích dẫn nguyên văn số trang, điều khoản. Đồng thời tính lại toàn bộ con số trọng yếu trên bản tính thật.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c11.wav"
+  },
+  {
+    "id": "c12",
+    "t0": 118.8,
+    "t1": 125.467,
+    "dur": 6.667,
+    "sub": "NGUYÊN TẮC VÀNG: Giao AI làm nháp tốc độ cao — Giữ trọn con dấu kiểm tra và trách nhiệm chữ ký trong tay bạn!",
+    "say": "Nguyên tắc vàng khi dùng AI là giao nó viết nháp tốc độ cao, còn con dấu kiểm chứng và trách nhiệm chữ ký mãi mãi nằm trong tay bạn.",
+    "asr": "Nguyên tắc vạng khi dùng AI là dao nó viết nháp tốc độ cao, còn con dấu kiểm chứng và trách nhiệm trước khi máy máy nằm trong tây bản.",
+    "wav": "C:\\Users\\quhuy\\Documents\\CANHAN\\video\\short video\\lemo-opuscar\\films\\v5_ao_giac_ai\\vo\\c12.wav"
+  }
+]
